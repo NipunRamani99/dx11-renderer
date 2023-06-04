@@ -11,10 +11,11 @@ int CALLBACK WinMain(
 	//Class Name
 	const auto pClassName = "DX11_Renderer";
 	const auto pWindowName = "My DX11 Renderer";
-	Window wnd(640, 480, pWindowName);
-	MSG msg;
-	BOOL gResult;
+	
 	try {
+		Window wnd(640, 480, pWindowName);
+		MSG msg;
+		BOOL gResult;
 		while ((gResult = GetMessage(&msg, nullptr, 0, 0)) > 0) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);

@@ -1,10 +1,13 @@
 #include "Window.hpp"
 #include <sstream>
+#include "resource.h"
 Window::WindowClass Window::WindowClass::wndClass;
 Window::WindowClass::WindowClass() noexcept
 	:
 	hInst(GetModuleHandle(nullptr))
 {
+
+	HANDLE hIcon = LoadImage(hInst, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 16, 16, 0);
 	WNDCLASSEX wc = { 0 };
 	wc.cbSize = sizeof(wc);
 	wc.style = CS_OWNDC;
@@ -12,7 +15,7 @@ Window::WindowClass::WindowClass() noexcept
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = GetInstance();
-	wc.hIcon = nullptr;
+	wc.hIcon = static_cast<HICON>(hIcon);
 	wc.hCursor = nullptr;
 	wc.hbrBackground = nullptr;
 	wc.lpszMenuName = nullptr;

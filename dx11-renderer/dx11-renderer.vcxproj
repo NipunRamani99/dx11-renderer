@@ -144,8 +144,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exception.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Window.hpp" />
     <ClInclude Include="WindowMessageMap.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dx11-renderer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="chili.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
