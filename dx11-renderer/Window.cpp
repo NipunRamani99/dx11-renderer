@@ -39,6 +39,9 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 	return wndClass.hInst;
 }
 Window::Window(int width, int height, const char* name)
+	:
+	width(width),
+	height(height)
 {
 	//Required Style
 	DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
@@ -66,6 +69,34 @@ Window::~Window()
 	DestroyWindow(hwnd);
 }
 
+std::optional<int> Window::ProcessMessage()
+{
+	MSG msg;
+	// while queue has messages, remove and dispatch them (but do not block on empty queue)
+	while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE)) {
+		// check for quit because peekmessage does not signal this via return val
+		if (msg.message == WM_QUIT)
+		{
+			// return optional wrapping int (arg to PostQuitMessage is in wparam) signals quit
+			return (int)msg.wParam;
+		}
+
+		// TranslateMessage will post auxilliary WM_CHAR messages from key msgs
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	// return an empty optional when not quitting app
+	return {};
+}
+
+void Window::SetTitle(const std::string& title)
+{
+	if (SetWindowText(hwnd, title.c_str()) == 0)
+	{
+		throw HWND_LAST_EXCEPT();
+	}
+}
+
 LRESULT __stdcall Window::HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept
 {
 	if (msg == WM_NCCREATE) {
@@ -91,9 +122,91 @@ LRESULT __stdcall Window::HandleMsgProxy(HWND hwnd, UINT msg, WPARAM wparam, LPA
 LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept
 {
 	switch (msg) {
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
+		case WM_CLOSE:
+			PostQuitMessage(0);
+			break;
+		case WM_KILLFOCUS:
+			kbd.ClearState();
+			break;
+	/*************** KEYBOARD INPUT MESSAGES ***************/
+		case WM_KEYDOWN:
+		// syskey commands need to be handled to track ALT key (VK_MENU) and F10
+		case WM_SYSKEYDOWN:
+			if (!(lparam & 0x40000000) || kbd.AutorepeatIsEnabled()) {
+				kbd.OnKeyPressed(static_cast<unsigned char>(wparam));
+			}
+			break;
+		case WM_KEYUP:
+		case WM_SYSKEYUP:
+			kbd.OnKeyReleased(static_cast<unsigned char>(wparam));
+			break;
+		case WM_CHAR:
+			kbd.OnChar(static_cast<unsigned char>(wparam));
+			break;
+	/*************** END KEYBOARD INPUT MESSAGES ***************/
+
+	/*************** MOUSE INPUT MESSAGES ***************/
+		case WM_MOUSEMOVE:
+		{
+			const POINTS pt = MAKEPOINTS(lparam);
+			if (pt.x >= 0 && pt.y >= 0 && pt.x < width && pt.y < width) {
+
+			}
+			else {
+				if (wparam & (MK_LBUTTON | MK_RBUTTON)) {
+					mouse.OnMouseMove(pt.x, pt.y);
+				}
+				else {
+					ReleaseCapture();
+					mouse.OnMouseLeave();
+				}
+			}
+			break;
+		}
+		case WM_LBUTTONDOWN: 
+		{
+			const POINTS pt = MAKEPOINTS(lparam);
+			mouse.OnLeftPressed(pt.x, pt.y);
+			break;
+		}
+		case WM_LBUTTONUP: 
+		{
+			const POINTS pt = MAKEPOINTS(lparam);
+			mouse.OnLeftReleased(pt.x, pt.y);
+			// release mouse if outside of window
+			if (pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height)
+			{
+				ReleaseCapture();
+				mouse.OnMouseLeave();
+			}
+			break;
+		}
+		case WM_RBUTTONDOWN:
+		{	
+			const POINTS pt = MAKEPOINTS(lparam);
+			mouse.OnRightPressed(pt.x, pt.y);
+			break;
+		}
+		case WM_RBUTTONUP:
+		{
+			const POINTS pt = MAKEPOINTS(lparam);
+			mouse.OnRightReleased(pt.x, pt.y);
+			// release mouse if outside of window
+			if (pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height)
+			{
+				ReleaseCapture();
+				mouse.OnMouseLeave();
+			}
+			break;
+		}case WM_MOUSEWHEEL:
+		{
+			const POINTS pt = MAKEPOINTS(lparam);
+			const int delta = GET_WHEEL_DELTA_WPARAM(wparam);
+			mouse.OnWheelDelta(pt.x, pt.y, delta);
+			break;
+		}
+
+	/*************** END MOUSE INPUT MESSAGES ***************/
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }

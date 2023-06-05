@@ -1,11 +1,17 @@
 #pragma once
 #include "MinWin.hpp"
 #include "Exception.hpp"
+#include "Keyboard.hpp"
+#include "Mouse.hpp"
+#include <optional>
 class Window {
 private:
 	int width = 0;
 	int height = 0;
 	HWND hwnd;
+public:
+	Keyboard kbd;
+	Mouse mouse;
 private:
 	//Singleton class to register/cleanup the win32 window class.
 	class WindowClass {
@@ -33,11 +39,14 @@ public:
 	private:
 		HRESULT hr;
 	};
+
 public:
 	Window(int width, int height, const char * name);
 	~Window();
 	Window(const Window&) = delete;
 	Window& operator=(const Window& ) = delete;
+	std::optional<int> ProcessMessage();
+	void SetTitle(const std::string& str);
 private:
 	static LRESULT WINAPI HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;
 	static LRESULT WINAPI HandleMsgProxy(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;

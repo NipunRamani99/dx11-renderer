@@ -136,15 +136,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="MinWin.hpp" />
+    <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowMessageMap.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App.hpp" />
     <ClInclude Include="Exception.hpp" />
+    <ClInclude Include="Keyboard.hpp" />
+    <ClInclude Include="Mouse.hpp" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Timer.hpp" />
     <ClInclude Include="Window.hpp" />
     <ClInclude Include="WindowMessageMap.hpp" />
   </ItemGroup>
