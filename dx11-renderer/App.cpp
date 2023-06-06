@@ -19,8 +19,7 @@ int App::Go()
 
 void App::DoFrame()
 {
-	float time = timer.Peek().count();
-	std::ostringstream oss;
-	oss << "Time Elapsed: " << std::setprecision(2) << time;
-	wnd.SetTitle(oss.str());
+	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
+	wnd.Gfx().ClearBuffer(c, c, 1.0f);
+	wnd.Gfx().EndFrame();
 }

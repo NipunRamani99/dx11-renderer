@@ -61,7 +61,8 @@ Window::Window(int width, int height, const char* name)
 		throw HWND_LAST_EXCEPT();
 	}
 	ShowWindow(hwnd, SW_SHOWDEFAULT);
-
+	// create graphics object
+	pGfx = std::make_unique<Graphics>(hwnd);
 }
 
 Window::~Window()
@@ -95,6 +96,11 @@ void Window::SetTitle(const std::string& title)
 	{
 		throw HWND_LAST_EXCEPT();
 	}
+}
+
+Graphics& Window::Gfx()
+{
+	return *pGfx;
 }
 
 LRESULT __stdcall Window::HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept

@@ -4,11 +4,16 @@
 #include "Keyboard.hpp"
 #include "Mouse.hpp"
 #include <optional>
+#include <memory>
+#include "Graphics.hpp"
+
+
 class Window {
 private:
 	int width = 0;
 	int height = 0;
 	HWND hwnd;
+	std::unique_ptr<Graphics> pGfx;
 public:
 	Keyboard kbd;
 	Mouse mouse;
@@ -47,6 +52,7 @@ public:
 	Window& operator=(const Window& ) = delete;
 	std::optional<int> ProcessMessage();
 	void SetTitle(const std::string& str);
+	Graphics& Gfx();
 private:
 	static LRESULT WINAPI HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;
 	static LRESULT WINAPI HandleMsgProxy(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;
