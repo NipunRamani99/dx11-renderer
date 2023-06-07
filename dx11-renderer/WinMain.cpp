@@ -16,7 +16,7 @@ int CALLBACK WinMain(
 		MessageBox(nullptr, e.what(), e.GetType(), MB_OK | MB_ICONEXCLAMATION);
 	} catch (std::exception& e) {
 		MessageBox(nullptr, e.what(), "Standard Exception", MB_OK | MB_ICONEXCLAMATION);
-	}
+	} 
 	catch (...) {
 		MessageBox(nullptr, "No Exception Detail", "Unknown Exception Thrown", MB_OK | MB_ICONEXCLAMATION);
 	}

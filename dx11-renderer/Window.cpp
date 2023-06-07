@@ -1,6 +1,7 @@
 #include "Window.hpp"
 #include <sstream>
 #include "resource.h"
+#include "WindowsThrowMacros.h"
 Window::WindowClass Window::WindowClass::wndClass;
 Window::WindowClass::WindowClass() noexcept
 	:
@@ -70,11 +71,11 @@ Window::~Window()
 	DestroyWindow(hwnd);
 }
 
-std::optional<int> Window::ProcessMessage()
+std::optional<int> Window::ProcessMessage() noexcept
 {
 	MSG msg;
 	// while queue has messages, remove and dispatch them (but do not block on empty queue)
-	while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE)) {
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 		// check for quit because peekmessage does not signal this via return val
 		if (msg.message == WM_QUIT)
 		{
@@ -100,6 +101,9 @@ void Window::SetTitle(const std::string& title)
 
 Graphics& Window::Gfx()
 {
+	if (!pGfx) {
+		throw HWND_NO_GFX_EXCEPT();
+	}
 	return *pGfx;
 }
 
@@ -217,30 +221,30 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noe
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-Window::WindowException::WindowException(int line, const char* file, HRESULT hr) noexcept
+Window::HrException::HrException(int line, const char* file, HRESULT hr) noexcept
 	:
 	Exception(line, file),
 	hr(hr)
 {
 }
 
-const char* Window::WindowException::what() const noexcept
+const char* Window::HrException::what() const noexcept
 {
 	std::ostringstream oss;
 	oss << GetType() << std::endl
 		<< "[Error Code] " << GetErrorCode() << std::endl
-		<< "[Description] " << GetErrorString() << std::endl
+		<< "[Description] " << GetErrorDescription() << std::endl
 		<< GetOriginString();
 	whatBuffer = oss.str();
 	return whatBuffer.c_str();
 }
 
-const char* Window::WindowException::GetType() const noexcept
+const char* Window::HrException::GetType() const noexcept
 {
 	return "Window Exception";
 }
 
-std::string Window::WindowException::TranslateErrorCode(HRESULT hr)
+std::string Window::HrException::TranslateErrorCode(HRESULT hr)
 {
 	char* errorMsg = nullptr;
 	DWORD msgLen = FormatMessage(
@@ -257,14 +261,17 @@ std::string Window::WindowException::TranslateErrorCode(HRESULT hr)
 	return strErrorMsg;
 }
 
-HRESULT Window::WindowException::GetErrorCode() const noexcept
+HRESULT Window::HrException::GetErrorCode() const noexcept
 {
 	return hr;
 }
 
-std::string Window::WindowException::GetErrorString() const noexcept
+std::string Window::HrException::GetErrorDescription() const noexcept
 {
 	return TranslateErrorCode(hr);
 }
 
-
+const char* Window::NoGfxException::GetType() const noexcept
+{
+	return "No Graphics Exception";
+}
