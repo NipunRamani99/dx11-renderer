@@ -19,8 +19,17 @@ int App::Go()
 
 void App::DoFrame()
 {
+	static float angle = 0.0f;
 	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
 	wnd.Gfx().ClearBuffer(c, c, 1.0f);
-	wnd.Gfx().DrawTestTriangle();
+	float mouseX = wnd.mouse.GetPosX();
+	float mouseY = wnd.mouse.GetPosY();
+	OutputDebugString(std::to_string(mouseX).c_str());
+	OutputDebugString("\n");
+	OutputDebugString(std::to_string(mouseY).c_str());
+	wnd.Gfx().DrawTestTriangle(angle,
+		mouseX,
+		mouseY);
 	wnd.Gfx().EndFrame();
+	angle += 0.001f;
 }

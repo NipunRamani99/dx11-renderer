@@ -160,7 +160,12 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noe
 		{
 			const POINTS pt = MAKEPOINTS(lparam);
 			if (pt.x >= 0 && pt.y >= 0 && pt.x < width && pt.y < width) {
-
+				mouse.OnMouseMove(pt.x, pt.y);
+				if (!mouse.IsInWindow())
+				{
+					SetCapture(hwnd);
+					mouse.OnMouseEnter();
+				}
 			}
 			else {
 				if (wparam & (MK_LBUTTON | MK_RBUTTON)) {
