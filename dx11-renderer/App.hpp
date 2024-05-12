@@ -5,6 +5,7 @@ class App {
 private:
 	Window wnd;
 	Timer timer;
+	bool keepRunning = true;
 public:
 	App();
 	int Go();

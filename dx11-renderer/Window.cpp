@@ -107,6 +107,11 @@ Graphics& Window::Gfx()
 	return *pGfx;
 }
 
+void Window::CenterCursorPosition()
+{
+	//SetCursorPos(width,height);
+}
+
 LRESULT __stdcall Window::HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept
 {
 	if (msg == WM_NCCREATE) {

@@ -57,6 +57,8 @@ public:
 	std::optional<int> ProcessMessage() noexcept;
 	void SetTitle(const std::string& str);
 	Graphics& Gfx();
+	void CenterCursorPosition();
+
 private:
 	static LRESULT WINAPI HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;
 	static LRESULT WINAPI HandleMsgProxy(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;
