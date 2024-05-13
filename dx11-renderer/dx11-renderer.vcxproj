@@ -103,7 +103,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);IS_DEBUG=true</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <Optimization>MaxSpeed</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -126,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);IS_DEBUG=false</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -145,29 +145,52 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Bindable.cpp" />
+    <ClCompile Include="Box.cpp" />
+    <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="DxgiInfoManager.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="IndexBuffer.cpp" />
+    <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="MinWin.hpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="PixelShader.cpp" />
+    <ClCompile Include="Topology.cpp" />
+    <ClCompile Include="TransformCbuf.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
+    <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowMessageMap.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
+    <ClInclude Include="Bindable.hpp" />
+    <ClInclude Include="BindableBase.hpp" />
+    <ClInclude Include="Box.hpp" />
+    <ClInclude Include="ConditionalNoexcept.h" />
+    <ClInclude Include="ConstantBuffers.hpp" />
+    <ClInclude Include="Drawable.hpp" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DxgiInfoManager.h" />
     <ClInclude Include="Exception.hpp" />
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="GraphicsThrowMacros.h" />
+    <ClInclude Include="IndexBuffer.hpp" />
+    <ClInclude Include="InputLayout.hpp" />
     <ClInclude Include="Keyboard.hpp" />
     <ClInclude Include="MinWrl.hpp" />
     <ClInclude Include="Mouse.hpp" />
+    <ClInclude Include="PixelShader.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Timer.hpp" />
+    <ClInclude Include="Topology.hpp" />
+    <ClInclude Include="TransformCbuf.hpp" />
+    <ClInclude Include="VertexBuffer.hpp" />
+    <ClInclude Include="VertexShader.hpp" />
     <ClInclude Include="Window.hpp" />
     <ClInclude Include="WindowMessageMap.hpp" />
     <ClInclude Include="WindowsThrowMacros.h" />

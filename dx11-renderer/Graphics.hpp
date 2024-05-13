@@ -4,7 +4,13 @@
 #include "Exception.hpp"
 #include "DxgiInfoManager.h"
 #include "MinWrl.hpp"
+#include <d3dcompiler.h>
+#include <DirectXMath.h>
+#include <memory>
+#include <random>
+
 class Graphics {
+	friend class Bindable;
 private:
 #ifndef NDEBUG
 	DxgiInfoManager infoManager;
@@ -14,6 +20,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSV;
+
+	DirectX::XMMATRIX projection;
 public:
 	class HrException : public Exception {
 	private:
@@ -54,6 +62,8 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	~Graphics() = default;
 	void EndFrame();
-	void DrawTestTriangle(float angle, float x, float y);
-	void ClearBuffer(float red, float green, float blue) noexcept;	
+	void ClearBuffer(float red, float green, float blue) noexcept;
+	void DrawIndexed(UINT count) noexcept(!IS_DEBUG);
+	void SetProjection( DirectX::FXMMATRIX proj ) noexcept;
+	DirectX::XMMATRIX GetProjection() const noexcept;
 };

@@ -16,6 +16,27 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{dd045d96-f810-4c85-8e26-447c99565e44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{ef69205a-f76d-44bf-aa17-fe143c15f5c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Bindable">
+      <UniqueIdentifier>{20f7515f-9070-4baf-ba95-4e9820d2a19b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Drawable">
+      <UniqueIdentifier>{c7a4b71d-0ad7-49d0-8094-59931e3780b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Macros">
+      <UniqueIdentifier>{39af5967-ca27-4bb1-8d5f-24ddd4b94cd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{a35b7f14-8a55-4fe6-9122-d40bdbad930a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Bindable">
+      <UniqueIdentifier>{a8345231-da2b-475c-9129-be3f6a8a2eb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Drawable">
+      <UniqueIdentifier>{0045e0dd-e27e-4eb5-9899-d14cf3380f97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -50,6 +71,36 @@
     </ClCompile>
     <ClCompile Include="DxgiInfoManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Bindable.cpp">
+      <Filter>Source Files\Graphics\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files\Graphics\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>Source Files\Graphics\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelShader.cpp">
+      <Filter>Source Files\Graphics\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>Source Files\Graphics\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayout.cpp">
+      <Filter>Source Files\Graphics\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Topology.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawable.cpp">
+      <Filter>Source Files\Graphics\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformCbuf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Box.cpp">
+      <Filter>Source Files\Graphics\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,14 +137,53 @@
     <ClInclude Include="DxgiInfoManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsThrowMacros.h">
+    <ClInclude Include="MinWrl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowsThrowMacros.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Graphics\Macros</Filter>
     </ClInclude>
-    <ClInclude Include="MinWrl.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="GraphicsThrowMacros.h">
+      <Filter>Header Files\Graphics\Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="ConditionalNoexcept.h">
+      <Filter>Header Files\Graphics\Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="Bindable.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="BindableBase.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffers.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformCbuf.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Topology.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawable.hpp">
+      <Filter>Header Files\Graphics\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.hpp">
+      <Filter>Header Files\Graphics\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
