@@ -2,6 +2,8 @@
 #include "Window.hpp"
 #include "Timer.hpp"
 #include <memory>
+
+
 class App {
 private:
 	Window wnd;
@@ -13,5 +15,6 @@ public:
 	~App() {}
 private:
 	void DoFrame();
-	std::unique_ptr<class Box> box;
+	std::vector<std::unique_ptr<class Drawable>> drawables;
+	static constexpr size_t nDrawables = 180;
 };

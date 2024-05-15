@@ -10,5 +10,5 @@ public:
 
 	void Bind(Graphics& gfx) noexcept override;
 
-	ID3DBlob* GetByteCode() const noexcept;
+	ID3DBlob* GetBytecode() const noexcept;
 };
