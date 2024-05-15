@@ -5,11 +5,12 @@
 #include "Cone.hpp"
 #include <algorithm>
 #include "ChiliMath.hpp"
+#include "GDIPlusManager.hpp"
+#include "Surface.hpp"
+#include "Sheet.hpp"
 
-App::App()
-	:
-	wnd(800, 600, "DX11 Renderer")
-{
+GDIPlusManager gdipm;
+void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable>>& drawables, size_t nDrawables) {
 	class DrawableFactory {
 	private:
 		Graphics& gfx;
@@ -21,9 +22,9 @@ App::App()
 		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
 		std::uniform_int_distribution<int> latdist{ 5,20 };
 		std::uniform_int_distribution<int> longdist{ 10,40 };
-		std::uniform_int_distribution<int> typedist{ 0,2 };
+		std::uniform_int_distribution<int> typedist{ 0, 3 };
 	public:
-		DrawableFactory(Graphics& gfx) 
+		DrawableFactory(Graphics& gfx)
 			:
 			gfx(gfx)
 		{
@@ -40,7 +41,7 @@ App::App()
 			case 1:
 				return std::make_unique<Box>(
 					gfx, rng, adist, ddist,
-					odist, rdist,bdist
+					odist, rdist, bdist
 				);
 				break;
 			case 2:
@@ -49,6 +50,11 @@ App::App()
 					odist, rdist, longdist, latdist
 				);
 				break;
+			case 3:
+				return std::make_unique<Sheet>(
+					gfx, rng, adist, ddist,
+					odist, rdist
+				);
 			default:
 				assert(false && "bad drawable type in factory");
 				return {};
@@ -56,10 +62,18 @@ App::App()
 		}
 
 	};
-	DrawableFactory factory(wnd.Gfx());
+	DrawableFactory factory(gfx);
 	//box = std::make_unique<Box>(wnd.Gfx());
 	drawables.reserve(nDrawables);
 	std::generate_n(std::back_inserter(drawables), nDrawables, factory);
+
+}
+
+App::App()
+	:
+	wnd(800, 600, "DX11 Renderer")
+{
+	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 }
 
@@ -96,7 +110,7 @@ void App::DoFrame()
 	//box->Draw(wnd.Gfx());
 	for (auto& d : drawables)
 	{
-		d->Update(dt.count());
+		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt.count());
 		d->Draw(wnd.Gfx());
 	}
 	wnd.Gfx().EndFrame();
