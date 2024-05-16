@@ -22,6 +22,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSV;
 
 	DirectX::XMMATRIX projection;
+
+	bool imguiEnabled = true;
 public:
 	class HrException : public Exception {
 	private:
@@ -60,10 +62,14 @@ public:
 	Graphics(HWND hwnd);
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
-	~Graphics() = default;
+	~Graphics();
 	void EndFrame();
-	void ClearBuffer(float red, float green, float blue) noexcept;
+	void BeginFrame(float red, float green, float blue) noexcept;
 	void DrawIndexed(UINT count) noexcept(!IS_DEBUG);
 	void SetProjection( DirectX::FXMMATRIX proj ) noexcept;
 	DirectX::XMMATRIX GetProjection() const noexcept;
+
+	void EnableImgui() noexcept;
+	void DisableImgui() noexcept;
+	bool IsImguiEnabled() const noexcept;
 };

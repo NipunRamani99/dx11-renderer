@@ -10,6 +10,7 @@ private:
 	Window wnd;
 	Timer timer;
 	bool keepRunning = true;
+	float speed_factor = 1.0f;
 public:
 	App();
 	int Go();

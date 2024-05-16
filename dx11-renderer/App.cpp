@@ -107,10 +107,18 @@ void App::DoFrame()
 {
 	static float angle = 0.0f;
 	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
-	wnd.Gfx().ClearBuffer(c, c, 1.0f);
+	if (wnd.kbd.KeyIsPressed(VK_SPACE))
+	{
+		wnd.Gfx().DisableImgui();
+	}
+	else
+	{
+		wnd.Gfx().EnableImgui();
+	}
+	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	float mouseX = 2.0f* wnd.mouse.GetPosX()/800.0f - 1;
 	float mouseY = -2.0f*wnd.mouse.GetPosY()/600.0f + 1;
-	auto dt = timer.Mark();
+	auto dt = timer.Mark().count() * speed_factor;
 	/*wnd.Gfx().DrawTestTriangle(
 		timer.Peek().count(),
 		wnd.mouse.GetPosX() / 400.0f - 1.0f,
@@ -120,21 +128,21 @@ void App::DoFrame()
 	//box->Draw(wnd.Gfx());
 	for (auto& d : drawables)
 	{
-		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt.count());
+		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		d->Draw(wnd.Gfx());
 	}
-	// imgui stuff
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	if (wnd.Gfx().IsImguiEnabled()) {
+		static char buffer[1024];
 
-	static bool show_demo_window = true;
-	if (show_demo_window)
-	{
-		ImGui::ShowDemoWindow(&show_demo_window);
+		// imgui window to control simulation speed
+		if (ImGui::Begin("Simulation Speed"))
+		{
+			ImGui::SliderFloat("Speed Factor", &speed_factor, 0.0f, 4.0f);
+			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Text("Status: %s", wnd.kbd.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING");
+		}
+		ImGui::End();
 	}
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	wnd.Gfx().EndFrame();
 	angle += 0.001f;
 }
