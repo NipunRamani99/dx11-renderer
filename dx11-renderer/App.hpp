@@ -2,10 +2,11 @@
 #include "Window.hpp"
 #include "Timer.hpp"
 #include <memory>
-
+#include "ImguiManager.hpp"
 
 class App {
 private:
+	ImguiManager imgui;
 	Window wnd;
 	Timer timer;
 	bool keepRunning = true;

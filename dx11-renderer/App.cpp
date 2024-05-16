@@ -8,6 +8,10 @@
 #include "GDIPlusManager.hpp"
 #include "Surface.hpp"
 #include "Sheet.hpp"
+#include "SkinnedBox.hpp"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
 
 GDIPlusManager gdipm;
 void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable>>& drawables, size_t nDrawables) {
@@ -22,7 +26,7 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
 		std::uniform_int_distribution<int> latdist{ 5,20 };
 		std::uniform_int_distribution<int> longdist{ 10,40 };
-		std::uniform_int_distribution<int> typedist{ 0, 3 };
+		std::uniform_int_distribution<int> typedist{ 0, 4 };
 	public:
 		DrawableFactory(Graphics& gfx)
 			:
@@ -55,6 +59,11 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 					gfx, rng, adist, ddist,
 					odist, rdist
 				);
+			case 4:
+				return std::make_unique<SkinnedBox>(
+					gfx, rng, adist, ddist,
+					odist, rdist
+				);
 			default:
 				assert(false && "bad drawable type in factory");
 				return {};
@@ -71,6 +80,7 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 
 App::App()
 	:
+	imgui(),
 	wnd(800, 600, "DX11 Renderer")
 {
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
@@ -113,6 +123,18 @@ void App::DoFrame()
 		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt.count());
 		d->Draw(wnd.Gfx());
 	}
+	// imgui stuff
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	static bool show_demo_window = true;
+	if (show_demo_window)
+	{
+		ImGui::ShowDemoWindow(&show_demo_window);
+	}
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	wnd.Gfx().EndFrame();
 	angle += 0.001f;
 }

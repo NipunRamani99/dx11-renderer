@@ -2,6 +2,7 @@
 #include <sstream>
 #include "resource.h"
 #include "WindowsThrowMacros.h"
+#include "imgui/imgui_impl_win32.h"
 Window::WindowClass Window::WindowClass::wndClass;
 Window::WindowClass::WindowClass() noexcept
 	:
@@ -62,12 +63,14 @@ Window::Window(int width, int height, const char* name)
 		throw HWND_LAST_EXCEPT();
 	}
 	ShowWindow(hwnd, SW_SHOWDEFAULT);
+	ImGui_ImplWin32_Init(hwnd);
 	// create graphics object
 	pGfx = std::make_unique<Graphics>(hwnd);
 }
 
 Window::~Window()
 {
+	ImGui_ImplWin32_Shutdown();
 	DestroyWindow(hwnd);
 }
 
@@ -136,6 +139,9 @@ LRESULT __stdcall Window::HandleMsgProxy(HWND hwnd, UINT msg, WPARAM wparam, LPA
 
 LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
+		return true;
+	}
 	switch (msg) {
 		case WM_CLOSE:
 			PostQuitMessage(0);
