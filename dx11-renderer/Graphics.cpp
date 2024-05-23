@@ -184,8 +184,8 @@ void Graphics::EndFrame()
 	infoManager.Set();
 #endif // !NDEBUG
 
-	if (FAILED(hr = pSwap->Present(1u, 0u))) {
-		if (hr == DXGI_ERROR_DEVICE_REMOVED) {
+	        if (FAILED(hr = pSwap->Present(1u, 0u))) {
+		    if (hr == DXGI_ERROR_DEVICE_REMOVED) {
 			throw GFX_DEVICE_REMOVED_EXCEPT(pDevice->GetDeviceRemovedReason());
 		}
 		else {
@@ -235,6 +235,16 @@ void Graphics::DisableImgui() noexcept
 bool Graphics::IsImguiEnabled() const noexcept
 {
 	return imguiEnabled;
+}
+
+void Graphics::SetCamera(DirectX::XMMATRIX camera) noexcept
+{
+	this->camera = camera;
+}
+
+DirectX::XMMATRIX Graphics::GetCamera() const noexcept
+{
+	return camera;
 }
 
 Graphics::InfoException::InfoException(int line, const char* file, std::vector<std::string> infoMsgs) noexcept

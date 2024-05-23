@@ -111,7 +111,7 @@
     <ClCompile Include="Box.cpp">
       <Filter>Source Files\Graphics\Drawable</Filter>
     </ClCompile>
-    <ClCompile Include="Melon.cpp">
+    <ClCompile Include="SolidSphere.cpp">
       <Filter>Source Files\Graphics\Drawable</Filter>
     </ClCompile>
     <ClCompile Include="Pyramid.cpp">
@@ -127,9 +127,6 @@
       <Filter>Source Files\Graphics\Bindable</Filter>
     </ClCompile>
     <ClCompile Include="Sampler.cpp">
-      <Filter>Source Files\Graphics\Bindable</Filter>
-    </ClCompile>
-    <ClCompile Include="Sheet.cpp">
       <Filter>Source Files\Graphics\Bindable</Filter>
     </ClCompile>
     <ClCompile Include="SkinnedBox.cpp">
@@ -155,6 +152,15 @@
     </ClCompile>
     <ClCompile Include="ImguiManager.cpp">
       <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sheet.cpp">
+      <Filter>Source Files\Graphics\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -266,7 +272,7 @@
     <ClInclude Include="Pyramid.hpp">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="Melon.hpp">
+    <ClInclude Include="SolidSphere.hpp">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="GDIPlusManager.hpp">
@@ -314,6 +320,12 @@
     <ClInclude Include="ImguiManager.hpp">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">
@@ -359,6 +371,18 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="TexturePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SolidPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SolidVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

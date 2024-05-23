@@ -1,6 +1,7 @@
 cbuffer CBuf
 {
-	matrix transform;
+	matrix model;
+    matrix modelViewProjection;
 };
 
 struct VSOut
@@ -12,7 +13,7 @@ struct VSOut
 VSOut main(float3 pos : Position, float4 color : Color)
 {
 	VSOut vso;
-	vso.pos = mul(float4(pos, 1.0f), transform);
+    vso.pos = mul(float4(pos, 1.0f), modelViewProjection);
 	vso.color = color;
 	return vso;
 }

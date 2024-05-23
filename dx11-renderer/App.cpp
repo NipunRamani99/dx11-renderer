@@ -1,6 +1,6 @@
 #include "App.hpp"
 #include "Box.hpp"
-#include "Melon.hpp"
+#include "SolidSphere.hpp"
 #include "Pyramid.hpp"
 #include "Cone.hpp"
 #include <algorithm>
@@ -24,9 +24,7 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 		std::uniform_real_distribution<float> odist{ 0.0f,PI * 0.08f };
 		std::uniform_real_distribution<float> rdist{ 6.0f,20.0f };
 		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
-		std::uniform_int_distribution<int> latdist{ 5,20 };
-		std::uniform_int_distribution<int> longdist{ 10,40 };
-		std::uniform_int_distribution<int> typedist{ 0, 4 };
+
 	public:
 		DrawableFactory(Graphics& gfx)
 			:
@@ -35,39 +33,10 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 		}
 
 		std::unique_ptr<Drawable> operator()() {
-			switch (typedist(rng)) {
-			case 0:
-				return std::make_unique<Pyramid>(
-					gfx, rng, adist, ddist,
-					odist, rdist
-				);
-				break;
-			case 1:
-				return std::make_unique<Box>(
-					gfx, rng, adist, ddist,
-					odist, rdist, bdist
-				);
-				break;
-			case 2:
-				return std::make_unique<Melon>(
-					gfx, rng, adist, ddist,
-					odist, rdist, longdist, latdist
-				);
-				break;
-			case 3:
-				return std::make_unique<Sheet>(
-					gfx, rng, adist, ddist,
-					odist, rdist
-				);
-			case 4:
-				return std::make_unique<SkinnedBox>(
-					gfx, rng, adist, ddist,
-					odist, rdist
-				);
-			default:
-				assert(false && "bad drawable type in factory");
-				return {};
-			}
+			return std::make_unique<Box>(
+				gfx, rng, adist, ddist,
+				odist, rdist, bdist
+			);
 		}
 
 	};
@@ -81,10 +50,12 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 App::App()
 	:
 	imgui(),
-	wnd(800, 600, "DX11 Renderer")
+	wnd(800, 600, "The Donkey Fart Box"),
+	light(wnd.Gfx())
 {
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
+	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 }
 
 int App::Go()
@@ -107,6 +78,8 @@ void App::DoFrame()
 {
 	static float angle = 0.0f;
 	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
+	wnd.Gfx().SetCamera(cam.GetMatrix());
+	light.Bind(wnd.Gfx());
 	if (wnd.kbd.KeyIsPressed(VK_SPACE))
 	{
 		wnd.Gfx().DisableImgui();
@@ -131,6 +104,7 @@ void App::DoFrame()
 		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		d->Draw(wnd.Gfx());
 	}
+	light.Draw(wnd.Gfx());
 	if (wnd.Gfx().IsImguiEnabled()) {
 		static char buffer[1024];
 
@@ -143,6 +117,8 @@ void App::DoFrame()
 		}
 		ImGui::End();
 	}
+	cam.SpawnControl();
+	light.SpawnControlWindow();
 	wnd.Gfx().EndFrame();
 	angle += 0.001f;
 }

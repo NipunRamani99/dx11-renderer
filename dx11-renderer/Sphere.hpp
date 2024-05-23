@@ -91,6 +91,8 @@ public:
 
 		return { std::move(vertices),std::move(indices) };
 	}
+
+
 	template<class V>
 	static IndexedTriangleList<V> Make()
 	{
