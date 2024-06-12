@@ -79,7 +79,6 @@ void App::DoFrame()
 	static float angle = 0.0f;
 	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
 	wnd.Gfx().SetCamera(cam.GetMatrix());
-	light.Bind(wnd.Gfx());
 	if (wnd.kbd.KeyIsPressed(VK_SPACE))
 	{
 		wnd.Gfx().DisableImgui();
@@ -89,6 +88,7 @@ void App::DoFrame()
 		wnd.Gfx().EnableImgui();
 	}
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
+	light.Bind(wnd.Gfx());
 	float mouseX = 2.0f* wnd.mouse.GetPosX()/800.0f - 1;
 	float mouseY = -2.0f*wnd.mouse.GetPosY()/600.0f + 1;
 	auto dt = timer.Mark().count() * speed_factor;
