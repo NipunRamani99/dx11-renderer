@@ -6,7 +6,7 @@ PointLight::PointLight(Graphics& gfx, float radius)
 	mesh(gfx, radius),
 	cbuf(gfx, 0)
 {
-	cbdata = { pos, { 0.7f, 0.7f, 0.9f }, {1.0f, 1.0f, 1.00f}, { 1.0f, 1.0f, 1.0f }, 1.0f, 1.0f, 0.045f, 0.075f };
+	cbdata = { pos, { 0.05f, 0.05f, 0.09f }, { 1.0f, 1.0f, 1.0f }, 1.0f, 1.0f, 0.045f, 0.0075f };
 }
 
 void PointLight::SpawnControlWindow() noexcept
@@ -18,10 +18,7 @@ void PointLight::SpawnControlWindow() noexcept
 		ImGui::SliderFloat("Y", &pos.y, -60.0f, 60.0f, "%.1f");
 		ImGui::SliderFloat("Z", &pos.z, -60.0f, 60.0f, "%.1f");
 
-		ImGui::Text("Material Color");
-		ImGui::SliderFloat("R#1", &cbdata.materialColor.x,  0.0f, 1.0f, "%.1f");
-		ImGui::SliderFloat("G#1", &cbdata.materialColor.y, 0.0f, 1.0f, "%.1f");
-		ImGui::SliderFloat("B#1", &cbdata.materialColor.z, 0.0f, 1.0f, "%.1f");
+		
 
 		ImGui::Text("Ambient Color");
 		ImGui::SliderFloat("R#2", &cbdata.ambient.x, 0.0f, 1.0f, "%.1f");
@@ -55,7 +52,7 @@ void PointLight::SpawnControlWindow() noexcept
 void PointLight::Reset() noexcept
 {
 	pos = { 0.0f, 0.0f, 0.0f };
-	cbdata = { pos, { 0.7f, 0.7f, 0.9f }, { 0.05f, 0.05f, 0.05f }, { 1.0f, 1.0f, 1.0f }, 1.0f, 1.0f, 0.045f, 0.0075f };
+	cbdata = { pos, { 0.05f, 0.05f, 0.09f }, { 1.0f, 1.0f, 1.0f }, 1.0f, 1.0f, 0.045f, 0.0075f };
 	
 }
 
@@ -66,8 +63,11 @@ void PointLight::Draw(Graphics& gfx) const noexcept(!IS_DEBUG)
 	mesh.Draw(gfx);
 }
 
-void PointLight::Bind(Graphics& gfx) const noexcept
+void PointLight::Bind(Graphics& gfx, DirectX::FXMMATRIX & view) const noexcept
 {
-	cbuf.Update(gfx, cbdata);
+	auto dataCopy = cbdata;
+	const auto pos = DirectX::XMLoadFloat3(&cbdata.pos);
+	DirectX::XMStoreFloat3(&dataCopy.pos, DirectX::XMVector3Transform(pos, view));
+	cbuf.Update(gfx, dataCopy);
 	cbuf.Bind(gfx);
 }

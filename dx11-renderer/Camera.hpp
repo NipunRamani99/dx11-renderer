@@ -1,6 +1,7 @@
 #pragma once
 #include "Graphics.hpp"
-
+#include "ConstantBuffers.hpp"
+#include <memory>
 class Camera
 {
 private:
@@ -10,8 +11,10 @@ private:
 	float pitch = 0.0f;
 	float yaw = 0.0f;
 	float roll = 0.0f;
+	
 public:
 	DirectX::XMMATRIX GetMatrix() const noexcept;
+	DirectX::XMFLOAT3 GetPos() const noexcept;
 	void SpawnControl() noexcept;
 	void Reset() noexcept;
 };

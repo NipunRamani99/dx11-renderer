@@ -10,7 +10,8 @@ Box::Box(Graphics& gfx,
 	std::uniform_real_distribution<float>& ddist,
 	std::uniform_real_distribution<float>& odist,
 	std::uniform_real_distribution<float>& rdist,
-	std::uniform_real_distribution<float>& bdist)
+	std::uniform_real_distribution<float>& bdist,
+	DirectX::XMFLOAT3 mat)
 	:
 	r(rdist(rng)),
 	droll(ddist(rng)),
@@ -21,7 +22,8 @@ Box::Box(Graphics& gfx,
 	dchi(odist(rng)),
 	chi(adist(rng)),
 	theta(adist(rng)),
-	phi(adist(rng))
+	phi(adist(rng)),
+	material(mat)
 {
 	namespace dx = DirectX;
 
@@ -68,6 +70,13 @@ Box::Box(Graphics& gfx,
 		&mt,
 		dx::XMMatrixScaling(1.0f, 1.0f, bdist(rng))
 	);
+	struct ObjectData {
+		alignas(16) dx::XMFLOAT3 material;
+		float specularIntensity = 0.60f;
+		float specularPower = 30.0f;
+	} objectData;
+	objectData.material = material;
+	AddBind(std::make_unique<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
 }
 
 void Box::Update(float dt) noexcept

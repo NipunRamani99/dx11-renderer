@@ -9,7 +9,8 @@ public:
 		std::uniform_real_distribution<float>& ddist,
 		std::uniform_real_distribution<float>& odist,
 		std::uniform_real_distribution<float>& rdist,
-		std::uniform_real_distribution<float>& bdist);
+		std::uniform_real_distribution<float>& bdist,
+		DirectX::XMFLOAT3 mat);
 	void Update(float dt) noexcept override;
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 private:
@@ -30,4 +31,5 @@ private:
 	float dchi;
 	// model transform
 	DirectX::XMFLOAT3X3 mt;
+	DirectX::XMFLOAT3 material;
 };

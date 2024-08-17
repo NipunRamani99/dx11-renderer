@@ -7,7 +7,6 @@
 #include "ChiliMath.hpp"
 #include "GDIPlusManager.hpp"
 #include "Surface.hpp"
-#include "Sheet.hpp"
 #include "SkinnedBox.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
@@ -24,6 +23,7 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 		std::uniform_real_distribution<float> odist{ 0.0f,PI * 0.08f };
 		std::uniform_real_distribution<float> rdist{ 6.0f,20.0f };
 		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
+		std::uniform_real_distribution<float> normDist{ 0.0f, 1.0f };
 
 	public:
 		DrawableFactory(Graphics& gfx)
@@ -33,9 +33,10 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 		}
 
 		std::unique_ptr<Drawable> operator()() {
+			DirectX::XMFLOAT3 material{normDist(rng),normDist(rng),normDist(rng)};
 			return std::make_unique<Box>(
 				gfx, rng, adist, ddist,
-				odist, rdist, bdist
+				odist, rdist, bdist, material
 			);
 		}
 
@@ -88,7 +89,7 @@ void App::DoFrame()
 		wnd.Gfx().EnableImgui();
 	}
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
-	light.Bind(wnd.Gfx());
+	light.Bind(wnd.Gfx(), cam.GetMatrix());
 	float mouseX = 2.0f* wnd.mouse.GetPosX()/800.0f - 1;
 	float mouseY = -2.0f*wnd.mouse.GetPosY()/600.0f + 1;
 	auto dt = timer.Mark().count() * speed_factor;
@@ -99,6 +100,7 @@ void App::DoFrame()
 	);*/
 	//box->Update(dt.count());
 	//box->Draw(wnd.Gfx());
+	
 	for (auto& d : drawables)
 	{
 		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);

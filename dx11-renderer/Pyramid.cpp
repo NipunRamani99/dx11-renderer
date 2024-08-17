@@ -2,7 +2,7 @@
 #include "BindableBase.hpp"
 #include "GraphicsThrowMacros.h"
 #include "Cone.hpp"
-
+#include <array>
 
 Pyramid::Pyramid(Graphics& gfx,
 	std::mt19937& rng,
@@ -29,22 +29,13 @@ Pyramid::Pyramid(Graphics& gfx,
 		struct Vertex
 		{
 			dx::XMFLOAT3 pos;
-			struct
-			{
-				unsigned char r;
-				unsigned char g;
-				unsigned char b;
-				unsigned char a;
-			} color;
+			dx::XMFLOAT3 n;
+			std::array<char, 4> color;
+			char padding;
 		};
 		auto model = Cone::MakeTesselated<Vertex>(4);
 		// set vertex colors for mesh
-		model.vertices[0].color = { 255,255,0 };
-		model.vertices[1].color = { 255,255,0 };
-		model.vertices[2].color = { 255,255,0 };
-		model.vertices[3].color = { 255,255,0 };
-		model.vertices[4].color = { 255,255,80 };
-		model.vertices[5].color = { 255,10,0 };
+
 		// deform mesh linearly
 		model.Transform(dx::XMMatrixScaling(1.0f, 1.0f, 0.7f));
 
@@ -66,6 +57,7 @@ Pyramid::Pyramid(Graphics& gfx,
 		AddStaticBind(std::make_unique<InputLayout>(gfx, ied, pvsbc));
 
 		AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+
 	}
 	else
 	{
