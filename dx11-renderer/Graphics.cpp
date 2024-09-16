@@ -175,7 +175,8 @@ Graphics::Graphics(HWND hwnd) {
 void Graphics::EndFrame()
 {
 
-	if (imguiEnabled) {
+	if (imguiEnabled) 
+	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
@@ -183,12 +184,14 @@ void Graphics::EndFrame()
 #ifndef NDEBUG
 	infoManager.Set();
 #endif // !NDEBUG
-
-	        if (FAILED(hr = pSwap->Present(1u, 0u))) {
-		    if (hr == DXGI_ERROR_DEVICE_REMOVED) {
+	if (FAILED(hr = pSwap->Present(1u, 0u))) 
+	{
+		if (hr == DXGI_ERROR_DEVICE_REMOVED) 
+		{
 			throw GFX_DEVICE_REMOVED_EXCEPT(pDevice->GetDeviceRemovedReason());
 		}
-		else {
+		else 
+		{
 			throw GFX_EXCEPT(hr);
 		}
 	}
@@ -200,7 +203,8 @@ void Graphics::BeginFrame(float red, float green, float blue) noexcept
 	pContext->ClearRenderTargetView(pTarget.Get(), color);
 	pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 
-	if (imguiEnabled) {
+	if (imguiEnabled) 
+	{
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();

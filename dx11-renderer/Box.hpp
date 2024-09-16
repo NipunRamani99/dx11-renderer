@@ -13,6 +13,12 @@ public:
 		DirectX::XMFLOAT3 mat);
 	void Update(float dt) noexcept override;
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
+
+	void BindForToonShader(Graphics & gfx);
+
+	void BindForPhongShader(Graphics & gfx);
+
+
 private:
 	// positional
 	float r;
