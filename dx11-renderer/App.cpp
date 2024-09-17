@@ -8,6 +8,7 @@
 #include "GDIPlusManager.hpp"
 #include "Surface.hpp"
 #include "SkinnedBox.hpp"
+#include "AssimpTest.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
@@ -34,9 +35,9 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 
 		std::unique_ptr<Drawable> operator()() {
 			DirectX::XMFLOAT3 material{normDist(rng),normDist(rng),normDist(rng)};
-			return std::make_unique<Box>(
+			return std::make_unique<AssimpTest>(
 				gfx, rng, adist, ddist,
-				odist, rdist, bdist, material
+				odist, rdist, material, 1.5f
 			);
 		}
 
@@ -44,7 +45,7 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 	DrawableFactory factory(gfx);
 	//box = std::make_unique<Box>(wnd.Gfx());
 	drawables.reserve(nDrawables);
-	std::generate_n(std::back_inserter(drawables), nDrawables, factory);
+	std::generate_n(std::back_inserter(drawables), 1, factory);
 
 }
 

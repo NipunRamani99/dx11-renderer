@@ -137,8 +137,11 @@ LRESULT __stdcall Window::HandleMsgProxy(HWND hwnd, UINT msg, WPARAM wparam, LPA
 	return pWnd->HandleMsg(hwnd, msg, wparam, lparam);
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept
 {
+	
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
 	}

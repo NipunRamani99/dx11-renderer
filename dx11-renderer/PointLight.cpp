@@ -44,11 +44,11 @@ void PointLight::SpawnControlWindow() noexcept
 		ImGui::Text("Diffuse Intensity");
 		ImGui::SliderFloat("Intensity#1", &cbdata.diffuseIntensity, 0.0f, 1.0f, "%.2f");
 		ImGui::Text("Attenuation Constant");
-		ImGui::SliderFloat("Intensity#2", &cbdata.attConst, 0.05f, 10.0f, "%.2f", 4);
+		ImGui::SliderFloat("Intensity#2", &cbdata.attConst, 0.05f, 10.0f, "%.2f");
 		ImGui::Text("Linear Attenuation Constant");
-		ImGui::SliderFloat("Intensity#3", &cbdata.attLin, 0.0001f, 1.0f, "%.4f", 8);
+		ImGui::SliderFloat("Intensity#3", &cbdata.attLin, 0.0001f, 1.0f, "%.4f");
 		ImGui::Text("Quad Attenuation Constant");
-		ImGui::SliderFloat("Intensity#4", &cbdata.attQuad, 0.000001f, 1.0f, "%.7f", 10);
+		ImGui::SliderFloat("Intensity#4", &cbdata.attQuad, 0.000001f, 1.0f, "%.7f");
 
 
 
