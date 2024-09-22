@@ -5,7 +5,7 @@ namespace dx = DirectX;
 DirectX::XMMATRIX Camera::GetMatrix() const noexcept
 {
 	DirectX::XMVECTOR pos = dx::XMVector3Transform(
-		dx::XMVectorSet(0.0f, 0.0f, -r, 0.0f),
+		dx::XMVectorSet(0.0f, 0.0f, -r + 0.00001f, 0.0f),
 		dx::XMMatrixRotationRollPitchYaw(phi, -theta, 0.0f)
 	);
 	

@@ -244,6 +244,7 @@
     <ClInclude Include="VertexShader.hpp" />
     <ClInclude Include="Window.hpp" />
     <ClInclude Include="WindowMessageMap.hpp" />
+    <ClInclude Include="WindowsConstants.h" />
     <ClInclude Include="WindowsThrowMacros.h" />
   </ItemGroup>
   <ItemGroup>

@@ -46,12 +46,12 @@ Window::Window(int width, int height, const char* name)
 	height(height)
 {
 	//Required Style
-	DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+	DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX ;
 	//Calculate the window size based on the desired client area size;
 	RECT wr{ 0 };
-	wr.left = 100;
+	wr.left = 0;
 	wr.right = wr.left + width;
-	wr.top = 100;
+	wr.top = 0;
 	wr.bottom = wr.top + height;
 	if (FAILED(AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE)))
 	{

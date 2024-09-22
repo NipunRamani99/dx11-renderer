@@ -6,12 +6,12 @@
 #include <optional>
 #include <memory>
 #include "Graphics.hpp"
-
+#include "WindowsConstants.h"
 
 class Window {
 private:
-	int width = 0;
-	int height = 0;
+	unsigned int width = SCREEN_WIDTH;
+	unsigned int height = SCREEN_HEIGHT;
 	HWND hwnd;
 	std::unique_ptr<Graphics> pGfx;
 public:

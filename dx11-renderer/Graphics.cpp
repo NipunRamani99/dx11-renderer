@@ -9,7 +9,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib,"D3DCompiler.lib")
-
+#include "WindowsConstants.h"
 using namespace Microsoft;
 namespace dx = DirectX;
 // Graphics exception stuff
@@ -71,6 +71,7 @@ const char* Graphics::DeviceRemovedException::GetType() const noexcept
 {
 	return "Chili Graphics Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
 }
+
 Graphics::Graphics(HWND hwnd) {
 	namespace wrl = Microsoft::WRL;
 
@@ -135,8 +136,8 @@ Graphics::Graphics(HWND hwnd) {
 	//create depth stensil texture
 	wrl::ComPtr<ID3D11Texture2D> pDepthStencil;
 	D3D11_TEXTURE2D_DESC depthTexDesc = {};
-	depthTexDesc.Width = 800u;
-	depthTexDesc.Height = 600u;
+	depthTexDesc.Width = SCREEN_WIDTH;
+	depthTexDesc.Height = SCREEN_HEIGHT;
 	depthTexDesc.MipLevels = 1u;
 	depthTexDesc.ArraySize = 1u;
 	depthTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -158,8 +159,8 @@ Graphics::Graphics(HWND hwnd) {
 
 	// configure viewport
 	D3D11_VIEWPORT vp;
-	vp.Width = 800.0f;
-	vp.Height = 600.0f;
+	vp.Width = (float)SCREEN_WIDTH;
+	vp.Height = (float)SCREEN_HEIGHT;
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0.0f;

@@ -332,6 +332,9 @@
     <ClInclude Include="VertexLayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WindowsConstants.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">

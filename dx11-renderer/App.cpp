@@ -35,6 +35,7 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 
 		std::unique_ptr<Drawable> operator()() {
 			DirectX::XMFLOAT3 material{normDist(rng),normDist(rng),normDist(rng)};
+
 			return std::make_unique<AssimpTest>(
 				gfx, rng, adist, ddist,
 				odist, rdist, material, 1.5f
@@ -45,14 +46,14 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 	DrawableFactory factory(gfx);
 	//box = std::make_unique<Box>(wnd.Gfx());
 	drawables.reserve(nDrawables);
-	std::generate_n(std::back_inserter(drawables), 1, factory);
+	std::generate_n(std::back_inserter(drawables), nDrawables, factory);
 
 }
 
 App::App()
 	:
 	imgui(),
-	wnd(800, 600, "The Donkey Fart Box"),
+	wnd(SCREEN_WIDTH, SCREEN_HEIGHT, "The Donkey Fart Box"),
 	light(wnd.Gfx())
 {
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);

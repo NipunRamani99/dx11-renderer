@@ -28,7 +28,7 @@ Box::Box(Graphics& gfx,
 
 	if (!IsStaticInitialized())
 	{
-		BindForToonShader(gfx);
+		BindForPhongShader(gfx);
 	}
 	else
 	{

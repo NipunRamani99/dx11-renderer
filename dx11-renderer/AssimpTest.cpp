@@ -43,6 +43,14 @@ AssimpTest::AssimpTest(Graphics& gfx,
 		dx::XMMatrixScaling(1.0f, 1.0f, 1.0f)
 	);
 	AddBind(std::make_unique<TransformCbuf>(gfx, *this));
+
+	struct ObjectData {
+		alignas(16) dx::XMFLOAT3 material;
+		float specularIntensity = 0.60f;
+		float specularPower = 30.0f;
+	} objectData;
+	objectData.material = material;
+	AddBind(std::make_unique<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
 }
 
 void AssimpTest::Update(float dt) noexcept
@@ -116,15 +124,5 @@ void AssimpTest::BindForPhongShader(Graphics& gfx)
 
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
-
-	struct PSMaterialConstant
-	{
-		DirectX::XMFLOAT3 color;
-		float specularIntensity = 0.6f;
-		float specularPower = 30.0f;
-		float padding[3];
-	} pmc;
-	pmc.color = material;
-	AddStaticBind(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, pmc, 1u));
 
 }
