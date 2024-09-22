@@ -329,6 +329,9 @@
     <ClInclude Include="ImguiManager.hpp">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="VertexLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">

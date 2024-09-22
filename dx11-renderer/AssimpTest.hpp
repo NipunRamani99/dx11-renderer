@@ -39,5 +39,5 @@ public:
 	
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 
-	void BindForPhongShader(Graphics& gfx, float scale);
+	void BindForPhongShader(Graphics& gfx);
 };

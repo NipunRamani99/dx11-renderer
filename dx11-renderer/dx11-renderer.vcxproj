@@ -101,7 +101,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);IS_DEBUG=true</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -111,6 +111,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalIncludeDirectories>$(ProjectDir)assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -239,6 +240,7 @@
     <ClInclude Include="Topology.hpp" />
     <ClInclude Include="TransformCbuf.hpp" />
     <ClInclude Include="VertexBuffer.hpp" />
+    <ClInclude Include="VertexLayout.h" />
     <ClInclude Include="VertexShader.hpp" />
     <ClInclude Include="Window.hpp" />
     <ClInclude Include="WindowMessageMap.hpp" />

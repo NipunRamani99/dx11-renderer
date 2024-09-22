@@ -5,6 +5,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <memory>
+#include "VertexLayout.h"
 AssimpTest::AssimpTest(Graphics& gfx, 
 	std::mt19937& rng, 
 	std::uniform_real_distribution<float>& adist, 
@@ -30,7 +31,7 @@ AssimpTest::AssimpTest(Graphics& gfx,
 	namespace dx = DirectX;
 	if (!IsStaticInitialized()) 
 	{
-		BindForPhongShader(gfx, scale);
+		BindForPhongShader(gfx);
 	} 
 	else
 	{
@@ -63,28 +64,25 @@ DirectX::XMMATRIX AssimpTest::GetTransformXM() const noexcept
 		dx::XMMatrixRotationRollPitchYaw(theta, phi, chi);
 }
 
-void AssimpTest::BindForPhongShader(Graphics& gfx, float scale)
+void AssimpTest::BindForPhongShader(Graphics& gfx)
 {
 	namespace dx = DirectX;
-
-	struct Vertex
-	{
-		dx::XMFLOAT3 pos;
-		dx::XMFLOAT3 n;
-	};
-
 	Assimp::Importer importer;
 	const auto pmodel = importer.ReadFile("./Models/suzanne.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 	const auto pmesh = pmodel->mMeshes[0];
 
-	std::vector<Vertex> vertices;
-	vertices.reserve(pmesh->mNumVertices);
+	
+	hw3dexp::VertexBuffer vbuf(std::move(
+		hw3dexp::VertexLayout{}
+		.Append<hw3dexp::VertexLayout::Position3D>()
+		.Append<hw3dexp::VertexLayout::Normal>()
+	));
 	for (unsigned int i = 0; i < pmesh->mNumVertices; i++)
 	{
-		vertices.push_back({
-			{ pmesh->mVertices[i].x*scale, pmesh->mVertices[i].y * scale, pmesh->mVertices[i].z * scale },
+		vbuf.EmplaceBack(
+			dx::XMFLOAT3{ pmesh->mVertices[i].x*scale, pmesh->mVertices[i].y * scale, pmesh->mVertices[i].z * scale },
 			*reinterpret_cast<dx::XMFLOAT3*>(&pmesh->mNormals[i])
-			});
+			);
 	}
 
 	std::vector<unsigned short> indices;
@@ -98,7 +96,7 @@ void AssimpTest::BindForPhongShader(Graphics& gfx, float scale)
 		indices.push_back(face.mIndices[2]);
 	}
 
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, vertices));
+	AddStaticBind(std::make_unique<VertexBuffer>(gfx, vbuf));
 
 	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
 

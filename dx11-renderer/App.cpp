@@ -12,7 +12,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
-
+#include "VertexLayout.h"
 GDIPlusManager gdipm;
 void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable>>& drawables, size_t nDrawables) {
 	class DrawableFactory {
@@ -58,6 +58,26 @@ App::App()
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
+	using namespace hw3dexp;
+	VertexLayout layout;
+	layout.Append<VertexLayout::Position3D>();
+
+	layout.Append<VertexLayout::Normal>();
+
+	auto& element = layout.Resolve<VertexLayout::Normal>();
+	assert(element.GetOffset() == sizeof(DirectX::XMFLOAT3));
+
+	assert(layout.Size() == sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3));
+
+	VertexBuffer buffer(layout);
+
+	buffer.EmplaceBack( DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f }, DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f } );
+
+	assert(buffer.Size() == 1);
+
+	ConstVertex vert = buffer.Back();
+	const DirectX::XMFLOAT3 & pos = vert.Attr<VertexLayout::Position3D>();
+	assert(pos.x == 1.0f && pos.y == 2.0f && pos.z == 3.0f);
 }
 
 int App::Go()
