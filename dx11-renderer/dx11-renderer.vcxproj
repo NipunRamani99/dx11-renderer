@@ -206,6 +206,7 @@
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DxgiInfoManager.h" />
     <ClInclude Include="Exception.hpp" />
+    <ClInclude Include="FirstPersonCamera.hpp" />
     <ClInclude Include="GDIPlusManager.hpp" />
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="GraphicsThrowMacros.h" />

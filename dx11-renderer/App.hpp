@@ -4,6 +4,7 @@
 #include <memory>
 #include "ImguiManager.hpp"
 #include "Camera.hpp"
+#include "FirstPersonCamera.hpp"
 #include "PointLight.hpp"
 
 class App {
@@ -12,9 +13,13 @@ private:
 	Window wnd;
 	Timer timer;
 	Camera cam;
+	FirstPersonCamera _fpsCam;
 	PointLight light;
 	bool keepRunning = true;
+	bool _showCursor = true;
 	float speed_factor = 1.0f;
+	float prevMouseX = 392;
+	float prevMouseY = 269;
 public:
 	App();
 	int Go();

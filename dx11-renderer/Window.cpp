@@ -112,7 +112,11 @@ Graphics& Window::Gfx()
 
 void Window::CenterCursorPosition()
 {
-	//SetCursorPos(width,height);
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+	rect.left += SCREEN_WIDTH >> 1;
+	rect.top += SCREEN_HEIGHT >> 1;
+	SetCursorPos(rect.left, rect.top);
 }
 
 LRESULT __stdcall Window::HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept

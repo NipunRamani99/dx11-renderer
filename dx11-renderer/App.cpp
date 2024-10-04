@@ -83,15 +83,39 @@ App::App()
 
 int App::Go()
 {
+	wnd.CenterCursorPosition();
+
 	while (keepRunning) {
+
+		if(!_showCursor)
+			wnd.CenterCursorPosition();
+
 		if (auto ecode = wnd.ProcessMessage()) {
 			return *ecode;
 		}
+
+		float currentMouseX = float(wnd.mouse.GetPosX());
+		float currentMouseY = float(wnd.mouse.GetPosY());
+
+		float deltaX = currentMouseX - prevMouseX;
+		float deltaY =  prevMouseY - currentMouseY;
+		
+		if(!_showCursor)
+			_fpsCam.Update(wnd.kbd, -deltaX, deltaY);
+		
 		DoFrame();
-		wnd.CenterCursorPosition();
+
+
 		if (wnd.kbd.KeyIsPressed(VK_ESCAPE)) {
 			keepRunning = false;
 		}
+		
+		if (wnd.kbd.KeyIsPressed('K'))
+		{
+			_showCursor = !_showCursor;
+			ShowCursor(_showCursor ? TRUE : FALSE);
+		}
+
 	}
 	return 0;
 }
@@ -101,7 +125,7 @@ void App::DoFrame()
 {
 	static float angle = 0.0f;
 	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
-	wnd.Gfx().SetCamera(cam.GetMatrix());
+	wnd.Gfx().SetCamera(_fpsCam.GetMatrix());
 	if (wnd.kbd.KeyIsPressed(VK_SPACE))
 	{
 		wnd.Gfx().DisableImgui();
@@ -139,6 +163,13 @@ void App::DoFrame()
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Text("Status: %s", wnd.kbd.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING");
 		}
+
+		ImGui::Text("Yaw: %.2f", _fpsCam._yaw);
+		ImGui::Text("Pitch: %.2f", _fpsCam._pitch);
+		ImGui::Text("Mouse : %d %d", wnd.mouse.GetPosX(), wnd.mouse.GetPosY());
+		ImGui::Text("Prev Mouse X: %.2f", prevMouseX);
+		ImGui::Text("Prev Mouse Y: %.2f", prevMouseY);
+
 		ImGui::End();
 	}
 	cam.SpawnControl();
