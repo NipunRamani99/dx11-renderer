@@ -205,7 +205,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noe
 			}
 			else {
 				if (wparam & (MK_LBUTTON | MK_RBUTTON)) {
-					mouse.OnMouseMove(pt.x, pt.y);
+				mouse.OnMouseMove(pt.x, pt.y);
 				}
 				else {
 					ReleaseCapture();

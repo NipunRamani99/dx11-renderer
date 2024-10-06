@@ -181,6 +181,7 @@ void Graphics::EndFrame()
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
+
 	HRESULT hr;
 #ifndef NDEBUG
 	infoManager.Set();

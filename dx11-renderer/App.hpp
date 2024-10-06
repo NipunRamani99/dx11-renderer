@@ -20,6 +20,8 @@ private:
 	float speed_factor = 1.0f;
 	float prevMouseX = 392;
 	float prevMouseY = 269;
+
+
 public:
 	App();
 	int Go();
@@ -27,5 +29,5 @@ public:
 private:
 	void DoFrame();
 	std::vector<std::unique_ptr<class Drawable>> drawables;
-	static constexpr size_t nDrawables = 180;
+	static constexpr size_t nDrawables = 4;
 };

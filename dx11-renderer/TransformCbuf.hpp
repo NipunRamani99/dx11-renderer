@@ -7,8 +7,9 @@ class TransformCbuf : public Bindable
 {
 private:
 	struct Transforms {
-		DirectX::XMMATRIX modelViewProj;
 		DirectX::XMMATRIX model;
+		DirectX::XMMATRIX modelView;
+		DirectX::XMMATRIX modelViewProj;
 	};
 private:
 	static std::unique_ptr<VertexConstantBuffer<Transforms>> pVcbuf;

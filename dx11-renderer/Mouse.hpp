@@ -1,5 +1,6 @@
 #pragma once
 #include <queue>
+#include <string>
 
 class Mouse {
 	friend class Window;
@@ -69,6 +70,50 @@ public:
 		{
 			return rightIsPressed;
 		}
+
+		const std::string ToString() const
+		{
+			std::string eventStr = "";
+			switch (type)
+			{
+				case Move:
+					eventStr = "MOUSE_MOVE";
+					break;
+				case LPress:
+					eventStr = "LMB_PRESS";
+					break;
+				case RPress:
+					eventStr = "RMB_PRESS";
+					break;
+				case LRelease:
+					eventStr = "LMB_RELEASE";
+					break;
+				case RRelease:
+					eventStr = "RMB_RELEASE";
+					break;
+				case Enter:
+					eventStr = "MOUSE_ENTER";
+					break;
+				case Leave:
+					eventStr = "MOUSE_LEAVE";
+					break;
+				case WheelUp:
+					eventStr = "MOUSE_WHEEL_UP";
+					break;
+				case WheelDown:
+					eventStr = "MOUSE_WHEEL_DOWN";
+					break;
+				case Invalid:
+					eventStr = "MOUSE_INVALID";
+					break;
+				default:
+					eventStr = "MOUSE_UNKNOWN_TYPE";
+					break;
+			}
+
+			eventStr += " X: " + std::to_string(x) + " Y: " + std::to_string(y);
+			return eventStr;
+		}
 	};
 
 private:
@@ -96,6 +141,11 @@ public:
 		return buffer.empty();
 	}
 	void Flush() noexcept;
+
+	const std::queue<Event>& GetEventBuffer()
+	{
+		return buffer;
+	}
 private:
 	void OnMouseMove(int x, int y) noexcept;
 	void OnMouseLeave() noexcept;
