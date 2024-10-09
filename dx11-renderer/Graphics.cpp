@@ -245,12 +245,12 @@ bool Graphics::IsImguiEnabled() const noexcept
 
 void Graphics::SetCamera(DirectX::XMMATRIX camera) noexcept
 {
-	this->camera = camera;
+	this->_camera = camera;
 }
 
 DirectX::XMMATRIX Graphics::GetCamera() const noexcept
 {
-	return camera;
+	return _camera;
 }
 
 Graphics::InfoException::InfoException(int line, const char* file, std::vector<std::string> infoMsgs) noexcept

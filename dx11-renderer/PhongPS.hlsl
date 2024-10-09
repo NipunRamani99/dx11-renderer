@@ -38,5 +38,5 @@ float4 main(float3 worldPos : Position, float3 n : Normal) : SV_Target
 	const float3 specular = att * (diffuseColor * diffuseIntensity) * specularIntensity * pow( max( 0.0f,dot( normalize( -r ),normalize( worldPos ) ) ),specularPower );
 
 	// final color
-	return float4(NdotL, NdotL, NdotL, 1.0f);//float4(saturate( diffuse + ambient) * materialColor, 1.0f);
+	return float4(saturate( diffuse + ambient ) * materialColor, 1.0f);
 }

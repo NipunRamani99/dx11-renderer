@@ -1,7 +1,7 @@
 #pragma once
 #include "Bindable.hpp"
 #include "GraphicsThrowMacros.h"
-#include "VertexLayout.h"
+#include "Vertex.h"
 class VertexBuffer : public Bindable {
 protected:
 	UINT stride;

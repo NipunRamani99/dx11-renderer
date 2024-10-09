@@ -57,7 +57,7 @@ public:
 		using namespace DirectX;
 		XMVECTOR front = DirectX::XMLoadFloat3(&_front);
 		XMVECTOR up = DirectX::XMLoadFloat3(&_up);
-		XMVECTOR pos = DirectX::XMLoadFloat3(&_cameraPos);
+		XMVECTOR _pos = DirectX::XMLoadFloat3(&_cameraPos);
 		XMVECTOR sideVec = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(front, up));
 		
 		// Define a movement direction vector and initialize it to zero
@@ -87,11 +87,11 @@ public:
 		if (!XMVector3Equal(movement, XMVectorZero()))
 		{
 			movement = XMVector3Normalize(movement); // Normalize movement to ensure consistent speed
-			pos = XMVectorAdd(pos, XMVectorScale(movement, _cameraSpeed));
+			_pos = XMVectorAdd(_pos, XMVectorScale(movement, _cameraSpeed));
 		}
 
 		// Update _cameraPos (store the result back)
-		XMStoreFloat3(&_cameraPos, pos);
+		XMStoreFloat3(&_cameraPos, _pos);
 
 		// Apply mouse sensitivity (uncomment or modify sensitivity factor as needed)
 		float sensitivity = 0.05f;

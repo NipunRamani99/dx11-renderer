@@ -6,6 +6,7 @@
 #include "Camera.hpp"
 #include "FirstPersonCamera.hpp"
 #include "PointLight.hpp"
+#include "Model.hpp"
 
 class App {
 private:
@@ -30,4 +31,5 @@ private:
 	void DoFrame();
 	std::vector<std::unique_ptr<class Drawable>> drawables;
 	static constexpr size_t nDrawables = 4;
+	std::unique_ptr<Model> model;
 };

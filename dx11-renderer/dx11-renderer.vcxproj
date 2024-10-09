@@ -223,6 +223,7 @@
     <ClInclude Include="IndexedTriangleList.hpp" />
     <ClInclude Include="InputLayout.hpp" />
     <ClInclude Include="Keyboard.hpp" />
+    <ClInclude Include="Model.hpp" />
     <ClInclude Include="PointLight.hpp" />
     <ClInclude Include="SolidSphere.hpp" />
     <ClInclude Include="MinWrl.hpp" />
@@ -241,7 +242,7 @@
     <ClInclude Include="Topology.hpp" />
     <ClInclude Include="TransformCbuf.hpp" />
     <ClInclude Include="VertexBuffer.hpp" />
-    <ClInclude Include="VertexLayout.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="VertexShader.hpp" />
     <ClInclude Include="Window.hpp" />
     <ClInclude Include="WindowMessageMap.hpp" />

@@ -12,7 +12,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
-#include "VertexLayout.h"
+#include "Vertex.h"
 GDIPlusManager gdipm;
 void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable>>& drawables, size_t nDrawables) {
 	class DrawableFactory {
@@ -70,7 +70,7 @@ App::App()
 
 	assert(layout.Size() == sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3));
 
-	VertexBuffer buffer(layout);
+	hw3dexp::VertexBuffer buffer(layout);
 
 	buffer.EmplaceBack( DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f }, DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f } );
 
@@ -79,6 +79,8 @@ App::App()
 	ConstVertex vert = buffer.Back();
 	const DirectX::XMFLOAT3 & pos = vert.Attr<VertexLayout::Position3D>();
 	assert(pos.x == 1.0f && pos.y == 2.0f && pos.z == 3.0f);
+
+	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
 }
 
 int App::Go()
@@ -119,9 +121,7 @@ int App::Go()
 				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
 			else
 				ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
-
 		}
-
 	}
 	return 0;
 }
@@ -142,8 +142,6 @@ void App::DoFrame()
 	}
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
-	float mouseX = 2.0f* wnd.mouse.GetPosX()/800.0f - 1;
-	float mouseY = -2.0f*wnd.mouse.GetPosY()/600.0f + 1;
 	auto dt = timer.Mark().count() * speed_factor;
 	/*wnd.Gfx().DrawTestTriangle(
 		timer.Peek().count(),
@@ -153,11 +151,14 @@ void App::DoFrame()
 	//box->Update(dt.count());
 	//box->Draw(wnd.Gfx());
 	
-	for (auto& d : drawables)
+	/*for (auto& d : drawables)
 	{
 		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		d->Draw(wnd.Gfx());
-	}
+	}*/
+
+	model->Draw(wnd.Gfx());
+
 	light.Draw(wnd.Gfx());
 	if (wnd.Gfx().IsImguiEnabled()) {
 
@@ -177,7 +178,7 @@ void App::DoFrame()
 		ImGui::Text("Mouse clicked: %d", wnd.mouse.LeftIsPressed());
 
 		ImGui::End();
-		static ImGuiTextBuffer     Buf;
+		static ImGuiTextBuffer Buf;
 		if (ImGui::Begin("Event Logs"))
 		{
 			

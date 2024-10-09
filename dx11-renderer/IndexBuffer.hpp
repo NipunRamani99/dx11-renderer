@@ -8,7 +8,7 @@ protected:
 	UINT count;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer;
 public:
-	IndexBuffer(Graphics& gfx, const std::vector<unsigned short>& indices);
+	IndexBuffer(Graphics& gfx, const std::vector<unsigned int>& indices);
 	void Bind(Graphics& gfx) noexcept override;
 	UINT GetCount() const noexcept;
 };

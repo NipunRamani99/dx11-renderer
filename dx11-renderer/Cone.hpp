@@ -37,8 +37,8 @@ public:
 
 
 		// base indices
-		std::vector<unsigned short> indices;
-		for (unsigned short iLong = 0; iLong < longDiv; iLong++)
+		std::vector<unsigned int> indices;
+		for (unsigned int iLong = 0; iLong < longDiv; iLong++)
 		{
 			indices.push_back(iCenter);
 			indices.push_back((iLong + 1) % longDiv);
@@ -46,7 +46,7 @@ public:
 		}
 
 		// cone indices
-		for (unsigned short iLong = 0; iLong < longDiv; iLong++)
+		for (unsigned int iLong = 0; iLong < longDiv; iLong++)
 		{
 			indices.push_back(iLong);
 			indices.push_back((iLong + 1) % longDiv);

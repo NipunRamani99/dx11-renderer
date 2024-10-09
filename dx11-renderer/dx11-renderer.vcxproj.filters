@@ -329,13 +329,16 @@
     <ClInclude Include="ImguiManager.hpp">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="VertexLayout.h">
+    <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowsConstants.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="FirstPersonCamera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

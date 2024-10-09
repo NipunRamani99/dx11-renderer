@@ -24,7 +24,8 @@ private:
 	DirectX::XMMATRIX projection;
 
 	bool imguiEnabled = true;
-	DirectX::XMMATRIX camera;
+	DirectX::XMMATRIX _camera;
+
 public:
 	class HrException : public Exception {
 	private:

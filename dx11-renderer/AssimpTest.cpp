@@ -5,7 +5,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <memory>
-#include "VertexLayout.h"
+#include "Vertex.h"
 AssimpTest::AssimpTest(Graphics& gfx, 
 	std::mt19937& rng, 
 	std::uniform_real_distribution<float>& adist, 
@@ -93,7 +93,7 @@ void AssimpTest::BindForPhongShader(Graphics& gfx)
 			);
 	}
 
-	std::vector<unsigned short> indices;
+	std::vector<unsigned int> indices;
 	indices.reserve(pmesh->mNumFaces * 3);
 	
 	for (unsigned int i = 0; i < pmesh->mNumFaces; i++) {
@@ -123,6 +123,5 @@ void AssimpTest::BindForPhongShader(Graphics& gfx)
 	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, pvsbc));
 
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-
 
 }

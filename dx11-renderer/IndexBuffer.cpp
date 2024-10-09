@@ -1,6 +1,6 @@
 #include "IndexBuffer.hpp"
 
-IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<unsigned short>& indices)
+IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<unsigned int>& indices)
 	:
 	count((UINT)indices.size())
 {
@@ -10,8 +10,8 @@ IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<unsigned short>& indic
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.CPUAccessFlags = 0u;
 	bufferDesc.MiscFlags = 0u;
-	bufferDesc.ByteWidth = UINT(sizeof(unsigned short) * count);
-	bufferDesc.StructureByteStride = sizeof(unsigned short);
+	bufferDesc.ByteWidth = UINT(sizeof(unsigned int) * count);
+	bufferDesc.StructureByteStride = sizeof(unsigned int);
 	D3D11_SUBRESOURCE_DATA sd = {};
 	sd.pSysMem = indices.data();
 	GFX_THROW_INFO(GetDevice(gfx)->CreateBuffer(&bufferDesc, &sd, &pIndexBuffer));
@@ -19,7 +19,7 @@ IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<unsigned short>& indic
 
 void IndexBuffer::Bind(Graphics& gfx) noexcept
 {
-	GetContext(gfx)->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
+	GetContext(gfx)->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
 }
 
 UINT IndexBuffer::GetCount() const noexcept
