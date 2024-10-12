@@ -15,7 +15,7 @@ private:
 	AABB _aabb;
 	AABBVisualisation viz;
 public:
-	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bindable>>& bindables, AABB aabb = AABB())
+	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bindable>>& bindables, const AABB & aabb = AABB())
 		:
 		viz(gfx, aabb)
 	{
@@ -239,7 +239,11 @@ public:
 			meshes.push_back( _meshes[node.mMeshes[i]].get());
 		}
 		std::string name = node.mName.C_Str();;
-		DirectX::XMMATRIX matrix = DirectX::XMMatrixTranspose(ConvertToMatrix(node.mTransformation));
+		DirectX::XMMATRIX matrix = DirectX::XMMatrixTranspose(
+			DirectX::XMLoadFloat4x4( 
+				reinterpret_cast<const DirectX::XMFLOAT4X4*>(&node.mTransformation)
+			)
+		);
 		
 		std::unique_ptr<Node> pNode = std::make_unique<Node>(meshes, matrix);
 		

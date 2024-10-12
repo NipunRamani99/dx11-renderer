@@ -135,7 +135,7 @@ void App::DoFrame()
 
 	static AABBVisualisation aabbviz(wnd.Gfx(), aabb);
 	static float angle = 0.0f;
-	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
+	const float c = 0.5f;
 	wnd.Gfx().SetCamera(_fpsCam.GetMatrix());
 	if (wnd.kbd.KeyIsPressed(VK_SPACE))
 	{
@@ -147,21 +147,6 @@ void App::DoFrame()
 	}
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
-	auto dt = timer.Mark().count() * speed_factor;
-	/*wnd.Gfx().DrawTestTriangle(
-		timer.Peek().count(),
-		wnd.mouse.GetPosX() / 400.0f - 1.0f,
-		-wnd.mouse.GetPosY() / 300.0f + 1.0f
-	);*/
-	//box->Update(dt.count());
-	//box->Draw(wnd.Gfx());
-	
-	/*for (auto& d : drawables)
-	{
-		d->Update(wnd.kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
-		d->Draw(wnd.Gfx());
-	}*/
-
 	model->Draw(wnd.Gfx());
 	model->DrawAABB(wnd.Gfx());
 	light.Draw(wnd.Gfx());
@@ -201,5 +186,5 @@ void App::DoFrame()
 	cam.SpawnControl();
 	light.SpawnControlWindow();
 	wnd.Gfx().EndFrame();
-	angle += 0.001f;
+	//angle += 0.001f;
 }

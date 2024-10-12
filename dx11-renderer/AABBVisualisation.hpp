@@ -17,7 +17,7 @@ private:
 	float _scale_y = 0.0f;
 	float _scale_z = 0.0f;
 public:
-	AABBVisualisation(Graphics & gfx, AABB aabb)
+	AABBVisualisation(Graphics & gfx, const AABB & aabb)
 		:
 		_aabb(aabb),
 		_transform(DirectX::XMMatrixIdentity()),
