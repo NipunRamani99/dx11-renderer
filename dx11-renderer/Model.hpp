@@ -41,7 +41,7 @@ public:
 		_aabb = aabb;
 	}
 
-	void Update(float dt) noexcept
+	void Update(float) noexcept
 	{
 
 	}

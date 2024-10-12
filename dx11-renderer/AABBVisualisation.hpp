@@ -20,7 +20,10 @@ public:
 	AABBVisualisation(Graphics & gfx, AABB aabb)
 		:
 		_aabb(aabb),
-		_transform(DirectX::XMMatrixIdentity())    
+		_transform(DirectX::XMMatrixIdentity()),
+		_scale_x(aabb.max.x - aabb.min.x),
+		_scale_y(aabb.max.y - aabb.min.y),
+		_scale_z(aabb.max.z - aabb.min.z)
 	{
 		hw3dexp::VertexLayout layout;
 		layout.Append<hw3dexp::VertexLayout::ElementType::Position3D>();
@@ -32,7 +35,7 @@ public:
 		IndexedTriangleList<Vertex> cube = Cube::MakeWireframe<Vertex>(aabb);
 		for (size_t i = 0; i < cube.vertices.size(); i++)
 		{
-			buf.EmplaceBack(DirectX::XMFLOAT3( cube.vertices[i].pos.x, cube.vertices[i].pos.y, cube.vertices[i].pos.z ));
+			buf.EmplaceBack(cube.vertices[i].pos);
 		}
 
 		AddBind(std::make_unique<VertexBuffer>(gfx, buf));
@@ -55,10 +58,6 @@ public:
 		AddBind(std::make_unique<TransformCbuf>(gfx, *this));
 
 		AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
-
-		_scale_x = aabb.max.x - aabb.min.x;
-		_scale_y = aabb.max.y - aabb.min.y;
-		_scale_z = aabb.max.z - aabb.min.z;
 	}
 
 	void SetTransform(const DirectX::XMFLOAT4X4& transform)
@@ -84,7 +83,7 @@ public:
 		return _transform;
 	}
 
-	void Update(float dt) noexcept
+	void Update(float) noexcept
 	{
 	}
 };
