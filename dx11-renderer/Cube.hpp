@@ -2,7 +2,7 @@
 #include "IndexedTriangleList.hpp"
 #include <DirectXMath.h>
 #include <initializer_list>
-
+#include "AABB.hpp"
 class Cube
 {
 public:
@@ -34,6 +34,61 @@ public:
 			}
 		};
 	}
+
+	template<class V>
+	static IndexedTriangleList<V> MakeWireframe() {
+		namespace dx = DirectX;
+
+		constexpr float side = 1.0f / 2.0f;
+
+		std::vector<V> vertices(8);
+		vertices[0].pos = { -side, -side, -side }; // 0
+		vertices[1].pos = { side, -side, -side };  // 1
+		vertices[2].pos = { -side, side, -side };   // 2
+		vertices[3].pos = { side, side, -side };    // 3
+		vertices[4].pos = { -side, -side, side };    // 4
+		vertices[5].pos = { side, -side, side };     // 5
+		vertices[6].pos = { -side, side, side };      // 6
+		vertices[7].pos = { side, side, side };       // 7
+
+		return {
+			std::move(vertices),
+			{
+				0, 1, 0, 2, 1, 3, // Bottom front edges
+				4, 5, 4, 6, 5, 7, // Bottom back edges
+				0, 4, 1, 5,       // Connecting bottom front to back
+				2, 6, 3, 7,       // Top edges
+				2, 3, 6, 7,
+				0, 2, 1, 3,       // Front edges
+				4, 6, 5, 7        // Back edges
+			}
+		};
+	}
+
+	template<class V>
+	static IndexedTriangleList<V> MakeWireframe(const AABB & aabb) {
+		
+		std::vector<V> vertices(8);
+		vertices[0].pos = { aabb.min.x, aabb.min.y, aabb.min.z }; // Bottom-left-front
+		vertices[1].pos = { aabb.min.x, aabb.min.y, aabb.max.z }; // Bottom-right-front
+		vertices[2].pos = { aabb.max.x, aabb.min.y, aabb.max.z }; // Top-right-front
+		vertices[3].pos = { aabb.max.x, aabb.min.y, aabb.min.z }; // Top-left-front
+		vertices[4].pos = { aabb.min.x, aabb.max.y, aabb.min.z }; // Bottom-left-back
+		vertices[5].pos = { aabb.min.x, aabb.max.y, aabb.max.z }; // Bottom-right-back
+		vertices[6].pos = { aabb.max.x, aabb.max.y, aabb.max.z }; // Top-right-back
+		vertices[7].pos = { aabb.max.x, aabb.max.y, aabb.min.z }; // Top-left-back
+
+
+		return {
+			std::move(vertices),
+			{
+				0, 1, 1, 2, 2, 3, 3, 0, // Bottom Edges
+				4, 5, 5, 6, 6, 7, 7, 4, // Top edges
+				0, 4, 1, 5, 2, 6, 3, 7  // Connecting Bottom and Top Edges
+			}
+		};
+	}
+
 	template<class V>
 	static IndexedTriangleList<V> MakeSkinned()
 	{

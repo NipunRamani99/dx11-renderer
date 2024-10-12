@@ -2,18 +2,22 @@
 #include "DrawableBase.hpp"
 #include "BindableBase.hpp"
 #include "Vertex.h"
+#include "AABB.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+#include "AABBVisualisation.hpp"
 
 class Mesh : public DrawableBase<Mesh>
 {
 private:
 	mutable DirectX::XMFLOAT4X4 _transform;
-
+	AABB _aabb;
+	AABBVisualisation viz;
 public:
-	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bindable>>& bindables)
+	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bindable>>& bindables, const AABB & aabb = AABB())
+		:
+		viz(gfx, aabb)
 	{
 		if (!IsStaticInitialized())
 		{
@@ -34,23 +38,42 @@ public:
 		}
 
 		AddBind(std::make_unique<TransformCbuf>(gfx, *this));
+		_aabb = aabb;
 	}
 
-	void Update(float dt) noexcept
+	void Update(float) noexcept
 	{
 
 	}
+
 
 	void Draw(Graphics & gfx, DirectX::XMMATRIX accumulatedTransform) noexcept
 	{
 
 		DirectX::XMStoreFloat4x4(&_transform, accumulatedTransform);
+		
 		DrawableBase::Draw(gfx);
+	}
+
+	void DrawAABB(Graphics& gfx, DirectX::XMMATRIX accumulatedTransform) noexcept
+	{
+		viz.SetTransform(accumulatedTransform);
+		viz.Draw(gfx);
 	}
 
 	DirectX::XMMATRIX GetTransformXM() const noexcept override
 	{
 		return DirectX::XMLoadFloat4x4(&_transform);
+	}
+
+	void SetAABB(AABB aabb)
+	{
+		_aabb = aabb;
+	}
+
+	const AABB& getAABB() const
+	{
+		return _aabb;
 	}
 };
 
@@ -88,6 +111,19 @@ public:
 			pnode->Draw(gfx, nodeTransform);
 		}
 	}
+
+	void DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform)
+	{
+		const auto nodeTransform = DirectX::XMLoadFloat4x4(&_transform) * accumulatedTransform;
+		for (auto pmesh : _mesh)
+		{
+			pmesh->DrawAABB(gfx, nodeTransform);
+		}
+		for (auto& pnode : _nodes)
+		{
+			pnode->DrawAABB(gfx, nodeTransform);
+		}
+	}
 };
 
 class Model
@@ -101,8 +137,8 @@ public:
 	{
 		Assimp::Importer importer;
 		const auto pScene = importer.ReadFile(modelPath.c_str(), 
-			aiProcess_Triangulate | 
-			aiProcess_JoinIdenticalVertices);
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices );
 
 		for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		{
@@ -120,9 +156,23 @@ public:
 			.Append<hw3dexp::VertexLayout::Position3D>()
 			.Append<hw3dexp::VertexLayout::Normal>()
 		));
+		AABB aabb;
+		aabb.min.x = mesh.mVertices[0].x;
+		aabb.min.y = mesh.mVertices[0].y;
+		aabb.min.z = mesh.mVertices[0].z;
+		aabb.max.x = mesh.mVertices[0].x;
+		aabb.max.y = mesh.mVertices[0].y;
+		aabb.max.z = mesh.mVertices[0].z;
 
 		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 		{
+			aabb.min.x = std::min(mesh.mVertices[i].x, aabb.min.x);
+			aabb.min.y = std::min(mesh.mVertices[i].y, aabb.min.y);
+			aabb.min.z = std::min(mesh.mVertices[i].z, aabb.min.z);
+			aabb.max.x = std::max(mesh.mVertices[i].x, aabb.max.x);
+			aabb.max.y = std::max(mesh.mVertices[i].y, aabb.max.y);
+			aabb.max.z = std::max(mesh.mVertices[i].z, aabb.max.z);
+
 			vbuf.EmplaceBack(
 				dx::XMFLOAT3{ mesh.mVertices[i].x, mesh.mVertices[i].y , mesh.mVertices[i].z },
 				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i])
@@ -168,7 +218,16 @@ public:
 		objectData.material = {1.0f, 0.2f, 0.1f};
 		 bindables.push_back(std::make_unique<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
 
-		return make_unique<Mesh>(gfx, bindables);
+		return make_unique<Mesh>(gfx, bindables, aabb);
+	}
+
+	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat) {
+		return DirectX::XMMATRIX(
+			mat.a1, mat.a2, mat.a3, mat.a4,
+			mat.b1, mat.b2, mat.b3, mat.b4,
+			mat.c1, mat.c2, mat.c3, mat.c4,
+			mat.d1, mat.d2, mat.d3, mat.d4
+		);
 	}
 
 	std::unique_ptr<Node> ParseNode(const aiNode& node)
@@ -179,8 +238,14 @@ public:
 		{
 			meshes.push_back( _meshes[node.mMeshes[i]].get());
 		}
-		DirectX::FXMMATRIX * matrix = reinterpret_cast<DirectX::FXMMATRIX*>(&node.mTransformation);
-		std::unique_ptr<Node> pNode = std::make_unique<Node>(meshes, *matrix);
+		std::string name = node.mName.C_Str();;
+		DirectX::XMMATRIX matrix = DirectX::XMMatrixTranspose(
+			DirectX::XMLoadFloat4x4( 
+				reinterpret_cast<const DirectX::XMFLOAT4X4*>(&node.mTransformation)
+			)
+		);
+		
+		std::unique_ptr<Node> pNode = std::make_unique<Node>(meshes, matrix);
 		
 		for (size_t i = 0; i < node.mNumChildren; i++)
 		{
@@ -193,5 +258,10 @@ public:
 	void Draw(Graphics& gfx)
 	{
 		_root->Draw(gfx, DirectX::XMMatrixIdentity());
+	}
+
+	void DrawAABB(Graphics& gfx)
+	{
+		_root->DrawAABB(gfx, DirectX::XMMatrixIdentity());
 	}
 };

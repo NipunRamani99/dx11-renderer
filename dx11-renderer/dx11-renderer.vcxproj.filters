@@ -341,6 +341,12 @@
     <ClInclude Include="Model.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AABBVisualisation.hpp">
+      <Filter>Header Files\Graphics\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">

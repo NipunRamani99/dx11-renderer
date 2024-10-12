@@ -6,10 +6,10 @@
 #include <filesystem>
 #include <iostream>
 int CALLBACK WinMain(
-	HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine,
-	int nCmdShow)
+	HINSTANCE,
+	HINSTANCE,
+	LPSTR,
+	int)
 {
 	std::string current = std::filesystem::current_path().string();
 	char buffer[MAX_PATH];
