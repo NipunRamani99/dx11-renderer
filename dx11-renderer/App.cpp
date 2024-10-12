@@ -13,6 +13,7 @@
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "Vertex.h"
+#include "AABBVisualisation.hpp"
 GDIPlusManager gdipm;
 void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable>>& drawables, size_t nDrawables) {
 	class DrawableFactory {
@@ -80,12 +81,13 @@ App::App()
 	const DirectX::XMFLOAT3 & pos = vert.Attr<VertexLayout::Position3D>();
 	assert(pos.x == 1.0f && pos.y == 2.0f && pos.z == 3.0f);
 
-	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
+	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit.gltf");
 }
 
 int App::Go()
 {
 	wnd.CenterCursorPosition();
+
 
 	while (keepRunning) {
 
@@ -129,6 +131,9 @@ int App::Go()
 
 void App::DoFrame()
 {
+	static AABB aabb{};
+
+	static AABBVisualisation aabbviz(wnd.Gfx(), aabb);
 	static float angle = 0.0f;
 	const float c = sin(timer.Peek().count()) / 2.0f + 0.5f;
 	wnd.Gfx().SetCamera(_fpsCam.GetMatrix());
@@ -158,8 +163,9 @@ void App::DoFrame()
 	}*/
 
 	model->Draw(wnd.Gfx());
-
+	model->DrawAABB(wnd.Gfx());
 	light.Draw(wnd.Gfx());
+
 	if (wnd.Gfx().IsImguiEnabled()) {
 
 		// imgui window to control simulation speed

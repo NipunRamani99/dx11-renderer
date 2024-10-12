@@ -16,7 +16,7 @@ public:
 		indices(std::move(indices_in))
 	{
 		assert(vertices.size() > 2);
-		assert(indices.size() % 3 == 0);
+		
 	}
 	void Transform(DirectX::FXMMATRIX matrix)
 	{

@@ -34,6 +34,37 @@ public:
 			}
 		};
 	}
+
+	template<class V>
+	static IndexedTriangleList<V> MakeWireframe() {
+		namespace dx = DirectX;
+
+		constexpr float side = 1.0f / 2.0f;
+
+		std::vector<V> vertices(8);
+		vertices[0].pos = { -side, -side, -side }; // 0
+		vertices[1].pos = { side, -side, -side };  // 1
+		vertices[2].pos = { -side, side, -side };   // 2
+		vertices[3].pos = { side, side, -side };    // 3
+		vertices[4].pos = { -side, -side, side };    // 4
+		vertices[5].pos = { side, -side, side };     // 5
+		vertices[6].pos = { -side, side, side };      // 6
+		vertices[7].pos = { side, side, side };       // 7
+
+		return {
+			std::move(vertices),
+			{
+				0, 1, 0, 2, 1, 3, // Bottom front edges
+				4, 5, 4, 6, 5, 7, // Bottom back edges
+				0, 4, 1, 5,       // Connecting bottom front to back
+				2, 6, 3, 7,       // Top edges
+				2, 3, 6, 7,
+				0, 2, 1, 3,       // Front edges
+				4, 6, 5, 7        // Back edges
+			}
+		};
+	}
+
 	template<class V>
 	static IndexedTriangleList<V> MakeSkinned()
 	{
