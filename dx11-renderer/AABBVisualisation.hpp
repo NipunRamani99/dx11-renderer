@@ -29,7 +29,7 @@ public:
 		{
 			DirectX::XMFLOAT3 pos;
 		};
-		IndexedTriangleList<Vertex> cube = Cube::MakeWireframe<Vertex>();
+		IndexedTriangleList<Vertex> cube = Cube::MakeWireframe<Vertex>(aabb);
 		for (size_t i = 0; i < cube.vertices.size(); i++)
 		{
 			buf.EmplaceBack(DirectX::XMFLOAT3( cube.vertices[i].pos.x, cube.vertices[i].pos.y, cube.vertices[i].pos.z ));

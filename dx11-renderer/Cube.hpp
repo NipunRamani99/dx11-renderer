@@ -2,7 +2,7 @@
 #include "IndexedTriangleList.hpp"
 #include <DirectXMath.h>
 #include <initializer_list>
-
+#include "AABB.hpp"
 class Cube
 {
 public:
@@ -61,6 +61,30 @@ public:
 				2, 3, 6, 7,
 				0, 2, 1, 3,       // Front edges
 				4, 6, 5, 7        // Back edges
+			}
+		};
+	}
+
+	template<class V>
+	static IndexedTriangleList<V> MakeWireframe(const AABB & aabb) {
+		
+		std::vector<V> vertices(8);
+		vertices[0].pos = { aabb.min.x, aabb.min.y, aabb.min.z }; // Bottom-left-front
+		vertices[1].pos = { aabb.min.x, aabb.min.y, aabb.max.z }; // Bottom-right-front
+		vertices[2].pos = { aabb.max.x, aabb.min.y, aabb.max.z }; // Top-right-front
+		vertices[3].pos = { aabb.max.x, aabb.min.y, aabb.min.z }; // Top-left-front
+		vertices[4].pos = { aabb.min.x, aabb.max.y, aabb.min.z }; // Bottom-left-back
+		vertices[5].pos = { aabb.min.x, aabb.max.y, aabb.max.z }; // Bottom-right-back
+		vertices[6].pos = { aabb.max.x, aabb.max.y, aabb.max.z }; // Top-right-back
+		vertices[7].pos = { aabb.max.x, aabb.max.y, aabb.min.z }; // Top-left-back
+
+
+		return {
+			std::move(vertices),
+			{
+				0, 1, 1, 2, 2, 3, 3, 0, // Bottom Edges
+				4, 5, 5, 6, 6, 7, 7, 4, // Top edges
+				0, 4, 1, 5, 2, 6, 3, 7  // Connecting Bottom and Top Edges
 			}
 		};
 	}
