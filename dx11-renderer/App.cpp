@@ -66,7 +66,9 @@ App::App()
 int App::Go()
 {
 	wnd.CenterCursorPosition();
-
+	POINT center = wnd.GetCenterPosition();
+	prevMouseX = center.x;
+	prevMouseY = center.y;
 
 	while (keepRunning) {
 

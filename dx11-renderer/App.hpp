@@ -19,8 +19,8 @@ private:
 	bool keepRunning = true;
 	bool _showCursor = true;
 	float speed_factor = 1.0f;
-	float prevMouseX = 392;
-	float prevMouseY = 269;
+	float prevMouseX = 0;
+	float prevMouseY = 0;
 
 
 public:

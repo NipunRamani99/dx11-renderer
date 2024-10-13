@@ -58,6 +58,7 @@ public:
 	void SetTitle(const std::string& str);
 	Graphics& Gfx();
 	void CenterCursorPosition();
+	POINT GetCenterPosition();
 
 private:
 	static LRESULT WINAPI HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;

@@ -110,6 +110,17 @@ Graphics& Window::Gfx()
 	return *pGfx;
 }
 
+POINT Window::GetCenterPosition()
+{
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+	rect.left += SCREEN_WIDTH >> 1;
+	rect.top += SCREEN_HEIGHT >> 1;
+	POINT centerPoint{ rect.left, rect.top };
+	ScreenToClient(hwnd, &centerPoint);
+	return centerPoint;
+}
+
 void Window::CenterCursorPosition()
 {
 	RECT rect;
