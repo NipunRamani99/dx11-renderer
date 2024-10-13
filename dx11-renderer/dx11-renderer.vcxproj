@@ -201,6 +201,7 @@
     <ClInclude Include="Box.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ChiliMath.hpp" />
+    <ClInclude Include="Color.hpp" />
     <ClInclude Include="ConditionalNoexcept.h" />
     <ClInclude Include="Cone.hpp" />
     <ClInclude Include="ConstantBuffers.hpp" />

@@ -60,27 +60,6 @@ App::App()
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
-	using namespace Dvtx;
-	VertexLayout layout;
-	layout.Append<VertexLayout::Position3D>();
-
-	layout.Append<VertexLayout::Normal>();
-
-	auto& element = layout.Resolve<VertexLayout::Normal>();
-	assert(element.GetOffset() == sizeof(DirectX::XMFLOAT3));
-
-	assert(layout.Size() == sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3));
-
-	Dvtx::VertexBuffer buffer(layout);
-
-	buffer.EmplaceBack( DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f }, DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f } );
-
-	assert(buffer.Size() == 1);
-
-	ConstVertex vert = buffer.Back();
-	const DirectX::XMFLOAT3 & pos = vert.Attr<VertexLayout::Position3D>();
-	assert(pos.x == 1.0f && pos.y == 2.0f && pos.z == 3.0f);
-
 	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit.gltf");
 }
 

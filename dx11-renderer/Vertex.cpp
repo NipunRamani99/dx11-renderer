@@ -54,17 +54,17 @@ ConstVertex VertexBuffer::operator[](size_t i) const
 	return const_cast<VertexBuffer*>(this)->operator[](i);
 }
 
-VertexLayout::Element& Dvtx::VertexLayout::ResolveByIndex(size_t i)
+VertexLayout::Element& VertexLayout::ResolveByIndex(size_t i)
 {
 	return _elements[i];
 }
 
-VertexLayout::Element::size_type Dvtx::VertexLayout::Size() const
+VertexLayout::Element::size_type VertexLayout::Size() const
 {
 	return _elements.empty() ? 0 : _elements.back().GetOffsetAfter();
 }
 
-const std::vector<VertexLayout::Element>& Dvtx::VertexLayout::getElements() const
+const std::vector<VertexLayout::Element>& VertexLayout::getElements() const
 {
 	return _elements;
 }
@@ -78,20 +78,20 @@ Dvtx::VertexLayout::Element::Element(ElementType elementType, size_type offset)
 
 }
 
-VertexLayout::Element::size_type Dvtx::VertexLayout::Element::GetOffsetAfter() const {
+VertexLayout::Element::size_type VertexLayout::Element::GetOffsetAfter() const {
 	return _offset + Size();
 }
 
-VertexLayout::Element::size_type Dvtx::VertexLayout::Element::GetOffset() const {
+VertexLayout::Element::size_type VertexLayout::Element::GetOffset() const {
 	return _offset;
 }
 
-VertexLayout::Element::size_type Dvtx::VertexLayout::Element::Size() const
+VertexLayout::Element::size_type VertexLayout::Element::Size() const
 {
 	return sizeOf(_elementType);
 }
 
-const VertexLayout::Element::size_type Dvtx::VertexLayout::Element::sizeOf(ElementType type) const
+const VertexLayout::Element::size_type VertexLayout::Element::sizeOf(ElementType type) const
 {
 	using namespace DirectX;
 	switch (type)
@@ -113,7 +113,7 @@ const VertexLayout::Element::size_type Dvtx::VertexLayout::Element::sizeOf(Eleme
 	return 0;
 }
 
-const VertexLayout::ElementType Dvtx::VertexLayout::Element::GetType() const
+const VertexLayout::ElementType VertexLayout::Element::GetType() const
 {
 	return _elementType;
 }

@@ -4,6 +4,8 @@ Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindable
 	:
 	viz(gfx, aabb)
 {
+	using namespace Bind;
+
 	if (!IsStaticInitialized())
 	{
 		AddBind(std::make_unique<Bind::Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
@@ -11,9 +13,9 @@ Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindable
 
 	for (auto& pbind : bindables)
 	{
-		if (auto index = dynamic_cast<Bind::IndexBuffer*>(pbind.get()))
+		if (auto index = dynamic_cast<IndexBuffer*>(pbind.get()))
 		{
-			AddIndexBuffer(std::unique_ptr<Bind::IndexBuffer>{ index });
+			AddIndexBuffer(std::unique_ptr<IndexBuffer>{ index });
 			pbind.release();
 		}
 		else
@@ -22,7 +24,7 @@ Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindable
 		}
 	}
 
-	AddBind(std::make_unique<Bind::TransformCbuf>(gfx, *this));
+	AddBind(std::make_unique<TransformCbuf>(gfx, *this));
 	_aabb = aabb;
 }
 
@@ -125,6 +127,7 @@ void Model::DrawAABB(Graphics& gfx)
 std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 {
 	namespace dx = DirectX;
+	using namespace Bind;
 
 	Dvtx::VertexBuffer vbuf(std::move(
 		Dvtx::VertexLayout{}
@@ -165,17 +168,17 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 		indices.push_back(face.mIndices[2]);
 	}
 
-	std::vector<std::unique_ptr<Bind::Bindable>> bindables;
-	bindables.push_back(std::make_unique<Bind::VertexBuffer>(gfx, vbuf));
+	std::vector<std::unique_ptr<Bindable>> bindables;
+	bindables.push_back(std::make_unique<VertexBuffer>(gfx, vbuf));
 
-	bindables.push_back(std::make_unique<Bind::IndexBuffer>(gfx, indices));
+	bindables.push_back(std::make_unique<IndexBuffer>(gfx, indices));
 
-	auto pvs = std::make_unique<Bind::VertexShader>(gfx, L"PhongVS.cso");
+	auto pvs = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
 	auto pvsbc = pvs->GetBytecode();
 
 	bindables.push_back(std::move(pvs));
 
-	bindables.push_back(std::make_unique<Bind::PixelShader>(gfx, L"PhongPS.cso"));
+	bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
@@ -183,7 +186,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 		{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	bindables.push_back(std::make_unique<Bind::InputLayout>(gfx, ied, pvsbc));
+	bindables.push_back(std::make_unique<InputLayout>(gfx, ied, pvsbc));
 
 	struct ObjectData {
 		alignas(16) dx::XMFLOAT3 material;
@@ -191,7 +194,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 		float specularPower = 30.0f;
 	} objectData;
 	objectData.material = { 1.0f, 0.2f, 0.1f };
-	bindables.push_back(std::make_unique<Bind::PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
+	bindables.push_back(std::make_unique<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
 
 	return make_unique<Mesh>(gfx, bindables, aabb);
 }
