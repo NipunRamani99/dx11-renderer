@@ -76,8 +76,8 @@ Graphics::Graphics(HWND hwnd) {
 	namespace wrl = Microsoft::WRL;
 
 	DXGI_SWAP_CHAIN_DESC sd = {};
-	sd.BufferDesc.Width = 0;
-	sd.BufferDesc.Height = 0;
+	sd.BufferDesc.Width = SCREEN_WIDTH;
+	sd.BufferDesc.Height = SCREEN_HEIGHT;
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 0;
 	sd.BufferDesc.RefreshRate.Denominator = 0;
