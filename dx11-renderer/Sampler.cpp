@@ -1,5 +1,8 @@
 #include "Sampler.hpp"
 #include "GraphicsThrowMacros.h"
+
+using namespace Bind;
+
 Sampler::Sampler(Graphics& gfx)
 {
 	INFOMAN(gfx);

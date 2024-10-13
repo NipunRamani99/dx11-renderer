@@ -3,6 +3,8 @@
 #include "GraphicsThrowMacros.h"
 #include "Cube.hpp"
 
+using namespace Bind;
+
 Box::Box(Graphics& gfx,
 	std::mt19937& rng,
 	std::uniform_real_distribution<float>& adist,
@@ -25,7 +27,6 @@ Box::Box(Graphics& gfx,
 	material(mat)
 {
 	namespace dx = DirectX;
-
 	if (!IsStaticInitialized())
 	{
 		BindForPhongShader(gfx);

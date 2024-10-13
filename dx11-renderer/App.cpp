@@ -60,7 +60,7 @@ App::App()
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
-	using namespace hw3dexp;
+	using namespace Dvtx;
 	VertexLayout layout;
 	layout.Append<VertexLayout::Position3D>();
 
@@ -71,7 +71,7 @@ App::App()
 
 	assert(layout.Size() == sizeof(DirectX::XMFLOAT3) + sizeof(DirectX::XMFLOAT3));
 
-	hw3dexp::VertexBuffer buffer(layout);
+	Dvtx::VertexBuffer buffer(layout);
 
 	buffer.EmplaceBack( DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f }, DirectX::XMFLOAT3{ 1.0f, 2.0f, 3.0f } );
 

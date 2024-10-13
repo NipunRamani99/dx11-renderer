@@ -7,7 +7,7 @@
 SolidSphere::SolidSphere(Graphics& gfx, float radius)
 {
 	namespace dx = DirectX;
-
+	using namespace Bind;
 	if (!IsStaticInitialized())
 	{
 		struct Vertex
@@ -48,7 +48,7 @@ SolidSphere::SolidSphere(Graphics& gfx, float radius)
 	AddBind(std::make_unique<TransformCbuf>(gfx, *this));
 }
 
-void SolidSphere::Update(float dt) noexcept {}
+void SolidSphere::Update(float) noexcept {}
 
 void SolidSphere::SetPos(DirectX::XMFLOAT3 pos) noexcept
 {

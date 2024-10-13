@@ -4,7 +4,8 @@
 
 namespace wrl = Microsoft::WRL;
 
-Texture::Texture(Graphics& gfx, const Surface& s)
+
+Bind::Texture::Texture(Graphics& gfx, const Surface& s)
 {
 	INFOMAN(gfx);
 
@@ -40,7 +41,7 @@ Texture::Texture(Graphics& gfx, const Surface& s)
 	));
 }
 
-void Texture::Bind(Graphics& gfx) noexcept
+void Bind::Texture::Bind(Graphics& gfx) noexcept
 {
 	GetContext(gfx)->PSSetShaderResources(0u, 1u, pTextureView.GetAddressOf());
 }

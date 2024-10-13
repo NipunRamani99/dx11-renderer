@@ -29,6 +29,8 @@ AssimpTest::AssimpTest(Graphics& gfx,
 	scale(scale)
 {
 	namespace dx = DirectX;
+	using namespace Bind;
+
 	if (!IsStaticInitialized()) 
 	{
 		BindForPhongShader(gfx);
@@ -75,15 +77,17 @@ DirectX::XMMATRIX AssimpTest::GetTransformXM() const noexcept
 void AssimpTest::BindForPhongShader(Graphics& gfx)
 {
 	namespace dx = DirectX;
+	using namespace Bind;
+
 	Assimp::Importer importer;
 	const auto pmodel = importer.ReadFile("./Models/suzanne.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 	const auto pmesh = pmodel->mMeshes[0];
 
 	
-	hw3dexp::VertexBuffer vbuf(std::move(
-		hw3dexp::VertexLayout{}
-		.Append<hw3dexp::VertexLayout::Position3D>()
-		.Append<hw3dexp::VertexLayout::Normal>()
+	Dvtx::VertexBuffer vbuf(std::move(
+		Dvtx::VertexLayout{}
+		.Append<Dvtx::VertexLayout::Position3D>()
+		.Append<Dvtx::VertexLayout::Normal>()
 	));
 	for (unsigned int i = 0; i < pmesh->mNumVertices; i++)
 	{

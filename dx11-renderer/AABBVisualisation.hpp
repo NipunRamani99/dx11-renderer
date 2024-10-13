@@ -25,9 +25,9 @@ public:
 		_scale_y(aabb.max.y - aabb.min.y),
 		_scale_z(aabb.max.z - aabb.min.z)
 	{
-		hw3dexp::VertexLayout layout;
-		layout.Append<hw3dexp::VertexLayout::ElementType::Position3D>();
-		hw3dexp::VertexBuffer buf{ layout };
+		Dvtx::VertexLayout layout;
+		layout.Append<Dvtx::VertexLayout::ElementType::Position3D>();
+		Dvtx::VertexBuffer buf{ layout };
 		struct Vertex
 		{
 			DirectX::XMFLOAT3 pos;
@@ -38,6 +38,8 @@ public:
 			buf.EmplaceBack(cube.vertices[i].pos);
 		}
 
+		using namespace Bind;
+		
 		AddBind(std::make_unique<VertexBuffer>(gfx, buf));
 
 		AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, cube.indices));

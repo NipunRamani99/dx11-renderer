@@ -6,7 +6,7 @@
 #include "Camera.hpp"
 #include "FirstPersonCamera.hpp"
 #include "PointLight.hpp"
-#include "Model.hpp"
+#include "Mesh.hpp"
 
 class App {
 private:
