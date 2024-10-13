@@ -25,6 +25,8 @@ SkinnedBox::SkinnedBox(Graphics& gfx,
 	phi(adist(rng))
 {
 	namespace dx = DirectX;
+	
+	using namespace Bind;
 
 	if (!IsStaticInitialized())
 	{

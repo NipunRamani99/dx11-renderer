@@ -1,5 +1,5 @@
 #include "TransformCbuf.hpp"
-
+using namespace Bind;
 TransformCbuf::TransformCbuf(Graphics& gfx, const Drawable& parent)
 	:
 	parent(parent)

@@ -4,6 +4,8 @@
 #include "Cone.hpp"
 #include <array>
 
+using namespace Bind;
+
 Pyramid::Pyramid(Graphics& gfx,
 	std::mt19937& rng,
 	std::uniform_real_distribution<float>& adist,

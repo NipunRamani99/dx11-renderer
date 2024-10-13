@@ -1,5 +1,7 @@
 #include "VertexShader.hpp"
 
+using namespace Bind;
+
 VertexShader::VertexShader(Graphics& gfx, const std::wstring& path) {
 	INFOMAN(gfx);
 	GFX_THROW_INFO(D3DReadFileToBlob(path.c_str(), &pBytecodeBlob));

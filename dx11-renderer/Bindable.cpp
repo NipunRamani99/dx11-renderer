@@ -1,6 +1,6 @@
 #pragma once
 #include "Bindable.hpp"
-
+using namespace Bind;
 ID3D11DeviceContext* Bindable::GetContext(Graphics& gfx) noexcept
 {
 	return gfx.pContext.Get();

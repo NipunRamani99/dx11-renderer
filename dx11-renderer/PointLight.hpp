@@ -17,7 +17,7 @@ private:
 		float attQuad = 0.0075f;
 	};
 
-	mutable PixelConstantBuffer<PointLightCBuf> cbuf;
+	mutable Bind::PixelConstantBuffer<PointLightCBuf> cbuf;
 	mutable SolidSphere mesh;
 	DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f };
 	PointLightCBuf cbdata;

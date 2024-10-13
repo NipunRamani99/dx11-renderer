@@ -4,6 +4,8 @@
 
 namespace wrl = Microsoft::WRL;
 
+using namespace Bind;
+
 Texture::Texture(Graphics& gfx, const Surface& s)
 {
 	INFOMAN(gfx);
