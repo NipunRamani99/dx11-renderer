@@ -1,6 +1,6 @@
 #include "TransformCbuf.hpp"
-
-Bind::TransformCbuf::TransformCbuf(Graphics& gfx, const Drawable& parent)
+using namespace Bind;
+TransformCbuf::TransformCbuf(Graphics& gfx, const Drawable& parent)
 	:
 	parent(parent)
 {
@@ -9,7 +9,7 @@ Bind::TransformCbuf::TransformCbuf(Graphics& gfx, const Drawable& parent)
 	}
 }
 
-void Bind::TransformCbuf::Bind(Graphics& gfx) noexcept
+void TransformCbuf::Bind(Graphics& gfx) noexcept
 {
 	const auto model = parent.GetTransformXM();
 	const auto modelView = parent.GetTransformXM() * gfx.GetCamera();
@@ -27,4 +27,4 @@ void Bind::TransformCbuf::Bind(Graphics& gfx) noexcept
 }
 
 
-std::unique_ptr<Bind::VertexConstantBuffer<Bind::TransformCbuf::Transforms>> Bind::TransformCbuf::pVcbuf;
+std::unique_ptr<VertexConstantBuffer<TransformCbuf::Transforms>> TransformCbuf::pVcbuf;

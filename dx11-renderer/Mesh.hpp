@@ -19,7 +19,6 @@ public:
 
 	void Update(float) noexcept;
 
-
 	void Draw(Graphics & gfx, DirectX::XMMATRIX accumulatedTransform) noexcept;
 
 	void DrawAABB(Graphics& gfx, DirectX::XMMATRIX accumulatedTransform) noexcept;
@@ -69,6 +68,4 @@ private:
 	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
 
 	std::unique_ptr<Node> ParseNode(const aiNode& node);
-
-
 };
