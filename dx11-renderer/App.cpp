@@ -129,6 +129,7 @@ void App::DoFrame()
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 	model->Draw(wnd.Gfx());
 	model->DrawAABB(wnd.Gfx());
+	model->ShowWindow();
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {

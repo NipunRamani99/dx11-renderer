@@ -28,6 +28,8 @@ public:
 	void SetAABB(AABB aabb);
 
 	const AABB& getAABB() const;
+
+
 };
 
 class Node
@@ -37,16 +39,18 @@ private:
 	std::vector<Mesh*> _mesh;
 	std::vector<std::unique_ptr<Node>> _nodes;
 	DirectX::XMFLOAT4X4 _transform;
-
+	std::string name;
 public:
 	
-	Node(std::vector<Mesh*> mesh, DirectX::FXMMATRIX & transform);
+	Node(std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX & transform);
 
 	void AddNode(std::unique_ptr<Node> node);
 
 	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
 
 	void DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
+
+	void ShowWindow() const;
 };
 
 class Model
@@ -54,7 +58,7 @@ class Model
 private:
 	std::vector<std::unique_ptr<Mesh>> _meshes;
 	std::unique_ptr<Node> _root;
-	
+	std::string name = "Sample Text";
 public:
 	Model(Graphics& gfx, const std::string modelPath);
 
@@ -62,10 +66,13 @@ public:
 
 	void DrawAABB(Graphics& gfx);
 
+	void ShowWindow() const;
 private:
 	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh);
 
 	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
 
 	std::unique_ptr<Node> ParseNode(const aiNode& node);
+
+	
 };

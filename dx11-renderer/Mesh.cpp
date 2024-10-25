@@ -1,5 +1,5 @@
 #include "Mesh.hpp"
-
+#include "imgui\imgui.h"
 Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, const AABB& aabb)
 	:
 	viz(gfx, aabb)
@@ -62,9 +62,10 @@ const AABB& Mesh::getAABB() const
 	return _aabb;
 }
 
-Node::Node(std::vector<Mesh*> mesh, DirectX::FXMMATRIX& transform)
+Node::Node(std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX& transform)
 	:
-	_mesh(mesh)
+	_mesh(mesh),
+	name(name)
 {
 	DirectX::XMStoreFloat4x4(&_transform, transform);
 }
@@ -100,6 +101,19 @@ void Node::DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform)
 	}
 }
 
+void Node::ShowWindow() const
+{
+	
+	if (ImGui::TreeNodeEx(name.c_str(), _nodes.empty() ? ImGuiTreeNodeFlags_Leaf : 0))
+	{
+		for (auto& pnode : _nodes)
+		{
+			pnode->ShowWindow();
+		}
+		ImGui::TreePop();
+	}
+}
+
 Model::Model(Graphics& gfx, const std::string modelPath)
 {
 	Assimp::Importer importer;
@@ -107,6 +121,7 @@ Model::Model(Graphics& gfx, const std::string modelPath)
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices);
 
+	name = pScene->mName.C_Str();
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
 	{
 		_meshes.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));
@@ -223,7 +238,7 @@ std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
 		)
 	);
 
-	std::unique_ptr<Node> pNode = std::make_unique<Node>(meshes, matrix);
+	std::unique_ptr<Node> pNode = std::make_unique<Node>(name, meshes, matrix);
 
 	for (size_t i = 0; i < node.mNumChildren; i++)
 	{
@@ -231,4 +246,13 @@ std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
 		pNode->AddNode(std::move(ch));
 	}
 	return pNode;
+}
+
+void Model::ShowWindow() const
+{
+	if (ImGui::TreeNodeEx(name.c_str()))
+	{
+		_root->ShowWindow();
+		ImGui::TreePop();
+	}
 }
