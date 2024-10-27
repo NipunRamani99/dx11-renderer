@@ -22,10 +22,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSV;
-
-	DirectX::XMMATRIX projection;
-
 	bool imguiEnabled = true;
+	DirectX::XMMATRIX projection;
 	DirectX::XMMATRIX _camera;
 
 public:

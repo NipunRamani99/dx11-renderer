@@ -7,7 +7,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "AABBVisualisation.hpp"
-
+#include <memory>
+#include <optional>
 class Mesh : public DrawableBase<Mesh>
 {
 private:
@@ -37,9 +38,11 @@ class Node
 	friend class Model;
 private:
 	std::vector<Mesh*> _mesh;
-	std::vector<std::unique_ptr<Node>> _nodes;
-	DirectX::XMFLOAT4X4 _transform;
 	std::string name;
+	std::vector<std::unique_ptr<Node>> _nodes;
+	DirectX::XMFLOAT4X4 _basetransform;
+	DirectX::XMFLOAT4X4 _appliedtransform;
+
 public:
 	
 	Node(std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX & transform);
@@ -50,15 +53,18 @@ public:
 
 	void DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
 
-	void ShowWindow() const;
-};
+	void ShowWindow(int & nodeIndex, std::optional<int> & selectedIndex, Node *& selectedNode) const;
 
+	void SetAppliedTransform(DirectX::FXMMATRIX appliedTransform);
+};
+class ModelWindow;
 class Model
 {
 private:
 	std::vector<std::unique_ptr<Mesh>> _meshes;
 	std::unique_ptr<Node> _root;
-	std::string name = "Sample Text";
+	std::string _name = "Sample Text";
+	std::unique_ptr<ModelWindow> _pwindow;
 public:
 	Model(Graphics& gfx, const std::string modelPath);
 
@@ -66,13 +72,12 @@ public:
 
 	void DrawAABB(Graphics& gfx);
 
-	void ShowWindow() const;
+	void ShowWindow();
+	~Model();
 private:
 	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh);
 
 	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
 
 	std::unique_ptr<Node> ParseNode(const aiNode& node);
-
-	
 };

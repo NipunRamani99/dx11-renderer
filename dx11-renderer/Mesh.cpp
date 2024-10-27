@@ -1,5 +1,6 @@
 #include "Mesh.hpp"
 #include "imgui\imgui.h"
+#include <unordered_map>
 Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, const AABB& aabb)
 	:
 	viz(gfx, aabb)
@@ -67,7 +68,8 @@ Node::Node(std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX& transf
 	_mesh(mesh),
 	name(name)
 {
-	DirectX::XMStoreFloat4x4(&_transform, transform);
+	DirectX::XMStoreFloat4x4(&_basetransform, transform);
+	DirectX::XMStoreFloat4x4(&_appliedtransform, DirectX::XMMatrixIdentity());
 }
 
 void Node::AddNode(std::unique_ptr<Node> node)
@@ -75,9 +77,9 @@ void Node::AddNode(std::unique_ptr<Node> node)
 	_nodes.push_back(std::move(node));
 }
 
-void Node::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform)
+void Node::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = DirectX::XMMatrixIdentity())
 {
-	const auto nodeTransform = DirectX::XMLoadFloat4x4(&_transform) * accumulatedTransform;
+	const auto nodeTransform = DirectX::XMLoadFloat4x4(&_appliedtransform) * DirectX::XMLoadFloat4x4(&_basetransform) * accumulatedTransform;
 	for (auto pmesh : _mesh)
 	{
 		pmesh->Draw(gfx, nodeTransform);
@@ -88,9 +90,9 @@ void Node::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform)
 	}
 }
 
-void Node::DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform)
+void Node::DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = DirectX::XMMatrixIdentity())
 {
-	const auto nodeTransform = DirectX::XMLoadFloat4x4(&_transform) * accumulatedTransform;
+	const auto nodeTransform = DirectX::XMLoadFloat4x4(&_appliedtransform) * DirectX::XMLoadFloat4x4(&_basetransform) * accumulatedTransform;
 	for (auto pmesh : _mesh)
 	{
 		pmesh->DrawAABB(gfx, nodeTransform);
@@ -101,27 +103,102 @@ void Node::DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform)
 	}
 }
 
-void Node::ShowWindow() const
+void Node::ShowWindow(int & nodeIndex, std::optional<int>& selectedIndex, Node *& selectedNode) const
 {
-	
-	if (ImGui::TreeNodeEx(name.c_str(), _nodes.empty() ? ImGuiTreeNodeFlags_Leaf : 0))
+	int currentNodeIndex = nodeIndex;
+	nodeIndex++;
+	ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow |
+		(selectedIndex.value_or(-1) == currentNodeIndex ? ImGuiTreeNodeFlags_Selected : 0 |
+			_nodes.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
+	if (ImGui::TreeNodeEx((void*)(intptr_t)currentNodeIndex, flag, name.c_str()))
 	{
+		selectedIndex = ImGui::IsItemClicked() ? currentNodeIndex : selectedIndex;
+		selectedNode = ImGui::IsItemClicked() ? const_cast<Node*>(this) : selectedNode;
 		for (auto& pnode : _nodes)
 		{
-			pnode->ShowWindow();
+			pnode->ShowWindow(nodeIndex, selectedIndex, selectedNode);
 		}
 		ImGui::TreePop();
 	}
 }
 
+void Node::SetAppliedTransform(DirectX::FXMMATRIX appliedTransform)
+{
+	DirectX::XMStoreFloat4x4(&_appliedtransform, appliedTransform);
+}
+
+class ModelWindow
+{
+public:
+	ModelWindow() {}
+	void ShowWindow(std::string name, const Node & rootNode)
+	{
+		ImGui::Begin("Model");
+		ImGui::Columns(2, nullptr, true);
+		int nodeIndex = 0;
+		if (ImGui::TreeNodeEx(name.c_str()))
+		{
+
+			rootNode.ShowWindow(nodeIndex, selectedIndex, _pselectednode);
+			ImGui::TreePop();
+
+		}
+		ImGui::NextColumn();
+		int index = selectedIndex.value();
+		ImGui::SliderAngle("Yaw", (float*)&transforms[index].yaw, -180.0f, 180.0f);
+		ImGui::SliderAngle("Pitch", (float*)&transforms[index].pitch, -180.0f, 180.0f);
+		ImGui::SliderAngle("Roll", (float*)&transforms[index].roll, -180.0f, 180.0f);
+		ImGui::InputFloat("Position X", (float*)&transforms[index].x, 0.1f, 1.0f, "%.3f");
+		ImGui::InputFloat("Position Y", (float*)&transforms[index].y, 0.1f, 1.0f, "%.3f");
+		ImGui::InputFloat("Position Z", (float*)&transforms[index].z, 0.1f, 1.0f, "%.3f");
+		ImGui::Text("Selected Index: %d", selectedIndex.value());
+		ImGui::End();
+	}
+
+	DirectX::XMMATRIX GetTransformation()
+	{
+		DirectX::XMMATRIX appliedTransfrom = DirectX::XMMatrixIdentity();
+		if (selectedIndex.value() > -1)
+		{
+			auto transform = transforms[selectedIndex.value()];
+			appliedTransfrom = DirectX::XMMatrixRotationRollPitchYaw(transform.pitch, transform.yaw, transform.roll)
+				* DirectX::XMMatrixTranslation(transform.x, transform.y, transform.z);
+
+		}
+		return appliedTransfrom;
+	}
+
+	Node* GetSelectedNode()
+	{
+		return _pselectednode;
+	}
+
+	~ModelWindow() = default;
+private:
+	std::optional<int> selectedIndex = -1;
+	struct Pos
+	{
+		float yaw = 0.0f;
+		float roll = 0.0f;
+		float pitch = 0.0f;
+		float x = 0.0f;
+		float y = 0.0f;
+		float z = 0.0f;
+	};
+	std::unordered_map<int, Pos> transforms;
+	Node* _pselectednode = nullptr;
+};
+
 Model::Model(Graphics& gfx, const std::string modelPath)
+	:
+	_pwindow(std::make_unique<ModelWindow>())
 {
 	Assimp::Importer importer;
 	const auto pScene = importer.ReadFile(modelPath.c_str(),
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices);
 
-	name = pScene->mName.C_Str();
+	_name = pScene->mName.C_Str() ? pScene->mName.C_Str() : _name;
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
 	{
 		_meshes.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));
@@ -131,12 +208,17 @@ Model::Model(Graphics& gfx, const std::string modelPath)
 
 void Model::Draw(Graphics& gfx)
 {
-	_root->Draw(gfx, DirectX::XMMatrixIdentity());
+	if (auto node = _pwindow->GetSelectedNode())
+	{
+		DirectX::XMMATRIX transform = _pwindow->GetTransformation();
+		node->SetAppliedTransform(transform);
+	}
+	_root->Draw(gfx);
 }
 
 void Model::DrawAABB(Graphics& gfx)
 {
-	_root->DrawAABB(gfx, DirectX::XMMatrixIdentity());
+	_root->DrawAABB(gfx);
 }
 
 std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
@@ -231,7 +313,7 @@ std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
 	{
 		meshes.push_back(_meshes[node.mMeshes[i]].get());
 	}
-	std::string name = node.mName.C_Str();;
+	std::string name = node.mName.C_Str();
 	DirectX::XMMATRIX matrix = DirectX::XMMatrixTranspose(
 		DirectX::XMLoadFloat4x4(
 			reinterpret_cast<const DirectX::XMFLOAT4X4*>(&node.mTransformation)
@@ -248,11 +330,9 @@ std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
 	return pNode;
 }
 
-void Model::ShowWindow() const
+void Model::ShowWindow()
 {
-	if (ImGui::TreeNodeEx(name.c_str()))
-	{
-		_root->ShowWindow();
-		ImGui::TreePop();
-	}
+	_pwindow->ShowWindow(_name, *_root);
 }
+
+Model::~Model() = default;
