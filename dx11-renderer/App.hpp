@@ -21,8 +21,12 @@ private:
 	float speed_factor = 1.0f;
 	float prevMouseX = 0;
 	float prevMouseY = 0;
-
-
+	DirectX::XMMATRIX projection;
+	IntersectionResult result;
+	DirectX::XMFLOAT3 roFloat;
+	DirectX::XMFLOAT3 rdFloat;
+	int x = 0;
+	int y = 0;
 public:
 	App();
 	int Go();

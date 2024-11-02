@@ -16,7 +16,8 @@ private:
 	float _cameraSpeed = 1.0f;
 	DirectX::XMFLOAT2 _cursorPos;
 	DirectX::XMFLOAT2 _prevCursorPos;
-
+	static constexpr float travelSpeed = 12.0f;
+	static constexpr float rotationSpeed = 0.004f;
 
 public:
 	float _pitch = 0.0f;
@@ -37,9 +38,15 @@ public:
 		return _cameraPos;
 	}
 
+	DirectX::XMFLOAT3 GetDir()
+	{
+		return _front;
+	}
+
 	DirectX::XMMATRIX GetMatrix() const noexcept
 	{
 		using namespace DirectX;
+
 		XMVECTOR front = DirectX::XMLoadFloat3(&_front);
 		XMVECTOR up = DirectX::XMLoadFloat3(&_up);
 		XMVECTOR pos = DirectX::XMLoadFloat3(&_cameraPos);
@@ -52,46 +59,25 @@ public:
 		return _cameraPos;
 	}
 
+	void Translate(DirectX::XMFLOAT3 translation) noexcept
+	{
+		namespace dx = DirectX;
+		dx::XMVECTOR front = DirectX::XMLoadFloat3(&_front);
+		dx::XMVECTOR up = DirectX::XMLoadFloat3(&_up);
+		dx::XMVECTOR pos = DirectX::XMLoadFloat3(&_cameraPos);
+		dx::XMVectorMultiply(dx::XMLoadFloat3(&translation), dx::XMLoadFloat3(&_front));
+		dx::XMVECTOR sideVec = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(front, up));
+		pos = dx::XMVectorAdd(pos, dx::XMVectorAdd( 
+			dx::XMVectorScale(sideVec, translation.x * _cameraSpeed),
+			dx::XMVectorScale(front, translation.z * _cameraSpeed)
+			));
+
+		DirectX::XMStoreFloat3(&_cameraPos, pos);
+	}
+
 	void Update(const Keyboard& kbd, float xoffset, float yoffset)
 	{
 		using namespace DirectX;
-		XMVECTOR front = DirectX::XMLoadFloat3(&_front);
-		XMVECTOR up = DirectX::XMLoadFloat3(&_up);
-		XMVECTOR _pos = DirectX::XMLoadFloat3(&_cameraPos);
-		XMVECTOR sideVec = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(front, up));
-		
-		// Define a movement direction vector and initialize it to zero
-		XMVECTOR movement = XMVectorZero();
-
-		// Handle input for strafing (left/right)
-		if (kbd.KeyIsPressed('A'))
-		{
-			movement = XMVectorAdd(movement, sideVec);
-		}
-		else if (kbd.KeyIsPressed('D'))
-		{
-			movement = XMVectorSubtract(movement, sideVec);
-		}
-
-		// Handle input for moving forward/backward
-		if (kbd.KeyIsPressed('W'))
-		{
-			movement = XMVectorAdd(movement, front);
-		}
-		else if (kbd.KeyIsPressed('S'))
-		{
-			movement = XMVectorSubtract(movement, front);
-		}
-
-		// Apply movement to the camera position if movement is not zero
-		if (!XMVector3Equal(movement, XMVectorZero()))
-		{
-			movement = XMVector3Normalize(movement); // Normalize movement to ensure consistent speed
-			_pos = XMVectorAdd(_pos, XMVectorScale(movement, _cameraSpeed));
-		}
-
-		// Update _cameraPos (store the result back)
-		XMStoreFloat3(&_cameraPos, _pos);
 
 		// Apply mouse sensitivity (uncomment or modify sensitivity factor as needed)
 		float sensitivity = 0.05f;

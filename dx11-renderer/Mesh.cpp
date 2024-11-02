@@ -1,6 +1,16 @@
+#define TINYBVH_IMPLEMENTATION
 #include "Mesh.hpp"
 #include "imgui\imgui.h"
 #include <unordered_map>
+
+Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb)
+	:
+	Mesh(gfx,bindables,aabb)
+{
+	this->bvh = std::move(bvh);
+	this->vertices = std::move(vertices);
+}
+
 Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, const AABB& aabb)
 	:
 	viz(gfx, aabb)
@@ -63,10 +73,20 @@ const AABB& Mesh::getAABB() const
 	return _aabb;
 }
 
+void Mesh::SetBVH(std::unique_ptr<tinybvh::BVH> bvh)
+{
+	this->bvh = std::move(bvh);
+}
+
+const tinybvh::BVH & Mesh::GetBVH()
+{
+	return *bvh.get();
+}
+
 Node::Node(std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX& transform)
 	:
 	_mesh(mesh),
-	name(name)
+	_name(name)
 {
 	DirectX::XMStoreFloat4x4(&_basetransform, transform);
 	DirectX::XMStoreFloat4x4(&_appliedtransform, DirectX::XMMatrixIdentity());
@@ -110,7 +130,7 @@ void Node::ShowWindow(int & nodeIndex, std::optional<int>& selectedIndex, Node *
 	ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow |
 		(selectedIndex.value_or(-1) == currentNodeIndex ? ImGuiTreeNodeFlags_Selected : 0 |
 			_nodes.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
-	if (ImGui::TreeNodeEx((void*)(intptr_t)currentNodeIndex, flag, name.c_str()))
+	if (ImGui::TreeNodeEx((void*)(intptr_t)currentNodeIndex, flag, _name.c_str()))
 	{
 		selectedIndex = ImGui::IsItemClicked() ? currentNodeIndex : selectedIndex;
 		selectedNode = ImGui::IsItemClicked() ? const_cast<Node*>(this) : selectedNode;
@@ -125,6 +145,68 @@ void Node::ShowWindow(int & nodeIndex, std::optional<int>& selectedIndex, Node *
 void Node::SetAppliedTransform(DirectX::FXMMATRIX appliedTransform)
 {
 	DirectX::XMStoreFloat4x4(&_appliedtransform, appliedTransform);
+}
+
+void Node::IntersectNode(const DirectX::XMMATRIX& accumulatedTransform, const tinybvh::Ray& rayWorld, IntersectionResult& closestHit) {
+	// Compute the node's world transformation matrix
+	DirectX::XMMATRIX nodeTransform = DirectX::XMLoadFloat4x4(&_appliedtransform) * DirectX::XMLoadFloat4x4(&_basetransform) * accumulatedTransform;
+
+	// For each Mesh in the Node
+	for (const auto& pmesh : _mesh) {
+		// Get the inverse of the Mesh's world transform
+		DirectX::XMMATRIX invTransform = DirectX::XMMatrixInverse(nullptr, nodeTransform);
+
+		// Transform the ray into the Mesh's local space
+		DirectX::XMVECTOR rayOriginWorld = DirectX::XMVectorSet(rayWorld.O.x, rayWorld.O.y, rayWorld.O.z, 1.0f);
+		DirectX::XMVECTOR rayOriginLocal = DirectX::XMVector3Transform(rayOriginWorld, invTransform);
+
+		DirectX::XMVECTOR rayDirWorld = DirectX::XMVectorSet(rayWorld.D.x, rayWorld.D.y, rayWorld.D.z, 0.0f);
+		DirectX::XMVECTOR rayDirLocal = DirectX::XMVector3TransformNormal(rayDirWorld, invTransform);
+		rayDirLocal = DirectX::XMVector3Normalize(rayDirLocal);
+
+		// Convert to tinybvh::Ray
+		tinybvh::bvhvec3 rayOriginLocalVec;
+		tinybvh::bvhvec3 rayDirLocalVec;
+		DirectX::XMStoreFloat3(reinterpret_cast<DirectX::XMFLOAT3*>(&rayOriginLocalVec), rayOriginLocal);
+		DirectX::XMStoreFloat3(reinterpret_cast<DirectX::XMFLOAT3*>(&rayDirLocalVec), rayDirLocal);
+
+		tinybvh::Ray rayLocal(rayOriginLocalVec, rayDirLocalVec);
+
+		// Perform intersection with the Mesh's BVH
+		const tinybvh::BVH& bvh = pmesh->GetBVH();
+		bvh.Intersect(rayLocal);
+
+		if (rayLocal.hit.t < closestHit.t && rayLocal.hit.t > 0) {
+			// Update closest hit
+			closestHit.hit = true;
+			closestHit.t = rayLocal.hit.t;
+
+			// Compute intersection point in local space
+			tinybvh::bvhvec3 hitPointLocal = rayLocal.O + rayLocal.D * rayLocal.hit.t;
+
+			// Transform the hit point back to world space
+			DirectX::XMVECTOR hitPointLocalVec = DirectX::XMVectorSet(hitPointLocal.x, hitPointLocal.y, hitPointLocal.z, 1.0f);
+			DirectX::XMVECTOR hitPointWorldVec = DirectX::XMVector3Transform(hitPointLocalVec, nodeTransform);
+
+			DirectX::XMFLOAT3 hitPointWorld;
+			DirectX::XMStoreFloat3(&hitPointWorld, hitPointWorldVec);
+
+			closestHit.point = tinybvh::bvhvec3(hitPointWorld.x, hitPointWorld.y, hitPointWorld.z);
+			closestHit.mesh = pmesh;
+			closestHit.node = this;
+			closestHit.triangleIndex = rayLocal.hit.prim;
+		}
+	}
+
+	// Recurse into child Nodes
+	for (const auto & childNode : _nodes) {
+		childNode->IntersectNode(nodeTransform, rayWorld, closestHit);
+	}
+}
+
+std::string Node::GetName() const
+{
+	return _name;
 }
 
 class ModelWindow
@@ -190,20 +272,21 @@ private:
 };
 
 Model::Model(Graphics& gfx, const std::string modelPath)
-	:
-	_pwindow(std::make_unique<ModelWindow>())
+	
 {
 	Assimp::Importer importer;
 	const auto pScene = importer.ReadFile(modelPath.c_str(),
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices);
 
-	_name = pScene->mName.C_Str() ? pScene->mName.C_Str() : _name;
+	_name = pScene->mName.C_Str();
+	_name = _name.empty() ? "Sample Scene" : _name;
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
 	{
 		_meshes.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));
 	}
 	_root = ParseNode(*pScene->mRootNode);
+	_pwindow = std::make_unique<ModelWindow>();
 }
 
 void Model::Draw(Graphics& gfx)
@@ -255,16 +338,26 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 	}
 
 	std::vector<unsigned int> indices;
+	std::vector<tinybvh::bvhvec4> vertices;
 	indices.reserve(mesh.mNumFaces * 3);
-
+	vertices.reserve(mesh.mNumFaces * 3);
 	for (unsigned int i = 0; i < mesh.mNumFaces; i++)
 	{
 		const auto& face = mesh.mFaces[i];
 		indices.push_back(face.mIndices[0]);
 		indices.push_back(face.mIndices[1]);
 		indices.push_back(face.mIndices[2]);
-	}
+		auto v1 = mesh.mVertices[face.mIndices[0]];
+		auto v2 = mesh.mVertices[face.mIndices[1]];
+		auto v3 = mesh.mVertices[face.mIndices[2]];
 
+		vertices.push_back({ v1.x, v1.y, v1.z, 0 });
+		vertices.push_back({ v2.x, v2.y, v2.z ,0 });
+		vertices.push_back({ v3.x, v3.y, v3.z ,0 });
+	}
+	
+	std::unique_ptr<tinybvh::BVH> bvh = std::make_unique<tinybvh::BVH>();
+	bvh->Build(vertices.data(), mesh.mNumFaces);
 	std::vector<std::unique_ptr<Bindable>> bindables;
 	bindables.push_back(std::make_unique<VertexBuffer>(gfx, vbuf));
 
@@ -293,7 +386,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 	objectData.material = { 1.0f, 0.2f, 0.1f };
 	bindables.push_back(std::make_unique<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
 
-	return make_unique<Mesh>(gfx, bindables, aabb);
+	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb);
 }
 
 DirectX::XMMATRIX Model::ConvertToMatrix(const aiMatrix4x4& mat) {
@@ -314,6 +407,7 @@ std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
 		meshes.push_back(_meshes[node.mMeshes[i]].get());
 	}
 	std::string name = node.mName.C_Str();
+	name = name.empty() ? "Placeholder" : name;
 	DirectX::XMMATRIX matrix = DirectX::XMMatrixTranspose(
 		DirectX::XMLoadFloat4x4(
 			reinterpret_cast<const DirectX::XMFLOAT4X4*>(&node.mTransformation)
@@ -333,6 +427,19 @@ std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
 void Model::ShowWindow()
 {
 	_pwindow->ShowWindow(_name, *_root);
+}
+
+IntersectionResult Model::IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld)
+{
+	tinybvh::bvhvec3& rayOrigin = *reinterpret_cast<tinybvh::bvhvec3*>(const_cast<DirectX::XMFLOAT3*>(&rayOriginWorld));
+	tinybvh::bvhvec3& rayDirection = *reinterpret_cast<tinybvh::bvhvec3*>(const_cast<DirectX::XMFLOAT3*>(&rayDirectionWorld));
+	tinybvh::Ray ray{rayOrigin, rayDirection};
+	IntersectionResult result;
+	if (_root)
+	{
+		_root->IntersectNode(DirectX::XMMatrixIdentity(), ray, result);
+	}
+	return result;
 }
 
 Model::~Model() = default;

@@ -54,11 +54,12 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 App::App()
 	:
 	imgui(),
-	wnd(SCREEN_WIDTH, SCREEN_HEIGHT, "The Donkey Fart Box"),
+	wnd(SCREEN_WIDTH, SCREEN_HEIGHT, "DX11 Renderer"),
 	light(wnd.Gfx())
 {
+	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f);
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
-	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f));
+	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit.gltf");
 }
@@ -70,31 +71,71 @@ int App::Go()
 	prevMouseY = center.y;
 
 	while (keepRunning) {
-
-		if (!_showCursor)
-		{
-			wnd.CenterCursorPosition();
-		}
 		if (auto ecode = wnd.ProcessMessage()) {
 			return *ecode;
 		}
+		if (!_showCursor)
+		{
+			wnd.CenterCursorPosition();
 
+			// Handle input for strafing (left/right)
+			float dt = 1.0f / 60.0f;
+			if (wnd.kbd.KeyIsPressed('A'))
+			{
+				_fpsCam.Translate({ 1.0f, 0.0f, 0.0f });
+			}
+			if (wnd.kbd.KeyIsPressed('D'))
+			{
+				_fpsCam.Translate({ -1.0f, 0.0f, 0.0f });
+			}
+
+			if (wnd.kbd.KeyIsPressed('W'))
+			{
+				_fpsCam.Translate({ 0.0f, 0.0f, 1.0f});
+			}
+			if (wnd.kbd.KeyIsPressed('S'))
+			{
+				_fpsCam.Translate({ 0.0f, 0.0f, -1.0f});
+			}
+		}
+		
 		float currentMouseX = float(wnd.mouse.GetPosX());
 		float currentMouseY = float(wnd.mouse.GetPosY());
 
-		float deltaX = currentMouseX - prevMouseX;
-		float deltaY =  prevMouseY - currentMouseY;
 		
-		if(!_showCursor)
-			_fpsCam.Update(wnd.kbd, -deltaX, deltaY);
-		
-		DoFrame();
+		while (auto event = wnd.mouse.ReadRaw())
+		{
+			float deltaX = event->GetDeltaX();
+			float deltaY = event->GetDeltaY();
 
+			if (!_showCursor)
+				_fpsCam.Update(wnd.kbd, -deltaX, -deltaY);
+		}
+		if (_showCursor && wnd.mouse.LeftIsPressed())
+		{
+			roFloat = { currentMouseX, currentMouseY, 0.0f };
+			rdFloat = { currentMouseX, currentMouseY, 1.0f };
+			DirectX::XMVECTOR roMouse = DirectX::XMLoadFloat3(&roFloat);
+			DirectX::XMVECTOR rdMouse = DirectX::XMLoadFloat3(&rdFloat);
+			DirectX::XMVECTOR ro = DirectX::XMVector3Unproject(roMouse, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 1.0f, projection, _fpsCam.GetMatrix(), DirectX::XMMatrixIdentity());
+			DirectX::XMVECTOR rd = DirectX::XMVector3Unproject(rdMouse, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 1.0f, projection, _fpsCam.GetMatrix(),
+				DirectX::XMMatrixIdentity());
+			rd = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(rd, ro));
+
+			DirectX::XMStoreFloat3(&roFloat, ro);
+			DirectX::XMStoreFloat3(&rdFloat, rd);
+
+			result = model->IntersectMesh(roFloat, rdFloat);
+
+
+		}
+
+		DoFrame();
 
 		if (wnd.kbd.KeyIsPressed(VK_ESCAPE)) {
 			keepRunning = false;
 		}
-		
+
 		if (wnd.kbd.KeyIsPressed('K'))
 		{
 			_showCursor = !_showCursor;
@@ -125,6 +166,11 @@ void App::DoFrame()
 	{
 		wnd.Gfx().EnableImgui();
 	}
+	float currentMouseX = float(wnd.mouse.GetPosX());
+	float currentMouseY = float(wnd.mouse.GetPosY());
+	DirectX::XMFLOAT3 pos = _fpsCam.GetPos();
+	DirectX::XMFLOAT3 dir = _fpsCam.GetDir();
+
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 	model->Draw(wnd.Gfx());
@@ -142,12 +188,20 @@ void App::DoFrame()
 			ImGui::Text("Status: %s", wnd.kbd.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING");
 		}
 
+
 		ImGui::Text("Yaw: %.2f", _fpsCam._yaw);
 		ImGui::Text("Pitch: %.2f", _fpsCam._pitch);
 		ImGui::Text("Mouse : %d %d", wnd.mouse.GetPosX(), wnd.mouse.GetPosY());
 		ImGui::Text("Prev Mouse X: %.2f", prevMouseX);
 		ImGui::Text("Prev Mouse Y: %.2f", prevMouseY);
 		ImGui::Text("Mouse clicked: %d", wnd.mouse.LeftIsPressed());
+		ImGui::Text("Ray Hit: %d", result.hit);
+		ImGui::Text("Node selected: %s", result.node ? result.node->GetName().c_str() : "None");
+		ImGui::Text("Cam Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
+		ImGui::Text("Cam Dir: %.2f, %.2f, %.2f", dir.x, dir.y, dir.z);
+
+		ImGui::Text("RO: %.2f, %.2f, %.2f", roFloat.x, roFloat.y, roFloat.z);
+		ImGui::Text("RD: %.2f, %.2f, %.2f", rdFloat.x, rdFloat.y, rdFloat.z);
 
 		ImGui::End();
 		static ImGuiTextBuffer Buf;

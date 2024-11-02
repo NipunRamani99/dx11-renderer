@@ -7,13 +7,14 @@
 #include <memory>
 #include "Graphics.hpp"
 #include "WindowsConstants.h"
-
+#include <vector>
 class Window {
 private:
 	unsigned int width = SCREEN_WIDTH;
 	unsigned int height = SCREEN_HEIGHT;
 	HWND hwnd;
 	std::unique_ptr<Graphics> pGfx;
+	std::vector<char> rawInputBuffer;
 public:
 	Keyboard kbd;
 	Mouse mouse;

@@ -45,9 +45,24 @@ Mouse::Event Mouse::Read() noexcept
 	}
 }
 
+std::optional<Mouse::RawInputEvent> Mouse::ReadRaw() noexcept
+{
+	if (rawBuffer.size() > 0u)
+	{
+		RawInputEvent rawevent = rawBuffer.front();
+		rawBuffer.pop();
+		return std::optional(rawevent);
+	}
+	else
+	{
+		return std::nullopt;
+	}
+}
+
 void Mouse::Flush() noexcept
 {
 	buffer = std::queue<Event>();
+	rawBuffer = std::queue<RawInputEvent>();
 }
 
 void Mouse::OnMouseMove(int newx, int newy) noexcept
@@ -117,11 +132,25 @@ void Mouse::OnWheelDown(int x, int y) noexcept
 	TrimBuffer();
 }
 
+void Mouse::OnMouseRawInput(int x, int y) noexcept
+{
+	RawInputEvent rawEvent(x, y);
+	rawBuffer.push(rawEvent);
+}
+
 void Mouse::TrimBuffer() noexcept
 {
 	while (buffer.size() > bufferSize)
 	{
 		buffer.pop();
+	}
+}
+
+void Mouse::TrimRawBuffer() noexcept
+{
+	while (rawBuffer.size() > bufferSize)
+	{
+		rawBuffer.pop();
 	}
 }
 

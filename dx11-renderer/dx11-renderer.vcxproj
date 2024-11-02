@@ -141,7 +141,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectDir)assimp\bin\x64\assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)assimp\bin\x64\assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ObjectFileOutput>$(ProjectDir)%(Filename).cso</ObjectFileOutput>
@@ -244,6 +244,7 @@
     <ClInclude Include="Surface.hpp" />
     <ClInclude Include="Texture.hpp" />
     <ClInclude Include="Timer.hpp" />
+    <ClInclude Include="tiny_bvh\tiny_bvh.h" />
     <ClInclude Include="Topology.hpp" />
     <ClInclude Include="TransformCbuf.hpp" />
     <ClInclude Include="VertexBuffer.hpp" />

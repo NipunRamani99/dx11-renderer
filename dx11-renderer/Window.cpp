@@ -66,6 +66,18 @@ Window::Window(int width, int height, const char* name)
 	ImGui_ImplWin32_Init(hwnd);
 	// create graphics object
 	pGfx = std::make_unique<Graphics>(hwnd);
+
+	RAWINPUTDEVICE Rid;
+	Rid.usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+	Rid.usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+	Rid.dwFlags = 0;
+	Rid.hwndTarget = 0;
+
+
+	if (RegisterRawInputDevices(&Rid, 1, sizeof(Rid)) == FALSE)
+	{
+		throw HWND_LAST_EXCEPT();
+	}
 }
 
 Window::~Window()
@@ -276,7 +288,8 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noe
 				mouse.OnMouseLeave();
 			}
 			break;
-		}case WM_MOUSEWHEEL:
+		}
+		case WM_MOUSEWHEEL:
 		{
 			if (imio.WantCaptureMouse)
 			{
@@ -286,6 +299,36 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noe
 			const int delta = GET_WHEEL_DELTA_WPARAM(wparam);
 			mouse.OnWheelDelta(pt.x, pt.y, delta);
 			break;
+		}
+		case WM_INPUT:
+		{
+			unsigned int size = 0;
+			if (GetRawInputData((HRAWINPUT)lparam,
+				RID_INPUT,
+				nullptr,
+				&size,
+				sizeof(RAWINPUTHEADER)) == -1)
+			{
+				// bail if read failed
+				OutputDebugString(TEXT("GetRawInputData failed for some reason !\n"));
+				break;
+			}
+			rawInputBuffer.resize(size);
+			char* data = rawInputBuffer.data();
+			if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT,
+				data, &size,
+				sizeof(RAWINPUTHEADER)) != size)
+			{
+				OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+				break;
+			}
+			RAWINPUT* raw = (RAWINPUT*)data;
+			if (raw->header.dwType == RIM_TYPEMOUSE)
+			{
+				int x = raw->data.mouse.lLastX;
+				int y = raw->data.mouse.lLastY;
+				mouse.OnMouseRawInput(x, y);
+			}
 		}
 
 	/*************** END MOUSE INPUT MESSAGES ***************/

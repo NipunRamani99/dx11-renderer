@@ -1,7 +1,7 @@
 #pragma once
 #include <queue>
 #include <string>
-
+#include <optional>
 class Mouse {
 	friend class Window;
 public:
@@ -116,6 +116,35 @@ public:
 		}
 	};
 
+	class RawInputEvent
+	{
+	private:
+		int x = 0;
+		int y = 0;
+	public:
+		RawInputEvent(int x, int y)
+			:
+			x(x),
+			y(y)
+		{
+
+		}
+
+		long GetDeltaX() noexcept
+		{
+			return x;
+		}
+
+		long GetDeltaY() noexcept
+		{
+			return y;
+		}
+
+		const std::string ToString()
+		{
+			return "Mouse Delta X: " + std::to_string(x) + " Y:" + std::to_string(y);
+		}
+	};
 private:
 	static constexpr unsigned int bufferSize = 16u;
 	int x;
@@ -125,6 +154,7 @@ private:
 	bool isInWindow = false;
 	int wheelDeltaCarry = 0;
 	std::queue<Event> buffer;
+	std::queue<RawInputEvent> rawBuffer;
 public:
 	Mouse() = default;
 	Mouse(const Mouse&) = delete;
@@ -136,6 +166,7 @@ public:
 	bool LeftIsPressed() const noexcept;
 	bool RightIsPressed() const noexcept;
 	Mouse::Event Read() noexcept;
+	std::optional<RawInputEvent> ReadRaw() noexcept;
 	bool IsEmpty() const noexcept
 	{
 		return buffer.empty();
@@ -156,6 +187,8 @@ private:
 	void OnRightReleased(int x, int y) noexcept;
 	void OnWheelUp(int x, int y) noexcept;
 	void OnWheelDown(int x, int y) noexcept;
+	void OnMouseRawInput(int x, int y) noexcept;
 	void TrimBuffer() noexcept;
+	void TrimRawBuffer() noexcept;
 	void OnWheelDelta(int x, int y, int delta) noexcept;
 };
