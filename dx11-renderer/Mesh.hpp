@@ -58,35 +58,23 @@ class Node
 {
 	friend class Model;
 private:
-	
 	std::vector<Mesh*> _mesh;
-	
 	std::string _name;
-	
 	std::vector<std::unique_ptr<Node>> _nodes;
-	
 	DirectX::XMFLOAT4X4 _basetransform;
-
 	DirectX::XMFLOAT4X4 _appliedtransform;
+	int id = 0;
 	
 public:
-	
-	Node(std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX & transform);
-
+	Node(int id, std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX & transform);
 	void AddNode(std::unique_ptr<Node> node);
-
 	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
-
 	void DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
-
-	void ShowWindow(int & nodeIndex, std::optional<int> & selectedIndex, Node *& selectedNode) const;
-
+	void ShowWindow(Node *& selectedNode) const;
 	void SetAppliedTransform(DirectX::FXMMATRIX appliedTransform);
-
     void IntersectNode(const DirectX::XMMATRIX& accumulatedTransform, const tinybvh::Ray& rayWorld, IntersectionResult& closestHit);
-
 	std::string GetName() const;
-
+	int GetId() const;
 };
 
 class ModelWindow;
@@ -118,5 +106,5 @@ private:
 	
 	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
 	
-	std::unique_ptr<Node> ParseNode(const aiNode& node);
+	std::unique_ptr<Node> ParseNode(int & nextId, const aiNode& node);
 };
