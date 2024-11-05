@@ -102,7 +102,7 @@ public:
 
 private:
 	
-	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh);
+	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial * const * materials);
 	
 	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
 	

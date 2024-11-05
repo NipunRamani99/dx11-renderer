@@ -291,7 +291,7 @@ Model::Model(Graphics& gfx, const std::string modelPath)
 	_name = _name.empty() ? "Sample Scene" : _name;
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
 	{
-		_meshes.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));
+		_meshes.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials));
 	}
 	int nextId = 0;
 	_root = ParseNode(nextId, *pScene->mRootNode);
@@ -313,7 +313,7 @@ void Model::DrawAABB(Graphics& gfx)
 	_root->DrawAABB(gfx);
 }
 
-std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
+std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials)
 {
 	namespace dx = DirectX;
 	using namespace Bind;
@@ -322,6 +322,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 		Dvtx::VertexLayout{}
 		.Append<Dvtx::VertexLayout::Position3D>()
 		.Append<Dvtx::VertexLayout::Normal>()
+		.Append<Dvtx::VertexLayout::Texture2D>()
 	));
 	AABB aabb;
 	aabb.min.x = mesh.mVertices[0].x;
@@ -342,8 +343,17 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh)
 
 		vbuf.EmplaceBack(
 			dx::XMFLOAT3{ mesh.mVertices[i].x, mesh.mVertices[i].y , mesh.mVertices[i].z },
-			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i])
+			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
+			*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][1])
 		);
+
+	}
+
+	aiMaterial* material = materials[mesh.mMaterialIndex];
+	for (int i = 0; i < material->mNumProperties; i++)
+	{
+		aiMaterialProperty * prop = material->mProperties[i];
+		int t = 123;
 	}
 
 	std::vector<unsigned int> indices;

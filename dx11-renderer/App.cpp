@@ -61,7 +61,7 @@ App::App()
 	GeometryAssortmentScene(wnd.Gfx(), drawables, nDrawables);
 	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
-	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit.gltf");
+	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
 }
 
 int App::Go()
