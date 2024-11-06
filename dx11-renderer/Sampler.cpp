@@ -3,7 +3,9 @@
 
 using namespace Bind;
 
-Sampler::Sampler(Graphics& gfx)
+Sampler::Sampler(Graphics& gfx, const unsigned int slot)
+	:
+	slot(slot)
 {
 	INFOMAN(gfx);
 	D3D11_SAMPLER_DESC sd{};
@@ -25,5 +27,5 @@ Sampler::Sampler(Graphics& gfx)
 
 void Sampler::Bind(Graphics& gfx) noexcept
 {
-	GetContext(gfx)->PSSetSamplers(0, 1, pSampler.GetAddressOf());
+	GetContext(gfx)->PSSetSamplers(slot, 1, pSampler.GetAddressOf());
 }

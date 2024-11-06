@@ -88,6 +88,7 @@ void AssimpTest::BindForPhongShader(Graphics& gfx)
 		Dvtx::VertexLayout{}
 		.Append<Dvtx::VertexLayout::Position3D>()
 		.Append<Dvtx::VertexLayout::Normal>()
+		.Append<Dvtx::VertexLayout::Texture2D>()
 	));
 	for (unsigned int i = 0; i < pmesh->mNumVertices; i++)
 	{

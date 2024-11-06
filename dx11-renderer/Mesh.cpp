@@ -2,7 +2,9 @@
 #include "Mesh.hpp"
 #include "imgui\imgui.h"
 #include <unordered_map>
-
+#include "Texture.hpp"
+#include "Surface.hpp"
+#include "Sampler.hpp"
 Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb)
 	:
 	Mesh(gfx,bindables,aabb)
@@ -344,17 +346,11 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		vbuf.EmplaceBack(
 			dx::XMFLOAT3{ mesh.mVertices[i].x, mesh.mVertices[i].y , mesh.mVertices[i].z },
 			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
-			*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][1])
+			*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
 		);
 
 	}
 
-	aiMaterial* material = materials[mesh.mMaterialIndex];
-	for (int i = 0; i < material->mNumProperties; i++)
-	{
-		aiMaterialProperty * prop = material->mProperties[i];
-		int t = 123;
-	}
 
 	std::vector<unsigned int> indices;
 	std::vector<tinybvh::bvhvec4> vertices;
@@ -382,20 +378,31 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 
 	bindables.push_back(std::make_unique<IndexBuffer>(gfx, indices));
 
-	auto pvs = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
+	auto pvs = std::make_unique<VertexShader>(gfx, L"PhongVSTextured.cso");
 	auto pvsbc = pvs->GetBytecode();
 
 	bindables.push_back(std::move(pvs));
 
-	bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
+	bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTextured.cso"));
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
 		{ "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TexCoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0  }
 	};
 
+
 	bindables.push_back(std::make_unique<InputLayout>(gfx, ied, pvsbc));
+
+	aiMaterial* material = materials[mesh.mMaterialIndex];
+	aiString texFileName;
+	material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
+	std::string filePath = texFileName.C_Str();
+	filePath = ".\\Models\\nanosuit\\" + filePath;
+	bindables.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(filePath), 1u));
+	bindables.push_back(std::make_unique<Sampler>(gfx, 1u));
+
 
 	struct ObjectData {
 		alignas(16) dx::XMFLOAT3 material;
