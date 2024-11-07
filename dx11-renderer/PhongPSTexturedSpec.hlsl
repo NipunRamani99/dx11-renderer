@@ -24,7 +24,7 @@ Texture2D diffuseTex : register(t1);
 SamplerState texSampler : register(s1);
 Texture2D specularTex : register(t2);
 
-
+static const float specularPowerFactor = 100.0f;
 float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
 	// fragment to light vector data 
@@ -35,13 +35,14 @@ float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : Tex
     const float att = 1.0f / (1.0f + attLin * distToL + attQuad * (distToL * distToL));
 	// diffuse intensity
 	float NdotL = max(0.0f, dot(dirToL, normalize(n)));   // Normalized normal
-	const float3 diffuse = diffuseColor * 1.0f * att * NdotL;
+	const float3 diffuse = diffuseColor * att * NdotL;
 	// reflected light vector
 	const float3 w = normalize(n) * dot( vToL, normalize(n) );
 	const float3 r = w * 2.0f - vToL;
-	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-	const float3 specular = att * (diffuseColor * diffuseIntensity) * specularIntensity * pow( max( 0.0f,dot( normalize( -r ),normalize( worldPos ) ) ), specularTex.Sample(texSampler, texCoord).z );
-
+    const float4 specularSample = specularTex.Sample(texSampler, texCoord);
+    const float3 specularReflectionColor = specularSample.rgb;
+    const float specularPower = specularSample.a * specularPowerFactor;
+    const float3 specular = att * (diffuseColor * diffuseIntensity) * pow(max(0.0f, dot(normalize(-r), normalize(worldPos))), specularPower);
 	// final color
-	return float4(saturate( diffuse + ambient ) * diffuseTex.Sample(texSampler, texCoord).xyz, 1.0f);
+    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
 }

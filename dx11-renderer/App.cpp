@@ -172,7 +172,7 @@ void App::DoFrame()
 	DirectX::XMFLOAT3 dir = _fpsCam.GetDir();
 
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
-	light.Bind(wnd.Gfx(), cam.GetMatrix());
+	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
 	model->Draw(wnd.Gfx());
 	model->DrawAABB(wnd.Gfx());
 	model->ShowWindow();

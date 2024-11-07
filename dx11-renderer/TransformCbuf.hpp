@@ -9,8 +9,8 @@ namespace Bind
 	private:
 		struct Transforms {
 			DirectX::XMMATRIX model;
-			DirectX::XMMATRIX modelView;
-			DirectX::XMMATRIX modelViewProj;
+			DirectX::XMMATRIX view;
+			DirectX::XMMATRIX projection;
 		};
 	private:
 		static std::unique_ptr<VertexConstantBuffer<Transforms>> pVcbuf;

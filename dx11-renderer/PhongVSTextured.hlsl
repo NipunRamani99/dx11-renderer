@@ -1,9 +1,10 @@
-cbuffer CBuf
+cbuffer CBuf : register(b0)
 {
-	matrix model;
-	matrix modelView;
-	matrix modelViewProj;
+	matrix model : packoffset(c0);
+	matrix view : packoffset(c4);
+	matrix projection : packoffset(c8);
 };
+
 
 struct VSOut
 {
@@ -23,9 +24,11 @@ struct VSIn
 VSOut main(VSIn input)
 {
 	VSOut vso;
-	vso.worldPos = (float3)mul(float4(input.pos, 1.0f), model);
-	vso.normal = (float3)mul(input.n, (float3x3)model);
-	vso.pos = mul(float4(input.pos, 1.0f), modelViewProj);
+	const float4x4 modelView = mul(model, view);
+	const float4x4 modelViewProj = mul(modelView, projection);
+	vso.worldPos = (float3)mul(float4(input.pos, 1.0f), modelView);
+	vso.normal = (float3)mul(input.n, (float3x3)modelView);
+	vso.pos = mul(float4(input.pos, 1.0f),  modelViewProj);
 	vso.texCoord = input.texCoord;
 	return vso;
 } 
