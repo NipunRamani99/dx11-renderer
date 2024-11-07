@@ -21,7 +21,9 @@ cbuffer CamData : register(b2) {
 }
 
 Texture2D diffuseTex : register(t1);
-SamplerState diffuseSampler : register(s1);
+SamplerState texSampler : register(s1);
+Texture2D specularTex : register(t2);
+
 
 float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
@@ -38,8 +40,8 @@ float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : Tex
 	const float3 w = normalize(n) * dot( vToL, normalize(n) );
 	const float3 r = w * 2.0f - vToL;
 	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-	const float3 specular = att * (diffuseColor * diffuseIntensity) * specularIntensity * pow( max( 0.0f,dot( normalize( -r ),normalize( worldPos ) ) ),specularPower );
+	const float3 specular = att * (diffuseColor * diffuseIntensity) * specularIntensity * pow( max( 0.0f,dot( normalize( -r ),normalize( worldPos ) ) ), specularTex.Sample(texSampler, texCoord).z );
 
 	// final color
-	return float4(saturate( diffuse + ambient ) * diffuseTex.Sample(diffuseSampler, texCoord).xyz, 1.0f);
+	return float4(saturate( diffuse + ambient ) * diffuseTex.Sample(texSampler, texCoord).xyz, 1.0f);
 }

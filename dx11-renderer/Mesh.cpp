@@ -383,7 +383,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 
 	bindables.push_back(std::move(pvs));
 
-	bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTextured.cso"));
+
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
@@ -402,7 +402,18 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	filePath = ".\\Models\\nanosuit\\" + filePath;
 	bindables.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(filePath), 1u));
 	bindables.push_back(std::make_unique<Sampler>(gfx, 1u));
-
+	bool foundSpecMap = false;
+	if (material->GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
+	{
+		filePath = texFileName.C_Str();
+		filePath = ".\\Models\\nanosuit\\" + filePath;
+		bindables.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(filePath), 2u));
+		foundSpecMap = true;
+	}
+	if(foundSpecMap)
+		bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTexturedSpec.cso"));
+	else
+		bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTextured.cso"));
 
 	struct ObjectData {
 		alignas(16) dx::XMFLOAT3 material;

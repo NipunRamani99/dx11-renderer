@@ -430,5 +430,8 @@
     <FxCompile Include="PhongVSTextured.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PhongPSTexturedSpec.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

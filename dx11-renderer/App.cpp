@@ -42,7 +42,7 @@ void GeometryAssortmentScene(Graphics& gfx, std::vector<std::unique_ptr<Drawable
 				odist, rdist, material, 1.5f
 			);
 		}
-
+		 
 	};
 	DrawableFactory factory(gfx);
 	//box = std::make_unique<Box>(wnd.Gfx());
@@ -109,7 +109,7 @@ int App::Go()
 			float deltaY = event->GetDeltaY();
 
 			if (!_showCursor)
-				_fpsCam.Update(wnd.kbd, -deltaX, -deltaY);
+				_fpsCam.Update(-deltaX, -deltaY);
 		}
 		if (_showCursor && wnd.mouse.LeftIsPressed())
 		{
@@ -139,7 +139,7 @@ int App::Go()
 		if (wnd.kbd.KeyIsPressed('K'))
 		{
 			_showCursor = !_showCursor;
-			//ShowCursor(_showCursor ? TRUE : FALSE);
+			ShowCursor(_showCursor ? TRUE : FALSE);
 			if(_showCursor)
 				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
 			else

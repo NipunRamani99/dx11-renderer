@@ -13,11 +13,9 @@ private:
 	DirectX::XMFLOAT3 _front;
 	DirectX::XMFLOAT3 _up;
 	DirectX::XMFLOAT3 _cameraPos;
-	float _cameraSpeed = 1.0f;
+	float _cameraSpeed = 0.10f;
 	DirectX::XMFLOAT2 _cursorPos;
 	DirectX::XMFLOAT2 _prevCursorPos;
-	static constexpr float travelSpeed = 12.0f;
-	static constexpr float rotationSpeed = 0.004f;
 
 public:
 	float _pitch = 0.0f;
@@ -75,7 +73,7 @@ public:
 		DirectX::XMStoreFloat3(&_cameraPos, pos);
 	}
 
-	void Update(const Keyboard& kbd, float xoffset, float yoffset)
+	void Update(float xoffset, float yoffset)
 	{
 		using namespace DirectX;
 
