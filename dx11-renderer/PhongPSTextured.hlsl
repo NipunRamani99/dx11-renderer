@@ -39,7 +39,8 @@ float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : Tex
 	const float3 r = w * 2.0f - vToL;
 	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
 	const float3 specular = att * (diffuseColor) * specularIntensity * pow( max( 0.0f,dot( normalize( -r ),normalize( worldPos ) ) ),specularPower );
+    const float3 specularReflectionColor = float3(1.0f,1.0f,1.0f);
 
 	// final color
-	return float4(saturate( diffuse + ambient ) * diffuseTex.Sample(diffuseSampler, texCoord).xyz, 1.0f);
+    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(diffuseSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
 }
