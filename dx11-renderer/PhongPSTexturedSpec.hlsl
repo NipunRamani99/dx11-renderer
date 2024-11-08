@@ -24,7 +24,6 @@ Texture2D diffuseTex : register(t1);
 SamplerState texSampler : register(s1);
 Texture2D specularTex : register(t2);
 
-static const float specularPowerFactor = 100.0f;
 float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
 	// fragment to light vector data 
@@ -41,8 +40,8 @@ float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : Tex
 	const float3 r = w * 2.0f - vToL;
     const float4 specularSample = specularTex.Sample(texSampler, texCoord);
     const float3 specularReflectionColor = specularSample.rgb;
-    const float specularPower = specularSample.a * specularPowerFactor;
-    const float3 specular = att * (diffuseColor * diffuseIntensity) * pow(max(0.0f, dot(normalize(-r), normalize(worldPos))), specularPower);
+    const float specularPower = pow(2.0f,specularSample.a * 13.0f);
+    const float3 specular = att * (diffuseColor) * pow(max(0.0f, dot(normalize(-r), normalize(worldPos))), specularPower);
 	// final color
     return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
 }
