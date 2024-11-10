@@ -7,7 +7,7 @@
 #include "FirstPersonCamera.hpp"
 #include "PointLight.hpp"
 #include "Mesh.hpp"
-
+#include "ShaderEditor.hpp"
 class App {
 private:
 	ImguiManager imgui;
@@ -36,4 +36,5 @@ private:
 	std::vector<std::unique_ptr<class Drawable>> drawables;
 	static constexpr size_t nDrawables = 4;
 	std::unique_ptr<Model> model;
+	std::unique_ptr<ShaderEditor> shaderEditor;
 };

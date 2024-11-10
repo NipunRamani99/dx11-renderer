@@ -62,6 +62,7 @@ App::App()
 	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
+	shaderEditor = std::make_unique<ShaderEditor>();
 }
 
 int App::Go()
@@ -218,6 +219,7 @@ void App::DoFrame()
 		}
 		ImGui::End();
 	}
+	shaderEditor->Show("Shader Editor");
 	cam.SpawnControl();
 	light.SpawnControlWindow();
 	wnd.Gfx().EndFrame();

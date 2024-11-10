@@ -46,6 +46,12 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{3d320cbe-6b34-4d8e-a8f5-c59d766a8f9e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Widgets">
+      <UniqueIdentifier>{c9663307-ad92-4c50-bcf3-0d2fcbfe5d01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Widgets">
+      <UniqueIdentifier>{5dd25573-35f5-471e-8590-7241d49cf198}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -170,6 +176,9 @@
     </ClCompile>
     <ClCompile Include="Vertex.cpp">
       <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderEditor.cpp">
+      <Filter>Source Files\Widgets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -358,6 +367,12 @@
     </ClInclude>
     <ClInclude Include="tiny_bvh\tiny_bvh.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imfilebrowser.h">
+      <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderEditor.hpp">
+      <Filter>Header Files\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
