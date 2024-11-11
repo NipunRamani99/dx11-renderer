@@ -205,19 +205,6 @@ void App::DoFrame()
 		ImGui::Text("RD: %.2f, %.2f, %.2f", rdFloat.x, rdFloat.y, rdFloat.z);
 
 		ImGui::End();
-		static ImGuiTextBuffer Buf;
-		if (ImGui::Begin("Event Logs"))
-		{
-			
-			const Mouse::Event event = wnd.mouse.Read();
-			std::string eventStr = event.ToString();
-			Buf.append(eventStr.cbegin()._Ptr, eventStr.cend()._Ptr);
-			Buf.append("\n");
-			ImGui::TextUnformatted(Buf.begin());
-			ImGui::SetScrollHereY(1.0f);
-			
-		}
-		ImGui::End();
 	}
 	shaderEditor->Show("Shader Editor");
 	cam.SpawnControl();
