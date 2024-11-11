@@ -40,10 +40,15 @@ void ShaderEditor::Show(const char* title)
 			{
 				SaveFile();
 			}
-			if (ImGui::MenuItem("Compile"))
+			if (ImGui::BeginMenu("Compile"))
 			{
-				CompileShader();
+				if(ImGui::MenuItem("Pixel Shader"))
+					CompileShader("ps");
+				if (ImGui::MenuItem("Vertex Shader"))
+					CompileShader("vs");
+				ImGui::EndMenu();
 			}
+		
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
@@ -92,7 +97,7 @@ void ShaderEditor::SaveFile()
 	}
 }
 
-void ShaderEditor::CompileShader()
+void ShaderEditor::CompileShader(std::string shaderType)
 {
 	STARTUPINFOA si;
 	PROCESS_INFORMATION pi;
@@ -104,7 +109,7 @@ void ShaderEditor::CompileShader()
 	std::string output(_filePath.begin(), _filePath.begin() + offset);
 	output = output + ".cso";
 	std::string fxcPath = "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x86\\fxc.exe";
-	std::string commandLine = "/E\"main\" /Fo\""+output+" /ps\"_5_0\" /nologo";
+	std::string commandLine = "/E\"main\" /Fo\""+output+" /"+shaderType+"\"_5_0\" /nologo " + _filePath;
 	if (!FAILED(CreateProcessA(fxcPath.c_str(), (LPSTR)commandLine.c_str(),
 		NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)))
 	{

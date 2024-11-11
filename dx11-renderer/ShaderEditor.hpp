@@ -23,5 +23,5 @@ public:
 private:
 	void LoadFile(const std::string& path);
 	void SaveFile();
-	void CompileShader();
+	void CompileShader(std::string shaderType);
 };
