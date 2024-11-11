@@ -1,4 +1,5 @@
 #include "imgui\imgui.h"
+#include "Graphics.hpp"
 #include "ShaderEditor.hpp"
 #include "imfilebrowser.h"
 #include "ImGuiColorTextEdit\TextEditor.h"
@@ -38,6 +39,10 @@ void ShaderEditor::Show(const char* title)
 			if (ImGui::MenuItem("Save"))
 			{
 				SaveFile();
+			}
+			if (ImGui::MenuItem("Compile"))
+			{
+				CompileShader();
 			}
 			ImGui::EndMenu();
 		}
@@ -84,5 +89,49 @@ void ShaderEditor::SaveFile()
 	{
 		_file.seekg(0);
 		_file << _textEditor->GetText();
+	}
+}
+
+void ShaderEditor::CompileShader()
+{
+	STARTUPINFOA si;
+	PROCESS_INFORMATION pi;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+	// /E"main" /Fo"C:\projects\dx11\dx11-renderer\dx11-renderer\ColorBlendPS.cso" /ps"_5_0" /nologo
+	size_t offset =  _filePath.find_last_of(".");
+	std::string output(_filePath.begin(), _filePath.begin() + offset);
+	output = output + ".cso";
+	std::string fxcPath = "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x86\\fxc.exe";
+	std::string commandLine = "/E\"main\" /Fo\""+output+" /ps\"_5_0\" /nologo";
+	if (!FAILED(CreateProcessA(fxcPath.c_str(), (LPSTR)commandLine.c_str(),
+		NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)))
+	{
+		WaitForSingleObject(pi.hProcess, INFINITE);
+	}
+	else
+	{
+		DWORD errorMessageID = GetLastError();
+		if (errorMessageID == 0) {
+			std::cout << "No error has occurred." << std::endl;
+			return;
+		}
+
+		// Buffer for the error message
+		LPSTR messageBuffer = nullptr;
+
+		// Format the message from the system
+		size_t size = FormatMessageA(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			errorMessageID,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPSTR)&messageBuffer,
+			0,
+			NULL
+		);
+
+		int x = 100;
 	}
 }
