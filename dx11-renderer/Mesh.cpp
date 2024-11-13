@@ -5,12 +5,13 @@
 #include "Texture.hpp"
 #include "Surface.hpp"
 #include "Sampler.hpp"
-Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb)
+Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb, std::wstring pixelShader)
 	:
 	Mesh(gfx,bindables,aabb)
 {
 	this->bvh = std::move(bvh);
 	this->vertices = std::move(vertices);
+	_pixelShader = pixelShader;
 }
 
 Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, const AABB& aabb)
@@ -83,6 +84,12 @@ void Mesh::SetBVH(std::unique_ptr<tinybvh::BVH> bvh)
 const tinybvh::BVH & Mesh::GetBVH()
 {
 	return *bvh.get();
+}
+
+void Mesh::ReloadFragmentShader(Graphics & gfx)
+{
+	RemoveBindable<Bind::PixelShader>();
+	AddBind(std::move(std::make_unique<Bind::PixelShader>(gfx, _pixelShader)));
 }
 
 Node::Node(int id, std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX& transform)
@@ -222,9 +229,10 @@ int Node::GetId() const
 
 class ModelWindow
 {
+	
 public:
 	ModelWindow() {}
-	void ShowWindow(std::string name, const Node & rootNode)
+	void ShowWindow(Graphics & gfx, std::string name, const Node & rootNode)
 	{
 		ImGui::Begin("Model");
 		ImGui::Columns(2, nullptr, true);
@@ -244,6 +252,14 @@ public:
 		ImGui::InputFloat("Position Y", (float*)&transforms[selectedIndex].y, 0.1f, 1.0f, "%.3f");
 		ImGui::InputFloat("Position Z", (float*)&transforms[selectedIndex].z, 0.1f, 1.0f, "%.3f");
 		ImGui::Text("Selected Index: %d", selectedIndex);
+		if (ImGui::Button("Reload PS"))
+		{
+			if(_pselectednode)
+				for (auto p : _pselectednode->_mesh)
+				{
+					p->ReloadFragmentShader(gfx);
+				}
+		}
 		ImGui::End();
 	}
 
@@ -410,10 +426,14 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		bindables.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(filePath), 2u));
 		foundSpecMap = true;
 	}
+	std::wstring pixelShader = L"";
 	if(foundSpecMap)
-		bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTexturedSpec.cso"));
+		pixelShader = L"PhongPSTexturedSpec.cso";
+
 	else
-		bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTextured.cso"));
+		pixelShader = L"PhongPSTextured.cso";
+
+	bindables.push_back(std::make_unique<PixelShader>(gfx, pixelShader));
 
 	struct ObjectData {
 		alignas(16) dx::XMFLOAT3 material;
@@ -423,7 +443,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	objectData.material = { 1.0f, 0.2f, 0.1f };
 	bindables.push_back(std::make_unique<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
 
-	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb);
+	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, pixelShader);
 }
 
 DirectX::XMMATRIX Model::ConvertToMatrix(const aiMatrix4x4& mat) {
@@ -461,9 +481,9 @@ std::unique_ptr<Node> Model::ParseNode(int & nextId, const aiNode& node)
 	return pNode;
 }
 
-void Model::ShowWindow()
+void Model::ShowWindow(Graphics & gfx)
 {
-	_pwindow->ShowWindow(_name, *_root);
+	_pwindow->ShowWindow(gfx, _name, *_root);
 }
 
 IntersectionResult Model::IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld)

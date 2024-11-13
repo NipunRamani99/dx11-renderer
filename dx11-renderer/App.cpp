@@ -176,7 +176,7 @@ void App::DoFrame()
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
 	model->Draw(wnd.Gfx());
 	model->DrawAABB(wnd.Gfx());
-	model->ShowWindow();
+	model->ShowWindow(wnd.Gfx());
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {

@@ -94,6 +94,7 @@ void ShaderEditor::SaveFile()
 	{
 		_file.seekg(0);
 		_file << _textEditor->GetText();
+		_file.flush();
 	}
 }
 
@@ -104,12 +105,12 @@ void ShaderEditor::CompileShader(std::string shaderType)
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
-	// /E"main" /Fo"C:\projects\dx11\dx11-renderer\dx11-renderer\ColorBlendPS.cso" /ps"_5_0" /nologo
+	// /E"main" /Fo"C:\path\to\cso" /ps"_5_0" /nologo C:\path\to\shader
 	size_t offset =  _filePath.find_last_of(".");
 	std::string output(_filePath.begin(), _filePath.begin() + offset);
 	output = output + ".cso";
 	std::string fxcPath = "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x86\\fxc.exe";
-	std::string commandLine = "/E\"main\" /Fo\""+output+" /"+shaderType+"\"_5_0\" /nologo " + _filePath;
+	std::string commandLine = "/E\"main\" /Fo\""+output+"\" /T "+shaderType+"_5_0 /nologo " + _filePath;
 	if (!FAILED(CreateProcessA(fxcPath.c_str(), (LPSTR)commandLine.c_str(),
 		NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)))
 	{
