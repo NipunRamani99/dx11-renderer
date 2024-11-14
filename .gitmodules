@@ -1,0 +1,3 @@
+[submodule "dx11-renderer/ImGuiColorTextEdit"]
+	path = dx11-renderer/ImGuiColorTextEdit
+	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git

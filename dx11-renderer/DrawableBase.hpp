@@ -35,6 +35,7 @@ public:
 		}
 		assert("Failed to find index buffer in static binds" && pIndexBuffer != nullptr);
 	}
+
 private:
 	const std::vector<std::unique_ptr<Bind::Bindable>>& GetStaticBinds() const noexcept override
 	{

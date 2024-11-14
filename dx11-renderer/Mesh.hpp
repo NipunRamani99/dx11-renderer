@@ -19,8 +19,14 @@ private:
 	AABBVisualisation viz;
 	std::unique_ptr<tinybvh::BVH> bvh;
 	std::vector<tinybvh::bvhvec4> vertices;
+	std::wstring _pixelShader = L"";
 public:
-	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables,  std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb = AABB());
+	Mesh(Graphics& gfx, 
+		std::vector<std::unique_ptr<Bind::Bindable>>& bindables,  
+		std::unique_ptr<tinybvh::BVH> bvh, 
+		std::vector<tinybvh::bvhvec4> & vertices, 
+		const AABB& aabb = AABB(),
+		std::wstring pixelShader = L"");
 
 	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, const AABB & aabb = AABB());
 
@@ -39,6 +45,8 @@ public:
 	void SetBVH(std::unique_ptr<tinybvh::BVH> bvh);
 
 	const tinybvh::BVH& GetBVH();
+
+	void ReloadFragmentShader(Graphics & gfx);
 };
 
 class Node;
@@ -53,10 +61,11 @@ struct IntersectionResult {
 	unsigned int triangleIndex = 0; // Index of the triangle hit
 };
 
-
+class ModelWindow;
 class Node
 {
 	friend class Model;
+	friend class ModelWindow;
 private:
 	std::vector<Mesh*> _mesh;
 	std::string _name;
@@ -77,7 +86,7 @@ public:
 	int GetId() const;
 };
 
-class ModelWindow;
+
 class Model
 {
 private:
@@ -94,7 +103,7 @@ public:
 	
 	void DrawAABB(Graphics& gfx);
 	
-	void ShowWindow();
+	void ShowWindow(Graphics & gfx);
 	
 	IntersectionResult IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld);
 

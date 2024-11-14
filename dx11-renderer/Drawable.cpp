@@ -10,7 +10,8 @@ void Drawable::Draw(Graphics& gfx) const noexcept(!IS_DEBUG)
 
 	for ( auto& b : binds )
 	{
-		b->Bind(gfx);
+		if(b)
+			b->Bind(gfx);
 	}
 	const std::vector<std::unique_ptr<Bindable>>& staticBinds = GetStaticBinds(); //For Box -> DrawableBase<Box>::staticBinds, For Sphere-> DrawableBase<Sphere>::staticBinds
 	for (auto& b : staticBinds) {

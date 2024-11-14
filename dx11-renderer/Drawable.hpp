@@ -28,6 +28,20 @@ protected:
 		}
 		return nullptr;
 	}
+
+	template<class T>
+	void RemoveBindable() noexcept
+	{
+		std::remove_if(binds.begin(), binds.end(),
+			[](auto& p) {
+				if (auto pt = dynamic_cast<T*>(p.get()))
+				{
+					return true;
+				}
+				return false;
+			});
+		
+	}
 public:
 	Drawable() = default;
 	Drawable( const Drawable& ) = delete;

@@ -160,6 +160,7 @@
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="GDIPlusManager.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="ImGuiColorTextEdit\TextEditor.cpp" />
     <ClCompile Include="ImguiManager.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -173,6 +174,7 @@
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="ShaderEditor.cpp" />
     <ClCompile Include="SolidSphere.cpp" />
     <ClCompile Include="MinWin.hpp" />
     <ClCompile Include="Mouse.cpp" />
@@ -215,6 +217,7 @@
     <ClInclude Include="GDIPlusManager.hpp" />
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="GraphicsThrowMacros.h" />
+    <ClInclude Include="ImGuiColorTextEdit\TextEditor.h" />
     <ClInclude Include="ImguiManager.hpp" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -224,12 +227,14 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="imfilebrowser.h" />
     <ClInclude Include="IndexBuffer.hpp" />
     <ClInclude Include="IndexedTriangleList.hpp" />
     <ClInclude Include="InputLayout.hpp" />
     <ClInclude Include="Keyboard.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="PointLight.hpp" />
+    <ClInclude Include="ShaderEditor.hpp" />
     <ClInclude Include="SolidSphere.hpp" />
     <ClInclude Include="MinWrl.hpp" />
     <ClInclude Include="Mouse.hpp" />

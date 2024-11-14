@@ -62,6 +62,7 @@ App::App()
 	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
+	shaderEditor = std::make_unique<ShaderEditor>();
 }
 
 int App::Go()
@@ -175,7 +176,7 @@ void App::DoFrame()
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
 	model->Draw(wnd.Gfx());
 	model->DrawAABB(wnd.Gfx());
-	model->ShowWindow();
+	model->ShowWindow(wnd.Gfx());
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {
@@ -204,20 +205,8 @@ void App::DoFrame()
 		ImGui::Text("RD: %.2f, %.2f, %.2f", rdFloat.x, rdFloat.y, rdFloat.z);
 
 		ImGui::End();
-		static ImGuiTextBuffer Buf;
-		if (ImGui::Begin("Event Logs"))
-		{
-			
-			const Mouse::Event event = wnd.mouse.Read();
-			std::string eventStr = event.ToString();
-			Buf.append(eventStr.cbegin()._Ptr, eventStr.cend()._Ptr);
-			Buf.append("\n");
-			ImGui::TextUnformatted(Buf.begin());
-			ImGui::SetScrollHereY(1.0f);
-			
-		}
-		ImGui::End();
 	}
+	shaderEditor->Show("Shader Editor");
 	cam.SpawnControl();
 	light.SpawnControlWindow();
 	wnd.Gfx().EndFrame();
