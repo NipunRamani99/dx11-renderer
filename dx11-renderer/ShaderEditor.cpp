@@ -90,12 +90,9 @@ void ShaderEditor::LoadFile(const std::string& path)
 
 void ShaderEditor::SaveFile()
 {
-	if (_file.is_open())
-	{
-		_file.seekg(0);
-		_file << _textEditor->GetText();
-		_file.flush();
-	}
+	_file.open(_filePath, std::fstream::in | std::fstream::out | std::fstream::trunc);
+	_file << _textEditor->GetText();
+	_file.close();
 }
 
 void ShaderEditor::CompileShader(std::string shaderType)
