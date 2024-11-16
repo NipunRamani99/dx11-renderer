@@ -5,7 +5,7 @@
 #include "Texture.hpp"
 #include "Surface.hpp"
 #include "Sampler.hpp"
-Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb)
+Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb)
 	:
 	Mesh(gfx,bindables,aabb)
 {
@@ -13,28 +13,17 @@ Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindable
 	this->vertices = std::move(vertices);
 }
 
-Mesh::Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, const AABB& aabb)
+Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB& aabb)
 	:
 	viz(gfx, aabb)
 {
 	using namespace Bind;
 
-	if (!IsStaticInitialized())
-	{
-		AddBind(std::make_unique<Bind::Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	}
+	AddBind(std::make_shared<Bind::Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
 	for (auto& pbind : bindables)
 	{
-		if (auto index = dynamic_cast<IndexBuffer*>(pbind.get()))
-		{
-			AddIndexBuffer(std::unique_ptr<IndexBuffer>{ index });
-			pbind.release();
-		}
-		else
-		{
-			AddBind(std::move(pbind));
-		}
+		AddBind(pbind);
 	}
 
 	AddBind(std::make_unique<TransformCbuf>(gfx, *this));
@@ -51,7 +40,7 @@ void Mesh::Draw(Graphics& gfx, DirectX::XMMATRIX accumulatedTransform) noexcept
 
 	DirectX::XMStoreFloat4x4(&_transform, accumulatedTransform);
 
-	DrawableBase::Draw(gfx);
+	Drawable::Draw(gfx);
 }
 
 void Mesh::DrawAABB(Graphics& gfx, DirectX::XMMATRIX accumulatedTransform) noexcept
@@ -373,12 +362,12 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	
 	std::unique_ptr<tinybvh::BVH> bvh = std::make_unique<tinybvh::BVH>();
 	bvh->Build(vertices.data(), mesh.mNumFaces);
-	std::vector<std::unique_ptr<Bindable>> bindables;
-	bindables.push_back(std::make_unique<VertexBuffer>(gfx, vbuf));
+	std::vector<std::shared_ptr<Bindable>> bindables;
+	bindables.push_back(std::make_shared<VertexBuffer>(gfx, vbuf));
 
-	bindables.push_back(std::make_unique<IndexBuffer>(gfx, indices));
+	bindables.push_back(std::make_shared<IndexBuffer>(gfx, indices));
 
-	auto pvs = std::make_unique<VertexShader>(gfx, L"PhongVSTextured.cso");
+	auto pvs = std::make_shared<VertexShader>(gfx, L"PhongVSTextured.cso");
 	auto pvsbc = pvs->GetBytecode();
 
 	bindables.push_back(std::move(pvs));
@@ -393,27 +382,27 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	};
 
 
-	bindables.push_back(std::make_unique<InputLayout>(gfx, ied, pvsbc));
+	bindables.push_back(std::make_shared<InputLayout>(gfx, ied, pvsbc));
 
 	aiMaterial* material = materials[mesh.mMaterialIndex];
 	aiString texFileName;
 	material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
 	std::string filePath = texFileName.C_Str();
 	filePath = ".\\Models\\nanosuit\\" + filePath;
-	bindables.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(filePath), 1u));
-	bindables.push_back(std::make_unique<Sampler>(gfx, 1u));
+	bindables.push_back(std::make_shared<Texture>(gfx, Surface::FromFile(filePath), 1u));
+	bindables.push_back(std::make_shared<Sampler>(gfx, 1u));
 	bool foundSpecMap = false;
 	if (material->GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 	{
 		filePath = texFileName.C_Str();
 		filePath = ".\\Models\\nanosuit\\" + filePath;
-		bindables.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(filePath), 2u));
+		bindables.push_back(std::make_shared<Texture>(gfx, Surface::FromFile(filePath), 2u));
 		foundSpecMap = true;
 	}
 	if(foundSpecMap)
-		bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTexturedSpec.cso"));
+		bindables.push_back(std::make_shared<PixelShader>(gfx, L"PhongPSTexturedSpec.cso"));
 	else
-		bindables.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSTextured.cso"));
+		bindables.push_back(std::make_shared<PixelShader>(gfx, L"PhongPSTextured.cso"));
 
 	struct ObjectData {
 		alignas(16) dx::XMFLOAT3 material;
@@ -421,7 +410,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		float specularPower = 30.0f;
 	} objectData;
 	objectData.material = { 1.0f, 0.2f, 0.1f };
-	bindables.push_back(std::make_unique<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
+	bindables.push_back(std::make_shared<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
 
 	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb);
 }

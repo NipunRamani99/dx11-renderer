@@ -27,14 +27,9 @@ Box::Box(Graphics& gfx,
 	material(mat)
 {
 	namespace dx = DirectX;
-	if (!IsStaticInitialized())
-	{
-		BindForPhongShader(gfx);
-	}
-	else
-	{
-		SetIndexFromStatic();
-	}
+
+	BindForPhongShader(gfx);
+
 
 	AddBind(std::make_unique<TransformCbuf>(gfx, *this));
 
@@ -84,25 +79,25 @@ void Box::BindForToonShader(Graphics& gfx)
 	auto model = Cube::MakeIndependent<Vertex>();
 	model.SetNormalsIndependentFlat();
 
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.vertices));
+	AddBind(std::make_unique<VertexBuffer>(gfx, model.vertices));
 
 	auto pvs = std::make_unique<VertexShader>(gfx, L"ToonVS.cso");
 	auto pvsbc = pvs->GetBytecode();
-	AddStaticBind(std::move(pvs));
+	AddBind(std::move(pvs));
 
 	auto pfs = std::make_unique<PixelShader>(gfx, L"ToonPS.cso");
-	AddStaticBind(std::move(pfs));
+	AddBind(std::move(pfs));
 	
-	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.indices));
+	AddBind(std::make_unique<IndexBuffer>(gfx, model.indices));
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied = {
 		{ "Position",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
 		{ "Normal", 0,DXGI_FORMAT_R32G32B32_FLOAT, 0,12,D3D11_INPUT_PER_VERTEX_DATA,0 },
 	};
 
-	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, pvsbc));
+	AddBind(std::make_unique<InputLayout>(gfx, ied, pvsbc));
 
-	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 }
 
 void Box::BindForPhongShader(Graphics & gfx) 
@@ -117,15 +112,15 @@ void Box::BindForPhongShader(Graphics & gfx)
 	auto model = Cube::MakeIndependent<Vertex>();
 	model.SetNormalsIndependentFlat();
 
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.vertices));
+	AddBind(std::make_unique<VertexBuffer>(gfx, model.vertices));
 
 	auto pvs = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
 	auto pvsbc = pvs->GetBytecode();
-	AddStaticBind(std::move(pvs));
+	AddBind(std::move(pvs));
 
-	AddStaticBind(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
+	AddBind(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
 
-	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.indices));
+	AddBind(std::make_unique<IndexBuffer>(gfx, model.indices));
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
@@ -133,7 +128,7 @@ void Box::BindForPhongShader(Graphics & gfx)
 		{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,12,D3D11_INPUT_PER_VERTEX_DATA,0 },
 	};
 
-	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, pvsbc));
+	AddBind(std::make_unique<InputLayout>(gfx, ied, pvsbc));
 
-	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 }

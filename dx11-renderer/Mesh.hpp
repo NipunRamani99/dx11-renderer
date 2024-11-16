@@ -1,5 +1,4 @@
 #pragma once
-#include "DrawableBase.hpp"
 #include "BindableBase.hpp"
 #include "Vertex.h"
 #include "AABB.hpp"
@@ -11,7 +10,7 @@
 #include <memory>
 #include <optional>
 
-class Mesh : public DrawableBase<Mesh>
+class Mesh : public Drawable
 {
 private:
 	mutable DirectX::XMFLOAT4X4 _transform;
@@ -20,9 +19,9 @@ private:
 	std::unique_ptr<tinybvh::BVH> bvh;
 	std::vector<tinybvh::bvhvec4> vertices;
 public:
-	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables,  std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb = AABB());
+	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables,  std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb = AABB());
 
-	Mesh(Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>>& bindables, const AABB & aabb = AABB());
+	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB & aabb = AABB());
 
 	void Update(float) noexcept;
 

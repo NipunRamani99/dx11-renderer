@@ -108,13 +108,7 @@
     <ClCompile Include="TransformCbuf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Box.cpp">
-      <Filter>Source Files\Graphics\Drawable</Filter>
-    </ClCompile>
     <ClCompile Include="SolidSphere.cpp">
-      <Filter>Source Files\Graphics\Drawable</Filter>
-    </ClCompile>
-    <ClCompile Include="Pyramid.cpp">
       <Filter>Source Files\Graphics\Drawable</Filter>
     </ClCompile>
     <ClCompile Include="GDIPlusManager.cpp">
@@ -129,17 +123,11 @@
     <ClCompile Include="Sampler.cpp">
       <Filter>Source Files\Graphics\Bindable</Filter>
     </ClCompile>
-    <ClCompile Include="SkinnedBox.cpp">
-      <Filter>Source Files\Graphics\Drawable</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PointLight.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AssimpTest.cpp">
-      <Filter>Source Files\Graphics\Bindable</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>Source Files\imgui</Filter>
@@ -183,9 +171,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="App.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Keyboard.hpp">
@@ -251,12 +236,6 @@
     <ClInclude Include="Drawable.hpp">
       <Filter>Header Files\Graphics\Drawable</Filter>
     </ClInclude>
-    <ClInclude Include="Box.hpp">
-      <Filter>Header Files\Graphics\Drawable</Filter>
-    </ClInclude>
-    <ClInclude Include="DrawableBase.hpp">
-      <Filter>Header Files\Graphics\Drawable</Filter>
-    </ClInclude>
     <ClInclude Include="IndexedTriangleList.hpp">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
@@ -290,22 +269,13 @@
     <ClInclude Include="Sampler.hpp">
       <Filter>Header Files\Graphics\Bindable</Filter>
     </ClInclude>
-    <ClInclude Include="SkinnedBox.hpp">
-      <Filter>Header Files\Graphics\Drawable</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PointLight.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Pyramid.hpp">
-      <Filter>Header Files\Graphics\Drawable</Filter>
-    </ClInclude>
     <ClInclude Include="SolidSphere.hpp">
-      <Filter>Header Files\Graphics\Drawable</Filter>
-    </ClInclude>
-    <ClInclude Include="AssimpTest.hpp">
       <Filter>Header Files\Graphics\Drawable</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
@@ -358,6 +328,9 @@
     </ClInclude>
     <ClInclude Include="tiny_bvh\tiny_bvh.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Codex.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

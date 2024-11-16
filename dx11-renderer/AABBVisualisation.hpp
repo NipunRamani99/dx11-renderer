@@ -1,5 +1,4 @@
 #pragma once
-#include "DrawableBase.hpp"
 #include "AABB.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexShader.hpp"
@@ -8,7 +7,7 @@
 #include "TransformCbuf.hpp"
 #include "Vertex.h"
 #include "Cube.hpp"
-class AABBVisualisation : public DrawableBase<AABBVisualisation>
+class AABBVisualisation : public Drawable
 {
 private:
 	AABB _aabb;
@@ -40,11 +39,11 @@ public:
 
 		using namespace Bind;
 		
-		AddBind(std::make_unique<VertexBuffer>(gfx, buf));
+		AddBind(std::make_shared<VertexBuffer>(gfx, buf));
 
-		AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, cube.indices));
+		AddBind(std::make_shared<IndexBuffer>(gfx, cube.indices));
 
-		auto vs = std::make_unique<VertexShader>(gfx, L"SolidVS.cso");
+		auto vs = std::make_shared<VertexShader>(gfx, L"SolidVS.cso");
 		auto vsbc = vs->GetBytecode();
 
 		AddBind(std::move(vs));
@@ -53,13 +52,13 @@ public:
 			{ "Position",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
 		};
 
-		AddBind(std::make_unique<InputLayout>(gfx, ied, vsbc));
+		AddBind(std::make_shared<InputLayout>(gfx, ied, vsbc));
 		
-		AddBind(std::make_unique<PixelShader>(gfx, L"SolidPS.cso"));
+		AddBind(std::make_shared<PixelShader>(gfx, L"SolidPS.cso"));
 
-		AddBind(std::make_unique<TransformCbuf>(gfx, *this));
+		AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 
-		AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
+		AddBind(std::make_shared<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
 	}
 
 	void SetTransform(const DirectX::XMFLOAT4X4& transform)
