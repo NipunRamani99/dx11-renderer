@@ -51,6 +51,11 @@ namespace Bind
 			cbd.StructureByteStride = 0u;
 			GFX_THROW_INFO(GetDevice(gfx)->CreateBuffer(&cbd, nullptr, &pConstantBuffer));
 		}
+
+		static std::string GenerateUID(Graphics& gfx, const C& consts, UINT _slot = 0)
+		{
+
+		}
 	};
 
 	template<typename C>

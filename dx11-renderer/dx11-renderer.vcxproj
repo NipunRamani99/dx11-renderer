@@ -194,7 +194,7 @@
     <ClInclude Include="BindableBase.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ChiliMath.hpp" />
-    <ClInclude Include="Codex.hpp" />
+    <ClInclude Include="BindableCodex.hpp" />
     <ClInclude Include="Color.hpp" />
     <ClInclude Include="ConditionalNoexcept.h" />
     <ClInclude Include="Cone.hpp" />

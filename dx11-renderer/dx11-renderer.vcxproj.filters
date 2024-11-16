@@ -329,7 +329,7 @@
     <ClInclude Include="tiny_bvh\tiny_bvh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Codex.hpp">
+    <ClInclude Include="BindableCodex.hpp">
       <Filter>Header Files\Graphics\Bindable</Filter>
     </ClInclude>
   </ItemGroup>
