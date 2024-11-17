@@ -6,9 +6,10 @@ namespace wrl = Microsoft::WRL;
 
 using namespace Bind;
 
-Texture::Texture(Graphics& gfx, const Surface& s, const unsigned int slot)
+Texture::Texture(Graphics& gfx, const Surface& s, const std::string & tag, const unsigned int slot)
 	:
-	slot(slot)
+	_slot(slot),
+	_tag(tag)
 {
 	INFOMAN(gfx);
 
@@ -40,11 +41,11 @@ Texture::Texture(Graphics& gfx, const Surface& s, const unsigned int slot)
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
 	GFX_THROW_INFO(GetDevice(gfx)->CreateShaderResourceView(
-		pTexture.Get(), &srvDesc, &pTextureView
+		pTexture.Get(), &srvDesc, &_pTextureView
 	));
 }
 
 void Texture::Bind(Graphics& gfx) noexcept
 {
-	GetContext(gfx)->PSSetShaderResources(slot, 1u, pTextureView.GetAddressOf());
+	GetContext(gfx)->PSSetShaderResources(_slot, 1u, _pTextureView.GetAddressOf());
 }

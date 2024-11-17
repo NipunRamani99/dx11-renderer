@@ -7,6 +7,7 @@ namespace Bind
 	class VertexBuffer : public Bindable {
 	protected:
 		UINT stride;
+		std::string tag;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer;
 	public:
 		template<typename V>

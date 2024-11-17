@@ -52,10 +52,7 @@ namespace Bind
 			GFX_THROW_INFO(GetDevice(gfx)->CreateBuffer(&cbd, nullptr, &pConstantBuffer));
 		}
 
-		static std::string GenerateUID(Graphics& gfx, const C& consts, UINT _slot = 0)
-		{
-
-		}
+	
 	};
 
 	template<typename C>
@@ -67,6 +64,17 @@ namespace Bind
 		using ConstantBuffer<C>::ConstantBuffer;
 		void Bind(Graphics& gfx) noexcept override {
 			GetContext(gfx)->VSSetConstantBuffers(slot, 1u, pConstantBuffer.GetAddressOf());
+		}
+
+		static std::string GenerateUID(const C& consts, UINT slot = 0)
+		{
+			return typeid(VertexConstantBuffer).name() + "#" + consts.GetId() + "#" + std::to_string(slot);
+		}
+
+		static std::string GenerateUID(UINT slot = 0)
+		{
+			using namespace std::string_literals;
+			return typeid(VertexConstantBuffer).name() + "#"s + std::to_string(slot);
 		}
 	};
 
@@ -80,6 +88,18 @@ namespace Bind
 		using ConstantBuffer<C>::ConstantBuffer;
 		void Bind(Graphics& gfx) noexcept override {
 			GetContext(gfx)->PSSetConstantBuffers(slot, 1u, pConstantBuffer.GetAddressOf());
+		}
+
+		static std::string GenerateUID(const C& consts, UINT slot = 0)
+		{
+			using namespace std::string_literals;
+			return typeid(PixelConstantBuffer).name() + "#"s + consts.GetId() + "#"s + std::to_string(slot);
+		}
+
+		static std::string GenerateUID(UINT slot = 0)
+		{
+			using namespace std::string_literals;
+			return typeid(PixelConstantBuffer).name() + "#"s + std::to_string(slot);
 		}
 	};
 }

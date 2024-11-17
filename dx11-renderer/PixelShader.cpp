@@ -2,11 +2,13 @@
 
 using namespace Bind;
 
-PixelShader::PixelShader(Graphics& gfx, const std::wstring& path)
+PixelShader::PixelShader(Graphics& gfx, const std::string& path)
+	:
+	_path(path)
 {
 	INFOMAN(gfx);
 	Microsoft::WRL::ComPtr<ID3DBlob> blob;
-	GFX_THROW_INFO(D3DReadFileToBlob(path.c_str(), &blob));
+	GFX_THROW_INFO(D3DReadFileToBlob(std::wstring{ path.begin(), path.end() }.c_str(), &blob));
 	GFX_THROW_INFO(GetDevice(gfx)->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &pPixelShader));
 }
 
