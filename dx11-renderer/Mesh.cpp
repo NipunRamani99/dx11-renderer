@@ -363,54 +363,48 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	std::unique_ptr<tinybvh::BVH> bvh = std::make_unique<tinybvh::BVH>();
 	bvh->Build(vertices.data(), mesh.mNumFaces);
 	std::vector<std::shared_ptr<Bindable>> bindables;
-	bindables.push_back(std::make_shared<VertexBuffer>(gfx, vbuf));
+	bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
 
-	bindables.push_back(std::make_shared<IndexBuffer>(gfx, indices));
+	bindables.push_back(IndexBuffer::Resolve(gfx, mesh.mName.C_Str(), indices));
 
-	auto pvs = std::make_shared<VertexShader>(gfx, L"PhongVSTextured.cso");
+	auto pvs = VertexShader::Resolve(gfx, "PhongVSTextured.cso");
 	auto pvsbc = pvs->GetBytecode();
 
-	bindables.push_back(std::move(pvs));
+	bindables.push_back(pvs);
 
-
-
-	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
-	{
-		{ "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TexCoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0  }
-	};
-
-
-	bindables.push_back(std::make_shared<InputLayout>(gfx, ied, pvsbc));
+	bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), pvsbc));
 
 	aiMaterial* material = materials[mesh.mMaterialIndex];
 	aiString texFileName;
 	material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
 	std::string filePath = texFileName.C_Str();
 	filePath = ".\\Models\\nanosuit\\" + filePath;
-	bindables.push_back(std::make_shared<Texture>(gfx, Surface::FromFile(filePath), 1u));
-	bindables.push_back(std::make_shared<Sampler>(gfx, 1u));
+	bindables.push_back(Texture::Resolve(gfx, filePath, 1u));
+	bindables.push_back(Sampler::Resolve(gfx, 1u));
 	bool foundSpecMap = false;
 	if (material->GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 	{
 		filePath = texFileName.C_Str();
 		filePath = ".\\Models\\nanosuit\\" + filePath;
-		bindables.push_back(std::make_shared<Texture>(gfx, Surface::FromFile(filePath), 2u));
+		bindables.push_back(Texture::Resolve(gfx, filePath, 2u));
 		foundSpecMap = true;
 	}
 	if(foundSpecMap)
-		bindables.push_back(std::make_shared<PixelShader>(gfx, L"PhongPSTexturedSpec.cso"));
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedSpec.cso"));
 	else
-		bindables.push_back(std::make_shared<PixelShader>(gfx, L"PhongPSTextured.cso"));
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTextured.cso"));
 
 	struct ObjectData {
 		alignas(16) dx::XMFLOAT3 material;
 		float specularIntensity = 0.60f;
 		float specularPower = 30.0f;
+		static std::string GetId()
+		{
+			return "ObjectData";
+		}
 	} objectData;
 	objectData.material = { 1.0f, 0.2f, 0.1f };
-	bindables.push_back(std::make_shared<PixelConstantBuffer<ObjectData>>(gfx, objectData, 1));
+	bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1));
 
 	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb);
 }

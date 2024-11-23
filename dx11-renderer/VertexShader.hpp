@@ -1,6 +1,7 @@
 #pragma once
 #include "Bindable.hpp"
 #include "GraphicsThrowMacros.h"
+#include "BindableCodex.hpp"
 namespace Bind 
 {
 	class VertexShader : public Bindable {
@@ -15,6 +16,11 @@ namespace Bind
 
 		ID3DBlob* GetBytecode() const noexcept;
 		
+		static std::shared_ptr<VertexShader> Resolve(Graphics& gfx, const std::string& path)
+		{
+			return Codex::Get().Resolve<VertexShader>(gfx, path);
+		}
+
 		static std::string GenerateUID(const std::string path)
 		{
 			using namespace std::string_literals;

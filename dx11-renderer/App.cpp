@@ -8,6 +8,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "Vertex.h"
 #include "AABBVisualisation.hpp"
+#
 GDIPlusManager gdipm;
 
 App::App()
@@ -20,6 +21,7 @@ App::App()
 	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
+
 }
 
 int App::Go()

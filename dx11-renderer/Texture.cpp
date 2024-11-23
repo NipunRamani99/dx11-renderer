@@ -6,13 +6,16 @@ namespace wrl = Microsoft::WRL;
 
 using namespace Bind;
 
-Texture::Texture(Graphics& gfx, const Surface& s, const std::string & tag, const unsigned int slot)
+Texture::Texture(Graphics& gfx, const std::string & path, const unsigned int slot)
 	:
 	_slot(slot),
-	_tag(tag)
+	_path(path)
 {
 	INFOMAN(gfx);
-
+	
+	// Load surface from file
+	const Surface s = Surface::FromFile(path);
+	
 	// create texture resource
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = s.GetWidth();

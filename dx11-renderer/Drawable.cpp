@@ -22,6 +22,7 @@ void Drawable::AddBind(std::shared_ptr<Bindable> bind) noexcept(!IS_DEBUG)
 	{
 		assert("Cannot bind IndexBuffer more than one time" && pIndexBuffer == nullptr);
 		pIndexBuffer = (IndexBuffer*)bind.get();
+		
 	}
 	binds.push_back(bind);
 }

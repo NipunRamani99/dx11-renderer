@@ -3,8 +3,7 @@
 #include "IndexBuffer.hpp"
 #include "VertexShader.hpp"
 #include "PixelShader.hpp"
-#include "ConstantBuffers.hpp"
-#include "TransformCbuf.hpp"
+#include "VertexBuffer.hpp"
 #include "Vertex.h"
 #include "Cube.hpp"
 class AABBVisualisation : public Drawable
@@ -39,26 +38,22 @@ public:
 
 		using namespace Bind;
 		
-		AddBind(std::make_shared<VertexBuffer>(gfx, buf));
+		AddBind(VertexBuffer::Resolve(gfx, "Test", buf));
 
-		AddBind(std::make_shared<IndexBuffer>(gfx, cube.indices));
+		AddBind(IndexBuffer::Resolve(gfx, "Test", cube.indices));
 
-		auto vs = std::make_shared<VertexShader>(gfx, L"SolidVS.cso");
+		auto vs = VertexShader::Resolve(gfx, "SolidVS.cso");
+		
 		auto vsbc = vs->GetBytecode();
+		AddBind(vs);
 
-		AddBind(std::move(vs));
-		
-		const std::vector<D3D11_INPUT_ELEMENT_DESC> ied = {
-			{ "Position",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
-		};
+		AddBind(InputLayout::Resolve(gfx, layout, vsbc));
 
-		AddBind(std::make_shared<InputLayout>(gfx, ied, vsbc));
-		
-		AddBind(std::make_shared<PixelShader>(gfx, L"SolidPS.cso"));
+		AddBind(PixelShader::Resolve(gfx, "SolidPS.cso"));
 
 		AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 
-		AddBind(std::make_shared<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
+		AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
 	}
 
 	void SetTransform(const DirectX::XMFLOAT4X4& transform)

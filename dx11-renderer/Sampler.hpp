@@ -1,5 +1,6 @@
 #pragma once
 #include "Bindable.hpp"
+#include "BindableCodex.hpp"
 namespace Bind
 {
 	class Sampler : public Bindable {
@@ -9,6 +10,12 @@ namespace Bind
 	public:
 		Sampler(Graphics& gfx, const unsigned int slot);
 		void Bind(Graphics& gfx) noexcept override;
+		
+		static std::shared_ptr<Sampler> Resolve(Graphics& gfx, const unsigned int slot)
+		{
+			return Codex::Get().Resolve<Sampler>(gfx, slot);
+		}
+
 		static std::string GenerateUID(const unsigned int slot)
 		{
 			using namespace std::string_literals;
