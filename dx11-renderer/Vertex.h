@@ -2,6 +2,8 @@
 #include <vector>
 #include <DirectXMath.h>
 #include <type_traits>
+#include "Graphics.hpp"
+#include "Color.hpp"
 namespace Dvtx {
 	struct BGRAColor
 	{
@@ -13,6 +15,7 @@ namespace Dvtx {
 
 	class VertexLayout
 	{
+
 	public:
 		enum ElementType
 		{
@@ -24,9 +27,63 @@ namespace Dvtx {
 			Float4Color,
 			BGRAColor
 		};
+		template<ElementType> struct Map;
+		template<> struct Map<Position2D>
+		{
+			using SysType = DirectX::XMFLOAT2;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
+			static constexpr const char* semantic = "Position";
+			static constexpr const char* code = "P2";
+		};
+		template<> struct Map<Position3D>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "Position";
+			static constexpr const char* code = "P3";
+		};
+		template<> struct Map<Texture2D>
+		{
+			using SysType = DirectX::XMFLOAT2;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
+			static constexpr const char* semantic = "Texture";
+			static constexpr const char* code = "T2";
+		};
+		template<> struct Map<Normal>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "Normal";
+			static constexpr const char* code = "N3";
+		};
+		template<> struct Map<Float3Color>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "Color";
+			static constexpr const char* code = "C3";
+
+		};
+		template<> struct Map<Float4Color>
+		{
+			using SysType = DirectX::XMFLOAT4;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			static constexpr const char* semantic = "Color";
+			static constexpr const char* code = "C4";
+
+		};
+		template<> struct Map<BGRAColor>
+		{
+			using SysType = DirectX::XMFLOAT4;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+			static constexpr const char* semantic = "Color";
+			static constexpr const char* code = "C8";
+
+		};
 
 		class Element
 		{
+
 		public:
 			using size_type = std::size_t;
 
@@ -46,6 +103,58 @@ namespace Dvtx {
 			const size_type sizeOf(ElementType type) const;
 
 			const ElementType GetType() const;
+
+			template<ElementType type>
+			const D3D11_INPUT_ELEMENT_DESC GenerateDesc(size_t offset) const
+			{
+				return { Map<type>::semantic, 0, Map<type>::dxgiFormat, 0, (UINT)offset, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+			}
+
+			const D3D11_INPUT_ELEMENT_DESC GetDesc() const
+			{
+				switch (_elementType)
+				{
+				case Position2D:
+					return GenerateDesc<Position2D>(_offset);
+				case Position3D:
+					return GenerateDesc<Position3D>(_offset);
+				case Texture2D:
+					return GenerateDesc<Texture2D>(_offset);
+				case Normal:
+					return GenerateDesc<Normal>(_offset);
+				case Float3Color:
+					return GenerateDesc<Float3Color>(_offset);
+				case Float4Color:
+					return GenerateDesc<Float4Color>(_offset);
+				case BGRAColor:
+					return GenerateDesc<BGRAColor>(_offset);
+				}
+				assert("Invalid Element Type");
+				return { "INVALID",0,DXGI_FORMAT_UNKNOWN,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 };
+			}
+
+			const char* GetCode() const noexcept
+			{
+				switch (_elementType)
+				{
+				case Position2D:
+					return Map<Position2D>::code;
+				case Position3D:
+					return Map<Position3D>::code;
+				case Texture2D:
+					return Map<Texture2D>::code;
+				case Normal:
+					return Map<Normal>::code;
+				case Float3Color:
+					return Map<Float3Color>::code;
+				case Float4Color:
+					return Map<Float4Color>::code;
+				case BGRAColor:
+					return Map<BGRAColor>::code;
+				}
+				assert("Invalid element type" && false);
+				return "Invalid";
+			}
 		};
 
 	private:
@@ -80,10 +189,29 @@ namespace Dvtx {
 		Element::size_type Size() const;
 
 		const std::vector<Element>& getElements() const;
+
+		const std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() const
+		{
+			std::vector<D3D11_INPUT_ELEMENT_DESC> layout;
+			layout.reserve(_elements.size());
+			for (auto e : _elements)
+			{
+				layout.push_back(e.GetDesc());
+			}
+			return layout;
+		}
+
+		const std::string GetCode() const
+		{
+			std::string code = "";
+			for (auto e : _elements)
+			{
+				code += e.GetCode();
+			}
+			return code;
+		}
 	};
-
-
-
+  
 	class Vertex
 	{
 	private:
@@ -100,29 +228,7 @@ namespace Dvtx {
 			using namespace DirectX;
 			VertexLayout::Element& elem = _layout.Resolve<elementType>();
 			std::uint8_t* pattr = elem.GetOffset() + _pdata;
-			if constexpr (elementType == VertexLayout::Position3D ||
-				elementType == VertexLayout::Normal ||
-				elementType == VertexLayout::Float3Color)
-			{
-				return *reinterpret_cast<XMFLOAT3*>(pattr);
-			}
-			else if constexpr (elementType == VertexLayout::Position2D ||
-				elementType == VertexLayout::Texture2D)
-			{
-				return *reinterpret_cast<XMFLOAT2*>(pattr);
-			}
-			else if constexpr (elementType == VertexLayout::Float4Color)
-			{
-				return *reinterpret_cast<XMFLOAT4*>(pattr);
-			}
-			else if constexpr (elementType == VertexLayout::BGRAColor)
-			{
-				return *reinterpret_cast<unsigned int*>(pattr);
-			}
-			else {
-				assert("Incorrect element type in Attr()" && false);
-				return *pattr;
-			}
+			return *reinterpret_cast<VertexLayout::Map<elementType>::SysType>(pattr);
 		}
 
 		template<typename T>

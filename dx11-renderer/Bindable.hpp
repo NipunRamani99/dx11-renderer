@@ -1,5 +1,6 @@
 #pragma once
 #include "Graphics.hpp"
+
 namespace Bind
 {
 	class Bindable {
@@ -9,6 +10,11 @@ namespace Bind
 		static DxgiInfoManager& GetInfoManager(Graphics& gfx) noexcept (IS_DEBUG);
 	public:
 		virtual void Bind(Graphics& gfx) noexcept = 0;
+		virtual std::string GetUID() const noexcept
+		{
+			assert(false);
+			return "";
+		}
 		virtual ~Bindable() = default;
 	};
 }

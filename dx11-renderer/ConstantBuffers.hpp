@@ -1,13 +1,16 @@
 #pragma once
 #include "Bindable.hpp"
 #include "GraphicsThrowMacros.h"
+#include "BindableCodex.hpp"
 namespace Bind
 {
 	template<typename C>
-	class ConstantBuffer : public Bindable {
+	class ConstantBuffer : public Bindable 
+	{
 	protected:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> pConstantBuffer;
 		UINT slot;
+
 	public:
 		ConstantBuffer(Graphics& gfx, const C& consts, UINT _slot = 0)
 			:
@@ -26,7 +29,9 @@ namespace Bind
 			csd.pSysMem = &consts;
 			GFX_THROW_INFO(GetDevice(gfx)->CreateBuffer(&cbd, &csd, &pConstantBuffer));
 		}
-		void Update(Graphics& gfx, const C& consts) {
+
+		void Update(Graphics& gfx, const C& consts) 
+		{
 			INFOMAN(gfx);
 			D3D11_MAPPED_SUBRESOURCE msr;
 			GFX_THROW_INFO(
@@ -37,6 +42,7 @@ namespace Bind
 			memcpy(msr.pData, &consts, sizeof(consts));
 			GetContext(gfx)->Unmap(pConstantBuffer.Get(), 0u);
 		}
+
 		ConstantBuffer(Graphics& gfx, UINT _slot = 0)
 			:
 			slot(_slot)
@@ -51,30 +57,73 @@ namespace Bind
 			cbd.StructureByteStride = 0u;
 			GFX_THROW_INFO(GetDevice(gfx)->CreateBuffer(&cbd, nullptr, &pConstantBuffer));
 		}
+
+	
 	};
 
 	template<typename C>
-	class VertexConstantBuffer : public ConstantBuffer<C> {
+	class VertexConstantBuffer : public ConstantBuffer<C> 
+	{
 		using ConstantBuffer<C>::pConstantBuffer;
 		using ConstantBuffer<C>::slot;
 		using Bindable::GetContext;
+
 	public:
 		using ConstantBuffer<C>::ConstantBuffer;
-		void Bind(Graphics& gfx) noexcept override {
+
+		void Bind(Graphics& gfx) noexcept override 
+		{
 			GetContext(gfx)->VSSetConstantBuffers(slot, 1u, pConstantBuffer.GetAddressOf());
+		}
+
+		static std::shared_ptr<VertexConstantBuffer> Resolve(Graphics& gfx, const C& consts, UINT slot = 0)
+		{
+			return Codex::Get().Resolve<VertexConstantBuffer>(gfx, consts, slot);
+		}
+
+		static std::string GenerateUID(const C& consts, UINT slot = 0)
+		{
+			return typeid(VertexConstantBuffer).name() + "#" + consts.GetId() + "#" + std::to_string(slot);
+		}
+
+		static std::string GenerateUID(UINT slot = 0)
+		{
+			using namespace std::string_literals;
+			return typeid(VertexConstantBuffer).name() + "#"s + std::to_string(slot);
 		}
 	};
 
 
 	template<typename C>
-	class PixelConstantBuffer : public ConstantBuffer<C> {
+	class PixelConstantBuffer : public ConstantBuffer<C> 
+	{
 		using ConstantBuffer<C>::pConstantBuffer;
 		using ConstantBuffer<C>::slot;
 		using Bindable::GetContext;
+
 	public:
 		using ConstantBuffer<C>::ConstantBuffer;
-		void Bind(Graphics& gfx) noexcept override {
+
+		void Bind(Graphics& gfx) noexcept override 
+		{
 			GetContext(gfx)->PSSetConstantBuffers(slot, 1u, pConstantBuffer.GetAddressOf());
+		}
+
+		static std::shared_ptr<PixelConstantBuffer> Resolve(Graphics& gfx, const C& consts, UINT slot = 0)
+		{
+			return Codex::Get().Resolve<PixelConstantBuffer>(gfx, consts, slot);
+		}
+
+		static std::string GenerateUID(const C& consts, UINT slot = 0)
+		{
+			using namespace std::string_literals;
+			return typeid(PixelConstantBuffer).name() + "#"s + consts.GetId() + "#"s + std::to_string(slot);
+		}
+
+		static std::string GenerateUID(UINT slot = 0)
+		{
+			using namespace std::string_literals;
+			return typeid(PixelConstantBuffer).name() + "#"s + std::to_string(slot);
 		}
 	};
 }

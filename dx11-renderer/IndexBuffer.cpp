@@ -2,9 +2,10 @@
 
 using namespace Bind;
 
-IndexBuffer::IndexBuffer(Graphics& gfx, const std::vector<unsigned int>& indices)
+IndexBuffer::IndexBuffer(Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices)
 	:
-	count((UINT)indices.size())
+	count((UINT)indices.size()),
+	_tag(tag)
 {
 	INFOMAN(gfx);
 	D3D11_BUFFER_DESC bufferDesc = {};

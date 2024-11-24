@@ -112,6 +112,7 @@
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalIncludeDirectories>$(ProjectDir)assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,6 +136,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,9 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="AssimpTest.cpp" />
     <ClCompile Include="Bindable.cpp" />
-    <ClCompile Include="Box.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="dxerr.cpp" />
@@ -177,9 +177,7 @@
     <ClCompile Include="MinWin.hpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="PixelShader.cpp" />
-    <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="Sampler.cpp" />
-    <ClCompile Include="SkinnedBox.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Topology.cpp" />
@@ -194,20 +192,17 @@
   <ItemGroup>
     <ClInclude Include="AABB.hpp" />
     <ClInclude Include="AABBVisualisation.hpp" />
-    <ClInclude Include="App.hpp" />
-    <ClInclude Include="AssimpTest.hpp" />
     <ClInclude Include="Bindable.hpp" />
     <ClInclude Include="BindableBase.hpp" />
-    <ClInclude Include="Box.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ChiliMath.hpp" />
+    <ClInclude Include="BindableCodex.hpp" />
     <ClInclude Include="Color.hpp" />
     <ClInclude Include="ConditionalNoexcept.h" />
     <ClInclude Include="Cone.hpp" />
     <ClInclude Include="ConstantBuffers.hpp" />
     <ClInclude Include="Cube.hpp" />
     <ClInclude Include="Drawable.hpp" />
-    <ClInclude Include="DrawableBase.hpp" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DxgiInfoManager.h" />
     <ClInclude Include="Exception.hpp" />
@@ -236,10 +231,8 @@
     <ClInclude Include="PixelShader.hpp" />
     <ClInclude Include="Plane.hpp" />
     <ClInclude Include="Prism.hpp" />
-    <ClInclude Include="Pyramid.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Sampler.hpp" />
-    <ClInclude Include="SkinnedBox.hpp" />
     <ClInclude Include="Sphere.hpp" />
     <ClInclude Include="Surface.hpp" />
     <ClInclude Include="Texture.hpp" />

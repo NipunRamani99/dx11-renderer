@@ -1,14 +1,12 @@
 #pragma once
-#include "DrawableBase.hpp"
 #include "AABB.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexShader.hpp"
 #include "PixelShader.hpp"
-#include "ConstantBuffers.hpp"
-#include "TransformCbuf.hpp"
+#include "VertexBuffer.hpp"
 #include "Vertex.h"
 #include "Cube.hpp"
-class AABBVisualisation : public DrawableBase<AABBVisualisation>
+class AABBVisualisation : public Drawable
 {
 private:
 	AABB _aabb;
@@ -17,7 +15,7 @@ private:
 	float _scale_y = 0.0f;
 	float _scale_z = 0.0f;
 public:
-	AABBVisualisation(Graphics & gfx, const AABB & aabb)
+	AABBVisualisation(Graphics & gfx, const AABB & aabb, const std::string & name)
 		:
 		_aabb(aabb),
 		_transform(DirectX::XMMatrixIdentity()),
@@ -40,26 +38,22 @@ public:
 
 		using namespace Bind;
 		
-		AddBind(std::make_unique<VertexBuffer>(gfx, buf));
+		AddBind(VertexBuffer::Resolve(gfx, name + "AABB", buf));
 
-		AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, cube.indices));
+		AddBind(IndexBuffer::Resolve(gfx, name + "AABB", cube.indices));
 
-		auto vs = std::make_unique<VertexShader>(gfx, L"SolidVS.cso");
+		auto vs = VertexShader::Resolve(gfx, "SolidVS.cso");
+		
 		auto vsbc = vs->GetBytecode();
+		AddBind(vs);
 
-		AddBind(std::move(vs));
-		
-		const std::vector<D3D11_INPUT_ELEMENT_DESC> ied = {
-			{ "Position",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
-		};
+		AddBind(InputLayout::Resolve(gfx, layout, vsbc));
 
-		AddBind(std::make_unique<InputLayout>(gfx, ied, vsbc));
-		
-		AddBind(std::make_unique<PixelShader>(gfx, L"SolidPS.cso"));
+		AddBind(PixelShader::Resolve(gfx, "SolidPS.cso"));
 
-		AddBind(std::make_unique<TransformCbuf>(gfx, *this));
+		AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 
-		AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
+		AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
 	}
 
 	void SetTransform(const DirectX::XMFLOAT4X4& transform)
