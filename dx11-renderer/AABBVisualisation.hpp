@@ -38,9 +38,9 @@ public:
 
 		using namespace Bind;
 		
-		AddBind(VertexBuffer::Resolve(gfx, name, buf));
+		AddBind(VertexBuffer::Resolve(gfx, name + "AABB", buf));
 
-		AddBind(IndexBuffer::Resolve(gfx, name, cube.indices));
+		AddBind(IndexBuffer::Resolve(gfx, name + "AABB", cube.indices));
 
 		auto vs = VertexShader::Resolve(gfx, "SolidVS.cso");
 		

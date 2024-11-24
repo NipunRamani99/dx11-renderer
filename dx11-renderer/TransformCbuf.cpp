@@ -24,4 +24,4 @@ void TransformCbuf::Bind(Graphics& gfx) noexcept
 	pVcbuf->Bind(gfx);
 }
 
-std::unique_ptr<VertexConstantBuffer<Transforms>> TransformCbuf::pVcbuf;
+std::unique_ptr<VertexConstantBuffer<TransformCbuf::Transforms>> TransformCbuf::pVcbuf;

@@ -11,6 +11,7 @@ namespace Bind
 		UINT stride;
 		std::string _tag;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer;
+
 	public:
 		VertexBuffer(Graphics& gfx, const std::string& tag, const Dvtx::VertexBuffer& vbuf)
 			:

@@ -9,10 +9,13 @@ namespace Bind
 	protected:
 		UINT count;
 		std::string _tag = "";
+
 		Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer;
 	public:
 		IndexBuffer(Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices);
+
 		void Bind(Graphics& gfx) noexcept override;
+
 		UINT GetCount() const noexcept;
 		
 		static std::shared_ptr<IndexBuffer> Resolve(Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices)

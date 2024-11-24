@@ -112,9 +112,6 @@ int App::Go()
 
 void App::DoFrame()
 {
-	static AABB aabb{};
-
-	static AABBVisualisation aabbviz(wnd.Gfx(), aabb);
 	static float angle = 0.0f;
 	const float c = 0.5f;
 	wnd.Gfx().SetCamera(_fpsCam.GetMatrix());

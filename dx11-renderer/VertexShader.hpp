@@ -9,6 +9,7 @@ namespace Bind
 		Microsoft::WRL::ComPtr<ID3DBlob> pBytecodeBlob;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader;
 		std::string _path = "";
+
 	public:
 		VertexShader(Graphics& gfx, const std::string& path);
 

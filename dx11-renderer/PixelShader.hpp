@@ -8,8 +8,10 @@ namespace Bind
 	protected:
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
 		std::string _path = "";
+
 	public:
 		PixelShader(Graphics& gfx, const std::string& path);
+
 		void Bind(Graphics& gfx) noexcept override;
 
 		static std::shared_ptr<PixelShader> Resolve(Graphics& gfx, const std::string& path)

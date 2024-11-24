@@ -18,25 +18,22 @@ private:
 	AABBVisualisation viz;
 	std::unique_ptr<tinybvh::BVH> bvh;
 	std::vector<tinybvh::bvhvec4> vertices;
+
 public:
-	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables,  std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb = AABB());
-
-	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB & aabb = AABB());
-
+	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables,  
+		std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, 
+		const AABB& aabb = AABB(), 
+		std::string name = "");
+	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, 
+		const AABB & aabb = AABB(), 
+		std::string name= "");
 	void Update(float) noexcept;
-
 	void Draw(Graphics & gfx, DirectX::XMMATRIX accumulatedTransform) noexcept;
-
 	void DrawAABB(Graphics& gfx, DirectX::XMMATRIX accumulatedTransform) noexcept;
-
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
-
 	void SetAABB(AABB aabb);
-
 	const AABB& getAABB() const;
-
 	void SetBVH(std::unique_ptr<tinybvh::BVH> bvh);
-
 	const tinybvh::BVH& GetBVH();
 };
 
@@ -84,26 +81,15 @@ private:
 	std::unique_ptr<Node> _root;
 	std::string _name = "Sample Text";
 	std::unique_ptr<ModelWindow> _pwindow;
+	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials);
+	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
+	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node);
 
 public:
-
 	Model(Graphics& gfx, const std::string modelPath);
-	
 	void Draw(Graphics& gfx);
-	
 	void DrawAABB(Graphics& gfx);
-	
 	void ShowWindow();
-	
 	IntersectionResult IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld);
-
 	~Model();
-
-private:
-	
-	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial * const * materials);
-	
-	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
-	
-	std::unique_ptr<Node> ParseNode(int & nextId, const aiNode& node);
 };

@@ -10,8 +10,6 @@ private:
 	const Bind::IndexBuffer* pIndexBuffer = nullptr;
 	std::vector<std::shared_ptr<Bind::Bindable>> binds;
 
-private:
-	
 protected:
 	template<class T>
 	T* QueryBindable() noexcept
@@ -25,6 +23,7 @@ protected:
 		}
 		return nullptr;
 	}
+
 public:
 	Drawable() = default;
 	Drawable( const Drawable& ) = delete;

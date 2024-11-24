@@ -10,6 +10,7 @@ namespace Bind
 	protected:
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
 		Dvtx::VertexLayout _layout;
+
 	public:
 		InputLayout(Graphics& gfx,
 			const Dvtx::VertexLayout & layout,

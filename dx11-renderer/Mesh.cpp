@@ -5,17 +5,17 @@
 #include "Texture.hpp"
 #include "Surface.hpp"
 #include "Sampler.hpp"
-Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb)
+Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb, std::string name)
 	:
-	Mesh(gfx,bindables,aabb)
+	Mesh(gfx,bindables,aabb, name)
 {
 	this->bvh = std::move(bvh);
 	this->vertices = std::move(vertices);
 }
 
-Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB& aabb)
+Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB& aabb, std::string name)
 	:
-	viz(gfx, aabb)
+	viz(gfx, aabb, name)
 {
 	using namespace Bind;
 
@@ -406,7 +406,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	objectData.material = { 1.0f, 0.2f, 0.1f };
 	bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1));
 
-	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb);
+	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
 }
 
 DirectX::XMMATRIX Model::ConvertToMatrix(const aiMatrix4x4& mat) {
