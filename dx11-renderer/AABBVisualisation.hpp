@@ -15,7 +15,7 @@ private:
 	float _scale_y = 0.0f;
 	float _scale_z = 0.0f;
 public:
-	AABBVisualisation(Graphics & gfx, const AABB & aabb)
+	AABBVisualisation(Graphics & gfx, const AABB & aabb, const std::string & name)
 		:
 		_aabb(aabb),
 		_transform(DirectX::XMMatrixIdentity()),
@@ -38,9 +38,9 @@ public:
 
 		using namespace Bind;
 		
-		AddBind(VertexBuffer::Resolve(gfx, "Test", buf));
+		AddBind(VertexBuffer::Resolve(gfx, name, buf));
 
-		AddBind(IndexBuffer::Resolve(gfx, "Test", cube.indices));
+		AddBind(IndexBuffer::Resolve(gfx, name, cube.indices));
 
 		auto vs = VertexShader::Resolve(gfx, "SolidVS.cso");
 		
