@@ -23,22 +23,22 @@ public:
 		_scale_y(aabb.max.y - aabb.min.y),
 		_scale_z(aabb.max.z - aabb.min.z)
 	{
-		Dvtx::VertexLayout layout;
-		layout.Append<Dvtx::VertexLayout::ElementType::Position3D>();
-		Dvtx::VertexBuffer buf{ layout };
 		struct Vertex
 		{
 			DirectX::XMFLOAT3 pos;
 		};
-		IndexedTriangleList<Vertex> cube = Cube::MakeWireframe<Vertex>(aabb);
-		for (size_t i = 0; i < cube.vertices.size(); i++)
+		IndexedTriangleList cube = Cube::MakeWireframe(aabb);
+		auto buf = std::move(cube.vertices);
+		std::vector<DirectX::XMFLOAT3> vertices;
+		vertices.resize(8);
+		for (size_t i = 0; i < buf.Size(); i++)
 		{
-			buf.EmplaceBack(cube.vertices[i].pos);
+			vertices[i] = buf[i].Attr<Dvtx::VertexLayout::Position3D>();
 		}
 
 		using namespace Bind;
-		
-		AddBind(VertexBuffer::Resolve(gfx, name + "AABB", buf));
+		auto bindable = VertexBuffer::Resolve(gfx, name + "AABB", buf);
+		AddBind(bindable);
 
 		AddBind(IndexBuffer::Resolve(gfx, name + "AABB", cube.indices));
 
@@ -46,7 +46,7 @@ public:
 		
 		auto vsbc = vs->GetBytecode();
 		AddBind(vs);
-
+		auto layout = buf.GetVertexLayout();
 		AddBind(InputLayout::Resolve(gfx, layout, vsbc));
 
 		AddBind(PixelShader::Resolve(gfx, "SolidPS.cso"));

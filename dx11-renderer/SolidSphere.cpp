@@ -15,13 +15,10 @@ SolidSphere::SolidSphere(Graphics& gfx, float radius)
 	{
 		dx::XMFLOAT3 pos;
 	};
-	auto model = Sphere::Make<Vertex>();
+	auto model = Sphere::MakeSolid();
 	model.Transform(dx::XMMatrixScaling(radius, radius, radius));
-	for (auto& v : model.vertices)
-	{
-		buf.EmplaceBack(v.pos);
-	}
-	AddBind(VertexBuffer::Resolve(gfx, "SolidSphere", buf));
+	
+	AddBind(VertexBuffer::Resolve(gfx, "SolidSphere", model.vertices));
 	AddBind(IndexBuffer::Resolve(gfx, "SolidSphere", model.indices));
 
 	auto pvs = VertexShader::Resolve(gfx, "SolidVS.cso");

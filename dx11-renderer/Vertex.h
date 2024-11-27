@@ -46,7 +46,7 @@ namespace Dvtx {
 		{
 			using SysType = DirectX::XMFLOAT2;
 			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
-			static constexpr const char* semantic = "Texture";
+			static constexpr const char* semantic = "TexCoord";
 			static constexpr const char* code = "T2";
 		};
 		template<> struct Map<Normal>
@@ -169,6 +169,12 @@ namespace Dvtx {
 			_elements.emplace_back(elementType, nextOffset);
 			return *this;
 		}
+		VertexLayout& Append(ElementType elementType)
+		{
+			Element::size_type nextOffset = _elements.size() == 0 ? 0 : _elements.back().GetOffsetAfter();
+			_elements.emplace_back(elementType, nextOffset);
+			return *this;
+		}
 
 		template<ElementType elementType>
 		Element& Resolve()
@@ -189,6 +195,11 @@ namespace Dvtx {
 		Element::size_type Size() const;
 
 		const std::vector<Element>& getElements() const;
+
+		const size_t GetElementsCount() const
+		{
+			return _elements.size();
+		}
 
 		const std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() const
 		{
@@ -228,7 +239,7 @@ namespace Dvtx {
 			using namespace DirectX;
 			VertexLayout::Element& elem = _layout.Resolve<elementType>();
 			std::uint8_t* pattr = elem.GetOffset() + _pdata;
-			return *reinterpret_cast<VertexLayout::Map<elementType>::SysType>(pattr);
+			return *reinterpret_cast<VertexLayout::Map<elementType>::SysType*>(pattr);
 		}
 
 		template<typename T>
@@ -320,6 +331,7 @@ namespace Dvtx {
 		template<typename ...Params>
 		void EmplaceBack(Params&&... params)
 		{
+			assert(sizeof...(params) == _layout.GetElementsCount() && "Param count doesn't match number of vertex elements");
 			_data.resize(_data.size() + _layout.Size());
 			Back().SetAttributeByIndex(0u, std::forward<Params>(params)...);
 		}

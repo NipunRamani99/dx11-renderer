@@ -5,12 +5,11 @@
 #include <memory>
 #include "ConstantBuffers.hpp"
 
-
 namespace Bind
 {
 	class TransformCbuf : public Bindable
 	{
-	private:
+	protected:
 		struct Transforms {
 			DirectX::XMMATRIX model;
 			DirectX::XMMATRIX view;
@@ -20,16 +19,14 @@ namespace Bind
 				return "cbuf_transform";
 			}
 		};
+		const Drawable& parent;
 
 	private:
-		const Drawable& parent;
 		static std::unique_ptr<VertexConstantBuffer<Transforms>>  pVcbuf;
-
+		void UpdateAndBindImpl(Graphics& gfx) noexcept;
 
 	public:
 		TransformCbuf(Graphics& gfx, const Drawable& parent);
-
 		void Bind(Graphics& gfx) noexcept override;
-
 	};
 }
