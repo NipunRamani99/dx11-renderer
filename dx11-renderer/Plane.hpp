@@ -4,12 +4,12 @@
 #include <array>
 #include "IndexedTriangleList.hpp"
 #include "ChiliMath.hpp"
-
+#include "Vertex.h"
 class Plane
 {
 public:
-	template<class V>
-	static IndexedTriangleList<V> MakeTesselated(int divisions_x, int divisions_y)
+	
+	static IndexedTriangleList  MakeTesselatedTextured(Dvtx::VertexLayout vertexLayout,  int divisions_x, int divisions_y)
 	{
 		namespace dx = DirectX;
 		assert(divisions_x >= 1);
@@ -19,8 +19,12 @@ public:
 		constexpr float height = 2.0f;
 		const int nVertices_x = divisions_x + 1;
 		const int nVertices_y = divisions_y + 1;
-		std::vector<V> vertices(nVertices_x * nVertices_y);
-
+		Dvtx::VertexLayout vertexLayout;
+		vertexLayout.Append<Dvtx::VertexLayout::Position3D>();
+		vertexLayout.Append<Dvtx::VertexLayout::Normal>();
+		vertexLayout.Append<Dvtx::VertexLayout::Texture2D>();
+		Dvtx::VertexBuffer vertexBuffer(vertexLayout);
+		dx::XMFLOAT3 normal = dx::XMFLOAT3(0.0f, 0.0f, -1.0f);
 		{
 			const float side_x = width / 2.0f;
 			const float side_y = height / 2.0f;
@@ -31,13 +35,18 @@ public:
 			for (int y = 0, i = 0; y < nVertices_y; y++)
 			{
 				const float y_pos = float(y) * divisionSize_y;
+				const float y_tc = float(y) * 1.0f / (float(nVertices_y));
 				for (int x = 0; x < nVertices_x; x++, i++)
 				{
+					const float x_tc = float(x) * 1.0f / (float(nVertices_x));
 					const auto v = dx::XMVectorAdd(
 						bottomLeft,
 						dx::XMVectorSet(float(x) * divisionSize_x, y_pos, 0.0f, 0.0f)
 					);
-					dx::XMStoreFloat3(&vertices[i].pos, v);
+					dx::XMFLOAT2 tc = { x_tc, y_tc };
+					dx::XMFLOAT3 pos;
+					dx::XMStoreFloat3(&pos, v);
+					vertexBuffer.EmplaceBack(pos, normal, tc);
 				}
 			}
 		}
@@ -65,11 +74,17 @@ public:
 			}
 		}
 
-		return{ std::move(vertices),std::move(indices) };
+		return { std::move(vertexBuffer),std::move(indices) };
 	}
-	template<class V>
-	static IndexedTriangleList<V> Make()
+
+	static IndexedTriangleList Make()
 	{
-		return MakeTesselated<V>(1, 1);
+		using Dvtx::VertexLayout;
+		VertexLayout vl;
+		vl.Append(VertexLayout::Position3D);
+		vl.Append(VertexLayout::Normal);
+		vl.Append(VertexLayout::Texture2D);
+
+		return MakeTesselatedTextured(std::move(vl), 1, 1);
 	}
 };

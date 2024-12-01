@@ -12,6 +12,11 @@ TransformCbuf::TransformCbuf(Graphics& gfx, const Drawable& parent)
 
 void TransformCbuf::Bind(Graphics& gfx) noexcept
 {
+	UpdateAndBindImpl(gfx);
+}
+
+void TransformCbuf::UpdateAndBindImpl(Graphics& gfx) noexcept
+{
 	const auto model = parent.GetTransformXM();
 	const auto view = gfx.GetCamera();
 	const Transforms tf =

@@ -159,6 +159,9 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="TransformCbufDoubleBoi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowMessageMap.hpp">
@@ -245,16 +248,7 @@
     <ClInclude Include="ChiliMath.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Prism.hpp">
-      <Filter>Header Files\Graphics\Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="Plane.hpp">
-      <Filter>Header Files\Graphics\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Cone.hpp">
-      <Filter>Header Files\Graphics\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Cube.hpp">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="GDIPlusManager.hpp">
@@ -331,6 +325,15 @@
     </ClInclude>
     <ClInclude Include="BindableCodex.hpp">
       <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformCbufDoubleBoi.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.hpp">
+      <Filter>Header Files\Graphics\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskManager.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -27,7 +27,8 @@ namespace Bind
 		static std::string GenerateUID(const Dvtx::VertexLayout& layout, Ignore&&... ignore)
 		{
 			using namespace std::string_literals;
-			return typeid(InputLayout).name() + "#"s + layout.GetCode();
+			std::string name =  typeid(InputLayout).name() + "#"s + layout.GetCode();
+			return name;
 		}
 
 		std::string GetUID() const noexcept override
