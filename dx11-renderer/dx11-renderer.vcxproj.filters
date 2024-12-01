@@ -332,6 +332,9 @@
     <ClInclude Include="Cube.hpp">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="TaskManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">

@@ -8,7 +8,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "Vertex.h"
 #include "AABBVisualisation.hpp"
-#
+#include "TaskManager.hpp"
 GDIPlusManager gdipm;
 
 App::App()
@@ -31,7 +31,8 @@ int App::Go()
 	prevMouseY = center.y;
 
 	while (keepRunning) {
-		if (auto ecode = wnd.ProcessMessage()) {
+		if (auto ecode = wnd.ProcessMessage()) 
+		{
 			return *ecode;
 		}
 		if (!_showCursor)
@@ -92,18 +93,24 @@ int App::Go()
 
 		DoFrame();
 
-		if (wnd.kbd.KeyIsPressed(VK_ESCAPE)) {
+		if (wnd.kbd.KeyIsPressed(VK_ESCAPE)) 
+		{
 			keepRunning = false;
 		}
-
+		TaskManager & manager = TaskManager::Get();
 		if (wnd.kbd.KeyIsPressed('K'))
 		{
-			_showCursor = !_showCursor;
-			ShowCursor(_showCursor ? TRUE : FALSE);
-			if(_showCursor)
-				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
-			else
-				ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+			if (canToggle)
+			{
+				_showCursor = !_showCursor;
+				ShowCursor(_showCursor ? TRUE : FALSE);
+				if (_showCursor)
+					ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+				else
+					ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+				canToggle = false;
+				manager.AddTimedTask([&]() { canToggle = true; }, 1ms);
+			}
 		}
 	}
 	return 0;

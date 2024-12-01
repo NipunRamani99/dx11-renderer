@@ -205,6 +205,7 @@
     <ClInclude Include="Drawable.hpp" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DxgiInfoManager.h" />
+    <ClInclude Include="TaskManager.hpp" />
     <ClInclude Include="Exception.hpp" />
     <ClInclude Include="FirstPersonCamera.hpp" />
     <ClInclude Include="GDIPlusManager.hpp" />
