@@ -13,7 +13,8 @@ TestPlane::TestPlane(Graphics& gfx)
 	AddBind(Bind::InputLayout::Resolve(gfx, model.vertices.GetVertexLayout(), pvsbc));
 	AddBind(Bind::Texture::Resolve(gfx, "./models/brick_wall/brick_wall_diffuse.jpg", 1u));
 	AddBind(Bind::Sampler::Resolve(gfx, 1u));
-	struct ObjectData {
+	struct ObjectData 
+	{
 		alignas(16) DirectX::XMFLOAT3 material;
 		float specularIntensity = 0.60f;
 		float specularPower = 30.0f;
@@ -29,7 +30,7 @@ TestPlane::TestPlane(Graphics& gfx)
 
 DirectX::XMMATRIX TestPlane::GetTransformXM() const noexcept
 {
-	return  DirectX::XMMatrixScaling(_scale.x, _scale.y, _scale.z) * DirectX::XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
+	return DirectX::XMMatrixScaling(_scale.x, _scale.y, _scale.z) * DirectX::XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 }
 
 void TestPlane::SpawnControl() noexcept

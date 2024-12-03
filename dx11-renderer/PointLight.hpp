@@ -21,6 +21,7 @@ private:
 	mutable SolidSphere mesh;
 	DirectX::XMFLOAT3 _pos = { 0.0f,10.0f, 10.0f };
 	PointLightCBuf cbdata;
+
 public:
 	PointLight(Graphics& gfx, float radius = 0.5f);
 	void SpawnControlWindow() noexcept;
