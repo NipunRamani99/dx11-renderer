@@ -179,6 +179,7 @@
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="TestPlane.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Topology.cpp" />
     <ClCompile Include="TransformCbuf.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="Sampler.hpp" />
     <ClInclude Include="Sphere.hpp" />
     <ClInclude Include="Surface.hpp" />
+    <ClInclude Include="TestPlane.hpp" />
     <ClInclude Include="Texture.hpp" />
     <ClInclude Include="Timer.hpp" />
     <ClInclude Include="tiny_bvh\tiny_bvh.h" />

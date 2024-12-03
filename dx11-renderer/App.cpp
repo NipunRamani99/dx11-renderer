@@ -21,6 +21,7 @@ App::App()
 	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
+	plane = std::make_unique<TestPlane>(wnd.Gfx());
 
 }
 
@@ -109,8 +110,11 @@ int App::Go()
 				else
 					ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
 				canToggle = false;
-				manager.AddTimedTask([&]() { canToggle = true; }, 1ms);
 			}
+		}
+		else
+		{
+			canToggle = true;
 		}
 	}
 	return 0;
@@ -140,6 +144,8 @@ void App::DoFrame()
 	model->Draw(wnd.Gfx());
 	model->DrawAABB(wnd.Gfx());
 	model->ShowWindow();
+	plane->Draw(wnd.Gfx());
+	plane->SpawnControl();
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {

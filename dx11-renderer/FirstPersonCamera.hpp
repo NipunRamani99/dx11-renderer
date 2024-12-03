@@ -24,11 +24,23 @@ public:
 		:
 		_cursorPos(float(SCREEN_WIDTH >> 1), float(SCREEN_HEIGHT >> 1)),
 		_prevCursorPos(_cursorPos),
-		_cameraPos(0.0f, 0.0f, -5.0f),
+		_cameraPos(0.0f, 10.0f, 7.0f),
 		_up(0.0f, 1.0f, 0.0f),
-		_front(0.0f, 0.0f, 1.0f)
+		_front(0.0f, 0.0f, 0.0f)
 	{
+		// Convert pitch and yaw to radians for trigonometric functions
+		float pitchRad = DirectX::XMConvertToRadians(_pitch);
+		float yawRad = DirectX::XMConvertToRadians(_yaw);
 
+		// Update the front vector based on the yaw and pitch
+		_front.x = cosf(pitchRad) * cosf(yawRad);
+		_front.y = sinf(pitchRad);
+		_front.z = cosf(pitchRad) * sinf(yawRad);
+
+		// Normalize the front vector
+		auto vec = DirectX::XMLoadFloat3(&_front);
+		vec = DirectX::XMVector3Normalize(vec);
+		DirectX::XMStoreFloat3(&_front, vec);
 	}
 
 	DirectX::XMFLOAT3 GetPos()

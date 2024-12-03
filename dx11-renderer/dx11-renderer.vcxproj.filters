@@ -162,6 +162,9 @@
     <ClCompile Include="TransformCbufDoubleBoi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestPlane.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowMessageMap.hpp">
@@ -333,6 +336,9 @@
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="TaskManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestPlane.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
