@@ -7,3 +7,5 @@
 #include "TransformCbuf.hpp"
 #include "VertexBuffer.hpp"
 #include "VertexShader.hpp"
+#include "Texture.hpp"
+#include "Sampler.hpp"

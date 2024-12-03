@@ -19,12 +19,8 @@ public:
 		constexpr float height = 2.0f;
 		const int nVertices_x = divisions_x + 1;
 		const int nVertices_y = divisions_y + 1;
-		Dvtx::VertexLayout vertexLayout;
-		vertexLayout.Append<Dvtx::VertexLayout::Position3D>();
-		vertexLayout.Append<Dvtx::VertexLayout::Normal>();
-		vertexLayout.Append<Dvtx::VertexLayout::Texture2D>();
 		Dvtx::VertexBuffer vertexBuffer(vertexLayout);
-		dx::XMFLOAT3 normal = dx::XMFLOAT3(0.0f, 0.0f, -1.0f);
+		dx::XMFLOAT3 normal = dx::XMFLOAT3(0.0f, 0.0f, 1.0f);
 		{
 			const float side_x = width / 2.0f;
 			const float side_y = height / 2.0f;
@@ -35,10 +31,10 @@ public:
 			for (int y = 0, i = 0; y < nVertices_y; y++)
 			{
 				const float y_pos = float(y) * divisionSize_y;
-				const float y_tc = float(y) * 1.0f / (float(nVertices_y));
+				const float y_tc = float(y) * 1.0f / (float(nVertices_y - 1));
 				for (int x = 0; x < nVertices_x; x++, i++)
 				{
-					const float x_tc = float(x) * 1.0f / (float(nVertices_x));
+					const float x_tc = float(x) * 1.0f / (float(nVertices_x - 1));
 					const auto v = dx::XMVectorAdd(
 						bottomLeft,
 						dx::XMVectorSet(float(x) * divisionSize_x, y_pos, 0.0f, 0.0f)
@@ -64,11 +60,11 @@ public:
 				{
 					const std::array<unsigned short, 4> indexArray =
 					{ vxy2i(x,y),vxy2i(x + 1,y),vxy2i(x,y + 1),vxy2i(x + 1,y + 1) };
+					indices.push_back(indexArray[2]);
 					indices.push_back(indexArray[0]);
-					indices.push_back(indexArray[2]);
-					indices.push_back(indexArray[1]);
 					indices.push_back(indexArray[1]);
 					indices.push_back(indexArray[2]);
+					indices.push_back(indexArray[1]);
 					indices.push_back(indexArray[3]);
 				}
 			}
