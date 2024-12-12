@@ -5,6 +5,7 @@
 #include "PixelShader.hpp"
 #include "Topology.hpp"
 #include "TransformCbuf.hpp"
+#include "TransformCbufDoubleBoi.hpp"
 #include "VertexBuffer.hpp"
 #include "VertexShader.hpp"
 #include "Texture.hpp"

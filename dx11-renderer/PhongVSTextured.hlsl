@@ -27,7 +27,7 @@ VSOut main(VSIn input)
 	const float4x4 modelView = mul(model, view);
 	const float4x4 modelViewProj = mul(modelView, projection);
 	vso.worldPos = (float3)mul(float4(input.pos, 1.0f), modelView);
-	vso.normal = (float3)mul(input.n, (float3x3)modelView);
+    vso.normal = (float3)mul(input.n, (float3x3)modelView);
 	vso.pos = mul(float4(input.pos, 1.0f),  modelViewProj);
 	vso.texCoord = input.texCoord;
 	return vso;

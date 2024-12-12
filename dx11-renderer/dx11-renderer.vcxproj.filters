@@ -46,6 +46,9 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{3d320cbe-6b34-4d8e-a8f5-c59d766a8f9e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Common">
+      <UniqueIdentifier>{69fe6a39-2d82-4c45-bc56-099055a5db77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -329,9 +332,6 @@
     <ClInclude Include="BindableCodex.hpp">
       <Filter>Header Files\Graphics\Bindable</Filter>
     </ClInclude>
-    <ClInclude Include="TransformCbufDoubleBoi.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Cube.hpp">
       <Filter>Header Files\Graphics\Geometry</Filter>
     </ClInclude>
@@ -340,6 +340,9 @@
     </ClInclude>
     <ClInclude Include="TestPlane.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformCbufDoubleBoi.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -413,6 +416,18 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PhongPSTexturedSpec.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPSTexturedNormalMap.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="MatrixOps.hlsl">
+      <Filter>Shaders\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongVSTexturedTBN.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPSTexturedTBNSpecular.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

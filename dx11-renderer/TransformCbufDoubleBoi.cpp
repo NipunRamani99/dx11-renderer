@@ -10,6 +10,7 @@ void TransformCbufDoubleBoi::UpdateAndBindImpl(Graphics& gfx)
 	t.view = view;
 	t.projection = proj;
 	pPcBuf->Update(gfx, t);
+	pPcBuf->Bind(gfx);
 }
 
 TransformCbufDoubleBoi::TransformCbufDoubleBoi(Graphics& gfx, const Drawable& parent)
@@ -25,7 +26,7 @@ TransformCbufDoubleBoi::TransformCbufDoubleBoi(Graphics& gfx, const Drawable& pa
 void TransformCbufDoubleBoi::Bind(Graphics& gfx) noexcept
 {
 	TransformCbuf::Bind(gfx);
-	UpdateAndBindImpl(gfx);
+	this->UpdateAndBindImpl(gfx);
 }
 
 std::unique_ptr<PixelConstantBuffer<TransformCbuf::Transforms>> TransformCbufDoubleBoi::pPcBuf;

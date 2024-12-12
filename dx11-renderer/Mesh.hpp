@@ -90,6 +90,12 @@ public:
 	void Draw(Graphics& gfx);
 	void DrawAABB(Graphics& gfx);
 	void ShowWindow();
+	void Transform(DirectX::FXMMATRIX& transform)
+	{
+		auto nodeTransform = DirectX::XMLoadFloat4x4(&_root->_basetransform);
+		nodeTransform = DirectX::XMMatrixMultiply(transform, nodeTransform);
+		DirectX::XMStoreFloat4x4(&_root->_basetransform, nodeTransform);
+	}
 	IntersectionResult IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld);
 	~Model();
 };

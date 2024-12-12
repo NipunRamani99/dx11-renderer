@@ -1,3 +1,5 @@
+#include "MatrixOps.hlsl"
+
 cbuffer LightCBuf : register(b0)
 {
 	float3 lightPos;
@@ -28,10 +30,32 @@ cbuffer CBuf : register(b3)
 };
 
 Texture2D diffuseTex : register(t1);
-SamplerState diffuseSampler : register(s1);
+Texture2D normalTex : register(t2);
+SamplerState texSampler : register(s1);
+
+
+float3 TransformNormalToViewSpace(float3 normal, matrix modelMatrix, matrix viewMatrix)
+{
+    // Combine the model and view matrix
+    float4x4 modelViewMatrix = mul(modelMatrix, viewMatrix);
+
+    // Compute the normal matrix (transpose of the inverse)
+    float3x3 normalMatrix = inverse(linearPart(modelViewMatrix));
+
+    // Transform the normal into view space
+    return normalize(mul(normal, normalMatrix));
+}
 
 float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
+    float3 texNorm = normalTex.Sample(texSampler, texCoord).xyz;
+    texNorm.x = texNorm.x * 2.0f - 1.0f;
+    texNorm.y = -texNorm.y * 2.0f + 1.0f;
+    texNorm.z = -texNorm.z;
+    //n.xy = 2.0f * texNorm.xy - 1.0f;
+
+    n = TransformNormalToViewSpace(texNorm, model, view);
+    
 	// fragment to light vector data 
 	const float3 vToL =  lightPos - worldPos;
 	const float distToL = length(vToL);
@@ -49,5 +73,6 @@ float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : Tex
     const float3 specularReflectionColor = float3(1.0f,1.0f,1.0f);
 
 	// final color
-    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(diffuseSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
+    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
+
 }

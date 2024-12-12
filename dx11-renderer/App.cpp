@@ -22,7 +22,7 @@ App::App()
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
 	plane = std::make_unique<TestPlane>(wnd.Gfx());
-
+	model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
 }
 
 int App::Go()
@@ -60,11 +60,8 @@ int App::Go()
 				_fpsCam.Translate({ 0.0f, 0.0f, -1.0f});
 			}
 		}
-		
 		float currentMouseX = float(wnd.mouse.GetPosX());
 		float currentMouseY = float(wnd.mouse.GetPosY());
-
-		
 		while (auto event = wnd.mouse.ReadRaw())
 		{
 			float deltaX = event->GetDeltaX();
@@ -86,10 +83,7 @@ int App::Go()
 
 			DirectX::XMStoreFloat3(&roFloat, ro);
 			DirectX::XMStoreFloat3(&rdFloat, rd);
-
 			result = model->IntersectMesh(roFloat, rdFloat);
-
-
 		}
 
 		DoFrame();
@@ -141,11 +135,11 @@ void App::DoFrame()
 
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
+	plane->Draw(wnd.Gfx());
+	plane->SpawnControl();
 	model->Draw(wnd.Gfx());
 	model->DrawAABB(wnd.Gfx());
 	model->ShowWindow();
-	plane->Draw(wnd.Gfx());
-	plane->SpawnControl();
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {

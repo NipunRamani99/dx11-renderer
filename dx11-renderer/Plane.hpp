@@ -26,23 +26,24 @@ public:
 			const float side_y = height / 2.0f;
 			const float divisionSize_x = width / float(divisions_x);
 			const float divisionSize_y = height / float(divisions_y);
-			const auto bottomLeft = dx::XMVectorSet(-side_x, -side_y, 0.0f, 0.0f);
+			const float divisionSize_x_tc = 1.0f / float(divisions_x);
+			const float divisionSize_y_tc = 1.0f / float(divisions_y);
 
 			for (int y = 0, i = 0; y < nVertices_y; y++)
 			{
-				const float y_pos = float(y) * divisionSize_y;
-				const float y_tc = float(y) * 1.0f / (float(nVertices_y - 1));
+				const float y_pos = float(y) * divisionSize_y - side_y;
+				const float y_pos_tc = 1.0f - float(y) * divisionSize_y_tc;
 				for (int x = 0; x < nVertices_x; x++, i++)
 				{
-					const float x_tc = float(x) * 1.0f / (float(nVertices_x - 1));
-					const auto v = dx::XMVectorAdd(
-						bottomLeft,
-						dx::XMVectorSet(float(x) * divisionSize_x, y_pos, 0.0f, 0.0f)
+					const float x_pos = float(x) * divisionSize_x - side_x;
+					const float x_pos_tc = float(x) * divisionSize_x_tc;
+					vertexBuffer.EmplaceBack(
+						dx::XMFLOAT3{ x_pos,y_pos,0.0f },
+						dx::XMFLOAT3{ 0.0f,0.0f,1.0f },
+						dx::XMFLOAT3{ 1.0f,0.0f,0.0f },
+						dx::XMFLOAT3{ 0.0f,1.0f, 0.0f },
+						dx::XMFLOAT2{ x_pos_tc,y_pos_tc }
 					);
-					dx::XMFLOAT2 tc = { x_tc, y_tc };
-					dx::XMFLOAT3 pos;
-					dx::XMStoreFloat3(&pos, v);
-					vertexBuffer.EmplaceBack(pos, normal, tc);
 				}
 			}
 		}
@@ -60,11 +61,11 @@ public:
 				{
 					const std::array<unsigned short, 4> indexArray =
 					{ vxy2i(x,y),vxy2i(x + 1,y),vxy2i(x,y + 1),vxy2i(x + 1,y + 1) };
-					indices.push_back(indexArray[2]);
 					indices.push_back(indexArray[0]);
-					indices.push_back(indexArray[1]);
 					indices.push_back(indexArray[2]);
 					indices.push_back(indexArray[1]);
+					indices.push_back(indexArray[1]);
+					indices.push_back(indexArray[2]);
 					indices.push_back(indexArray[3]);
 				}
 			}
@@ -79,8 +80,9 @@ public:
 		VertexLayout vl;
 		vl.Append(VertexLayout::Position3D);
 		vl.Append(VertexLayout::Normal);
+		vl.Append(VertexLayout::Tangent);
+		vl.Append(VertexLayout::BiTangent);
 		vl.Append(VertexLayout::Texture2D);
-
 		return MakeTesselatedTextured(std::move(vl), 1, 1);
 	}
 };
