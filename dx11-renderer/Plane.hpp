@@ -41,7 +41,6 @@ public:
 						dx::XMFLOAT3{ x_pos,y_pos,0.0f },
 						dx::XMFLOAT3{ 0.0f,0.0f,1.0f },
 						dx::XMFLOAT3{ 1.0f,0.0f,0.0f },
-						dx::XMFLOAT3{ 0.0f,1.0f, 0.0f },
 						dx::XMFLOAT2{ x_pos_tc,y_pos_tc }
 					);
 				}
@@ -81,7 +80,6 @@ public:
 		vl.Append(VertexLayout::Position3D);
 		vl.Append(VertexLayout::Normal);
 		vl.Append(VertexLayout::Tangent);
-		vl.Append(VertexLayout::BiTangent);
 		vl.Append(VertexLayout::Texture2D);
 		return MakeTesselatedTextured(std::move(vl), 1, 1);
 	}

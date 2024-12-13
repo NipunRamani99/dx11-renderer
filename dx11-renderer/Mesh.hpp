@@ -84,7 +84,8 @@ private:
 	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials);
 	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
 	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node);
-
+	std::string _assetLocation = "";
+	std::string _assetDir = "";
 public:
 	Model(Graphics& gfx, const std::string modelPath);
 	void Draw(Graphics& gfx);

@@ -16,6 +16,8 @@ cbuffer ObjectData : register(b1)
     float3 materialColor = { 0.7, 0.7, 0.5 };
     float specularIntensity = 0.1f;
     float specularPower = 1.0f;
+    bool normalMapEnabled = false;
+    float padding[1];
 };
 
 cbuffer CamData : register(b2)
@@ -48,11 +50,20 @@ float3 TransformNormalToViewSpace(float3 normalTex, float3 normalW, float3 tange
 float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangentView : Tangent, float3 bitangentView : BiTangent, float2 texCoord : TexCoord) : SV_Target
 {
     float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
-    sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-    sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
-    sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
-    //n.xy = 2.0f * texNorm.xy - 1.0f;
-
+    
+    if (normalMapEnabled)
+    {
+    
+        sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
+        sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
+        sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
+    }
+    else
+    {
+        sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
+        sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
+        sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
+    }
     float3 texNorm = TransformNormalToViewSpace(sampleNorm, normalView, tangentView, bitangentView, model, view);
     
 	// fragment to light vector data 

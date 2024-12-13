@@ -11,7 +11,6 @@ struct VSIn
     float3 pos : Position;
     float3 n : Normal;
     float3 tangent : Tangent;
-    float3 bitangent : BiTangent;
     float3 texCoord : TexCoord;
 };
 

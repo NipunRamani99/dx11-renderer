@@ -20,9 +20,11 @@ TestPlane::TestPlane(Graphics& gfx)
 		alignas(16) DirectX::XMFLOAT3 material;
 		float specularIntensity = 0.60f;
 		float specularPower = 30.0f;
+		BOOL normalMapEnabled = FALSE;
+		float padding[1];
 		static std::string GetId()
 		{
-			return "ObjectData";
+			return "ObjectDataTestPlane";
 		}
 	} objectData;
 	objectData.material = { 1.0f, 0.2f, 0.1f };

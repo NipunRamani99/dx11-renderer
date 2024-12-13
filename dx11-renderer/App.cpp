@@ -20,7 +20,9 @@ App::App()
 	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f);
 	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
-	model = std::make_unique<Model>(wnd.Gfx(), "models/nanosuit/nanosuit.obj");
+	model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj");
+	pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf");
+
 	plane = std::make_unique<TestPlane>(wnd.Gfx());
 	model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
 }
@@ -137,9 +139,12 @@ void App::DoFrame()
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
 	plane->Draw(wnd.Gfx());
 	plane->SpawnControl();
-	model->Draw(wnd.Gfx());
-	model->DrawAABB(wnd.Gfx());
-	model->ShowWindow();
+	//model->Draw(wnd.Gfx());
+	//model->DrawAABB(wnd.Gfx());
+	//model->ShowWindow();
+	pokeWall->Draw(wnd.Gfx());
+	pokeWall->DrawAABB(wnd.Gfx());
+	pokeWall->ShowWindow();
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {

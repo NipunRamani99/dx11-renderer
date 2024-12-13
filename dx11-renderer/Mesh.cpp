@@ -271,13 +271,22 @@ private:
 };
 
 Model::Model(Graphics& gfx, const std::string modelPath)
+	:
+	_assetLocation(modelPath)
 	
 {
 	Assimp::Importer importer;
 	const auto pScene = importer.ReadFile(modelPath.c_str(),
 		aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace |
 		aiProcess_JoinIdenticalVertices);
-
+	const size_t last_slash_idx = _assetLocation.rfind('\\') != std::string::npos ? _assetLocation.rfind('\\') : _assetLocation.rfind('/');
+	if (std::string::npos != last_slash_idx)
+	{
+		_assetDir = _assetLocation.substr(0, last_slash_idx);
+		_assetDir += "/";
+	}
+	
 	_name = pScene->mName.C_Str();
 	_name = _name.empty() ? "Sample Scene" : _name;
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
@@ -308,13 +317,28 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 {
 	namespace dx = DirectX;
 	using namespace Bind;
+	aiMaterial* material = materials[mesh.mMaterialIndex];
+	aiString texFileName;
 
-	Dvtx::VertexBuffer vbuf(std::move(
-		Dvtx::VertexLayout{}
-		.Append<Dvtx::VertexLayout::Position3D>()
-		.Append<Dvtx::VertexLayout::Normal>()
-		.Append<Dvtx::VertexLayout::Texture2D>()
-	));
+	bool hasDiffuse = material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName) == aiReturn_SUCCESS;
+	bool hasNormal = material->GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS;
+	Dvtx::VertexLayout layout;
+	if (hasNormal)
+	{
+		layout.Append<Dvtx::VertexLayout::Position3D>()
+			.Append<Dvtx::VertexLayout::Normal>()
+			.Append<Dvtx::VertexLayout::Tangent>()
+			.Append<Dvtx::VertexLayout::Texture2D>();
+
+	}
+	else
+	{
+		layout.Append<Dvtx::VertexLayout::Position3D>()
+			.Append<Dvtx::VertexLayout::Normal>()
+			.Append<Dvtx::VertexLayout::Texture2D>();
+
+	}
+	Dvtx::VertexBuffer vbuf(std::move(layout));
 	AABB aabb;
 	aabb.min.x = mesh.mVertices[0].x;
 	aabb.min.y = mesh.mVertices[0].y;
@@ -332,12 +356,23 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		aabb.max.y = std::max(mesh.mVertices[i].y, aabb.max.y);
 		aabb.max.z = std::max(mesh.mVertices[i].z, aabb.max.z);
 
-		vbuf.EmplaceBack(
-			dx::XMFLOAT3{ mesh.mVertices[i].x, mesh.mVertices[i].y , mesh.mVertices[i].z },
-			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
-			*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
-		);
-
+		if (hasNormal)
+		{
+			vbuf.EmplaceBack(
+				dx::XMFLOAT3{ mesh.mVertices[i].x, mesh.mVertices[i].y , mesh.mVertices[i].z },
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
+				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+			);
+		}
+		else
+		{
+			vbuf.EmplaceBack(
+				dx::XMFLOAT3{ mesh.mVertices[i].x, mesh.mVertices[i].y , mesh.mVertices[i].z },
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+			);
+		}
 	}
 
 
@@ -367,42 +402,56 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 
 	bindables.push_back(IndexBuffer::Resolve(gfx, mesh.mName.C_Str(), indices));
 
-	auto pvs = VertexShader::Resolve(gfx, "PhongVSTextured.cso");
+	auto pvs = VertexShader::Resolve(gfx, hasNormal ? "PhongVSTexturedTBN.cso" : "PhongVSTextured.cso");
 	auto pvsbc = pvs->GetBytecode();
 
 	bindables.push_back(pvs);
 
 	bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), pvsbc));
-
-	aiMaterial* material = materials[mesh.mMaterialIndex];
-	aiString texFileName;
 	material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
 	std::string filePath = texFileName.C_Str();
-	filePath = ".\\Models\\nanosuit\\" + filePath;
+	filePath = _assetDir + filePath;
 	bindables.push_back(Texture::Resolve(gfx, filePath, 1u));
 	bindables.push_back(Sampler::Resolve(gfx, 1u));
 	bool foundSpecMap = false;
 	if (material->GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 	{
 		filePath = texFileName.C_Str();
-		filePath = ".\\Models\\nanosuit\\" + filePath;
+		filePath = _assetDir + filePath;
 		bindables.push_back(Texture::Resolve(gfx, filePath, 2u));
 		foundSpecMap = true;
 	}
-	if(foundSpecMap)
+	if (foundSpecMap)
 		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedSpec.cso"));
-	else
+
+	bool foundNormalMap = false;
+	if (material->GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS)
+	{
+		foundNormalMap = true;
+		filePath = texFileName.C_Str();
+		filePath = _assetDir + filePath;
+		bindables.push_back(Texture::Resolve(gfx, filePath, 2u));
+		foundSpecMap = true;
+	}
+	if (foundNormalMap)
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedTBNSpecular.cso"));
+
+	if(!foundSpecMap)
 		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTextured.cso"));
 
 	struct ObjectData {
 		alignas(16) dx::XMFLOAT3 material;
 		float specularIntensity = 0.60f;
 		float specularPower = 30.0f;
+		BOOL normalMapEnabled = FALSE;
+		float padding[1];
 		static std::string GetId()
 		{
 			return "ObjectData";
 		}
 	} objectData;
+
+	objectData.normalMapEnabled = TRUE;
 	objectData.material = { 1.0f, 0.2f, 0.1f };
 	bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1));
 
