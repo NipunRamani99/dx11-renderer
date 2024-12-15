@@ -55,7 +55,7 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
     {
     
         sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-        sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
+        sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
         sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
     }
     else
