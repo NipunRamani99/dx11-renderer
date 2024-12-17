@@ -20,11 +20,15 @@ App::App()
 	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f);
 	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
-	model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj");
-	pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf");
+	model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj", 2.0f);
+	//pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf");
 
-	plane = std::make_unique<TestPlane>(wnd.Gfx());
-	model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
+	//plane = std::make_unique<TestPlane>(wnd.Gfx());
+	//model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
+	//pokeWall->Transform(DirectX::XMMatrixTranslation(2.0f, 10.0f, -3.0f));
+	//pokeWall->Transform(DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(-90.0f), 0.0f, 0.0f));
+	gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj");
+	gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -7.0f));
 }
 
 int App::Go()
@@ -85,7 +89,6 @@ int App::Go()
 
 			DirectX::XMStoreFloat3(&roFloat, ro);
 			DirectX::XMStoreFloat3(&rdFloat, rd);
-			result = model->IntersectMesh(roFloat, rdFloat);
 		}
 
 		DoFrame();
@@ -137,14 +140,17 @@ void App::DoFrame()
 
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
-	plane->Draw(wnd.Gfx());
-	plane->SpawnControl();
-	//model->Draw(wnd.Gfx());
+	//plane->Draw(wnd.Gfx());
+	//plane->SpawnControl();
+	model->Draw(wnd.Gfx());
 	//model->DrawAABB(wnd.Gfx());
-	//model->ShowWindow();
-	pokeWall->Draw(wnd.Gfx());
-	pokeWall->DrawAABB(wnd.Gfx());
-	pokeWall->ShowWindow();
+	model->ShowWindow();
+	//pokeWall->Draw(wnd.Gfx());
+	//pokeWall->DrawAABB(wnd.Gfx());
+	//pokeWall->ShowWindow();
+	/*gobber->Draw(wnd.Gfx());
+	gobber->DrawAABB(wnd.Gfx());
+	gobber->ShowWindow();*/
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {

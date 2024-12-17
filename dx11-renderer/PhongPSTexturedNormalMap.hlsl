@@ -1,5 +1,5 @@
 #include "MatrixOps.hlsl"
-
+#include "ShaderOps.hlsl"
 cbuffer LightCBuf : register(b0)
 {
 	float3 lightPos;
@@ -46,7 +46,7 @@ float3 TransformNormalToViewSpace(float3 normal, matrix modelMatrix, matrix view
     return normalize(mul(normal, normalMatrix));
 }
 
-float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
+float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
     float3 texNorm = normalTex.Sample(texSampler, texCoord).xyz;
     texNorm.x = texNorm.x * 2.0f - 1.0f;
@@ -57,19 +57,18 @@ float4 main(float3 worldPos : Position, float3 n : Normal, float2 texCoord : Tex
     n = TransformNormalToViewSpace(texNorm, model, view);
     
 	// fragment to light vector data 
-	const float3 vToL =  lightPos - worldPos;
+    const float3 vToL = lightPos - viewPos;
 	const float distToL = length(vToL);
 	const float3 dirToL = vToL / distToL;
-	// diffuse attenuation
-    const float att = 1.0f / (1.0f + attLin * distToL + attQuad * (distToL * distToL));
+	
+    // diffuse attenuation
+    const float att = CalcAttenuate(distToL, attLin, attQuad);
+    
 	// diffuse intensity
-	float NdotL = max(0.0f, dot(dirToL, normalize(n)));   // Normalized normal
-	const float3 diffuse = diffuseColor * 1.0f * att * NdotL;
-	// reflected light vector
-	const float3 w = normalize(n) * dot( vToL, normalize(n) );
-	const float3 r = w * 2.0f - vToL;
+    const float3 diffuse = CalcDiffuse(diffuseColor, dirToL, n, att);
+	
 	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-	const float3 specular = att * (diffuseColor) * specularIntensity * pow( max( 0.0f,dot( normalize( -r ),normalize( worldPos ) ) ),specularPower );
+    const float3 specular = CalcSpecular(diffuseColor, specularIntensity, viewPos, lightPos, n, specularPower, att);
     const float3 specularReflectionColor = float3(1.0f,1.0f,1.0f);
 
 	// final color

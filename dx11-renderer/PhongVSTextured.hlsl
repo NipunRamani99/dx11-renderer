@@ -10,7 +10,7 @@ struct VSOut
 {
 	float3 worldPos : Position;
 	float3 normal : Normal;
-	float2 texCoord : TexCoord;
+    float2 texCoord : TexCoord;
 	float4 pos : SV_Position;
 };
 
@@ -18,7 +18,7 @@ struct VSIn
 {
     float3 pos : Position;
     float3 n : Normal;
-	float2 texCoord : TexCoord;
+    float2 texCoord : TexCoord;
 };
 
 VSOut main(VSIn input)

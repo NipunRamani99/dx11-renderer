@@ -15,20 +15,33 @@ TestPlane::TestPlane(Graphics& gfx)
 	AddBind(Bind::Texture::Resolve(gfx, "./models/brick_wall/brick_wall_normal.jpg", 2u));
 	AddBind(Bind::Sampler::Resolve(gfx, 1u));
 
-	struct ObjectData 
-	{
+	struct ObjectData {
 		alignas(16) DirectX::XMFLOAT3 material;
 		float specularIntensity = 0.60f;
 		float specularPower = 30.0f;
-		BOOL normalMapEnabled = FALSE;
 		float padding[1];
+		std::string name;
 		static std::string GetId()
 		{
-			return "ObjectDataTestPlane";
+			return "ObjectData";
 		}
 	} objectData;
 	objectData.material = { 1.0f, 0.2f, 0.1f };
-	AddBind(Bind::PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1));
+	AddBind(Bind::PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+
+	struct NormalData {
+		alignas(16) BOOL hasNormalMap = FALSE;
+		BOOL negateYandZ = FALSE;
+		float padding[2];
+		static std::string GetId()
+		{
+			return "NormalData";
+		}
+	} normalData;
+	normalData.hasNormalMap = TRUE;
+	normalData.negateYandZ = TRUE;
+
+	AddBind(Bind::PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
 	AddBind(std::make_shared<Bind::TransformCbufDoubleBoi>(gfx, *this));
 }
 

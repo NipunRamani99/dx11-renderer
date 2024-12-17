@@ -9,11 +9,11 @@ namespace Bind
 		const unsigned int slot = 0;
 
 	public:
-		Sampler(Graphics& gfx, const unsigned int slot);
+		Sampler(Graphics& gfx, const unsigned int slot = 0u);
 
 		void Bind(Graphics& gfx) noexcept override;
 		
-		static std::shared_ptr<Sampler> Resolve(Graphics& gfx, const unsigned int slot)
+		static std::shared_ptr<Sampler> Resolve(Graphics& gfx, const unsigned int slot = 0u)
 		{
 			return Codex::Get().Resolve<Sampler>(gfx, slot);
 		}

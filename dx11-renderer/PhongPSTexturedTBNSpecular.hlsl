@@ -1,5 +1,5 @@
 #include "MatrixOps.hlsl"
-
+#include "ShaderOps.hlsl"
 cbuffer LightCBuf : register(b0)
 {
     float3 lightPos;
@@ -16,8 +16,12 @@ cbuffer ObjectData : register(b1)
     float3 materialColor = { 0.7, 0.7, 0.5 };
     float specularIntensity = 0.1f;
     float specularPower = 1.0f;
+};
+
+cbuffer NormalData : register(b4)
+{
     bool normalMapEnabled = false;
-    float padding[1];
+    bool negateXAndY = false;
 };
 
 cbuffer CamData : register(b2)
@@ -32,7 +36,7 @@ cbuffer CBuf : register(b3)
     matrix projection : packoffset(c8);
 };
 
-Texture2D diffuseTex : register(t1);
+Texture2D diffuseTex : register(t0);
 Texture2D normalTex : register(t2);
 SamplerState texSampler : register(s1);
 
@@ -51,18 +55,17 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
 {
     float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
     
-    if (normalMapEnabled)
-    {
-    
-        sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-        sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
-        sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
-    }
-    else
+    if (negateXAndY)
     {
         sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
         sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
         sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
+    }
+    else
+    {
+        sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
+        sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
+        sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
     }
     float3 texNorm = TransformNormalToViewSpace(sampleNorm, normalView, tangentView, bitangentView, model, view);
     
@@ -70,16 +73,15 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
     const float3 vToL = lightPos - viewPos;
     const float distToL = length(vToL);
     const float3 dirToL = vToL / distToL;
+
 	// diffuse attenuation
-    const float att = 1.0f / (1.0f + attLin * distToL + attQuad * (distToL * distToL));
+    const float att = CalcAttenuate(distToL, attLin, attQuad);
+    
 	// diffuse intensity
-    float NdotL = max(0.0f, dot(dirToL, normalize(texNorm))); // Normalized normal
-    const float3 diffuse = diffuseColor * 1.0f * att * NdotL;
-	// reflected light vector
-    const float3 w = normalize(texNorm) * dot(vToL, normalize(texNorm));
-    const float3 r = w * 2.0f - vToL;
+    const float3 diffuse = CalcDiffuse(diffuseColor, dirToL, texNorm, att);
+
 	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-    const float3 specular = att * (diffuseColor) * specularIntensity * pow(max(0.0f, dot(normalize(-r), normalize(viewPos))), specularPower);
+    const float3 specular = CalcSpecular(diffuseColor, specularIntensity, viewPos, lightPos, texNorm, specularPower, att);
     const float3 specularReflectionColor = float3(1.0f, 1.0f, 1.0f);
 
 	// final color
