@@ -361,15 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/dx11-renderer/ColorBlendPS.cso
-/dx11-renderer/ColorBlendVS.cso
-/dx11-renderer/ColorIndexPS.cso
-/dx11-renderer/ColorIndexVS.cso
-/dx11-renderer/PhongPS.cso
-/dx11-renderer/PhongVS.cso
-/dx11-renderer/PixelShader.cso
-/dx11-renderer/SolidPS.cso
-/dx11-renderer/SolidVS.cso
-/dx11-renderer/TexturePS.cso
-/dx11-renderer/TextureVS.cso
-/dx11-renderer/VertexShader.cso
+/dx11-renderer/*.cso
