@@ -270,19 +270,30 @@ private:
 	Node* _pselectednode = nullptr;
 };
 
-Model::Model(Graphics& gfx, const std::string modelPath)
+Model::Model(Graphics& gfx, const std::string modelPath, float scale)
+	:
+	_assetLocation(modelPath)
 	
 {
 	Assimp::Importer importer;
 	const auto pScene = importer.ReadFile(modelPath.c_str(),
 		aiProcess_Triangulate |
-		aiProcess_JoinIdenticalVertices);
-
-	_name = pScene->mName.C_Str();
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_ConvertToLeftHanded |
+		aiProcess_GenNormals |
+		aiProcess_CalcTangentSpace);
+	const size_t last_slash_idx = _assetLocation.rfind('\\') != std::string::npos ? _assetLocation.rfind('\\') : _assetLocation.rfind('/');
+	if (std::string::npos != last_slash_idx)
+	{
+		_assetDir = _assetLocation.substr(0, last_slash_idx);
+		_assetDir += "/";
+	}
+	
+	_name = "Test";
 	_name = _name.empty() ? "Sample Scene" : _name;
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
 	{
-		_meshes.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials));
+		_meshes.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials, scale));
 	}
 	int nextId = 0;
 	_root = ParseNode(nextId, *pScene->mRootNode);
@@ -304,42 +315,43 @@ void Model::DrawAABB(Graphics& gfx)
 	_root->DrawAABB(gfx);
 }
 
-std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials)
+std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials, float scale)
 {
 	namespace dx = DirectX;
 	using namespace Bind;
-
-	Dvtx::VertexBuffer vbuf(std::move(
-		Dvtx::VertexLayout{}
-		.Append<Dvtx::VertexLayout::Position3D>()
-		.Append<Dvtx::VertexLayout::Normal>()
-		.Append<Dvtx::VertexLayout::Texture2D>()
-	));
-	AABB aabb;
-	aabb.min.x = mesh.mVertices[0].x;
-	aabb.min.y = mesh.mVertices[0].y;
-	aabb.min.z = mesh.mVertices[0].z;
-	aabb.max.x = mesh.mVertices[0].x;
-	aabb.max.y = mesh.mVertices[0].y;
-	aabb.max.z = mesh.mVertices[0].z;
-
-	for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+	std::vector<std::shared_ptr<Bindable>> bindables;
+	bool hasDiffuseMap = false;
+	bool hasNormalMap = false;
+	bool hasSpecularMap = false;
+	float shininess = 30.0f;
+	if (mesh.mMaterialIndex >= 0)
 	{
-		aabb.min.x = std::min(mesh.mVertices[i].x, aabb.min.x);
-		aabb.min.y = std::min(mesh.mVertices[i].y, aabb.min.y);
-		aabb.min.z = std::min(mesh.mVertices[i].z, aabb.min.z);
-		aabb.max.x = std::max(mesh.mVertices[i].x, aabb.max.x);
-		aabb.max.y = std::max(mesh.mVertices[i].y, aabb.max.y);
-		aabb.max.z = std::max(mesh.mVertices[i].z, aabb.max.z);
-
-		vbuf.EmplaceBack(
-			dx::XMFLOAT3{ mesh.mVertices[i].x, mesh.mVertices[i].y , mesh.mVertices[i].z },
-			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
-			*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
-		);
-
+		aiMaterial* material = materials[mesh.mMaterialIndex];
+		aiString texFileName;
+		if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName) == aiReturn_SUCCESS)
+		{
+			bindables.push_back(Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 0u));
+			hasDiffuseMap = true;
+		}
+		if (material->GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
+		{
+			bindables.push_back(Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 1u));
+			hasSpecularMap = true;
+		}
+		else
+		{
+			material->Get(AI_MATKEY_SHININESS, shininess);
+		}
+		if (material->GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS)
+		{
+			bindables.push_back(Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 2u));
+			hasNormalMap = true;
+		}
+		if (hasDiffuseMap || hasSpecularMap || hasNormalMap)
+		{
+			bindables.push_back(Bind::Sampler::Resolve(gfx, 0u));
+		}
 	}
-
 
 	std::vector<unsigned int> indices;
 	std::vector<tinybvh::bvhvec4> vertices;
@@ -355,58 +367,297 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		auto v2 = mesh.mVertices[face.mIndices[1]];
 		auto v3 = mesh.mVertices[face.mIndices[2]];
 
-		vertices.push_back({ v1.x, v1.y, v1.z, 0 });
-		vertices.push_back({ v2.x, v2.y, v2.z ,0 });
-		vertices.push_back({ v3.x, v3.y, v3.z ,0 });
+		vertices.push_back({ scale * v1.x, scale * v1.y, scale * v1.z, 0 });
+		vertices.push_back({ scale * v2.x, scale * v2.y, scale * v2.z ,0 });
+		vertices.push_back({ scale * v3.x, scale * v3.y, scale * v3.z ,0 });
 	}
-	
+
 	std::unique_ptr<tinybvh::BVH> bvh = std::make_unique<tinybvh::BVH>();
 	bvh->Build(vertices.data(), mesh.mNumFaces);
-	std::vector<std::shared_ptr<Bindable>> bindables;
-	bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
-
 	bindables.push_back(IndexBuffer::Resolve(gfx, mesh.mName.C_Str(), indices));
 
-	auto pvs = VertexShader::Resolve(gfx, "PhongVSTextured.cso");
-	auto pvsbc = pvs->GetBytecode();
+	Dvtx::VertexLayout layout;
 
-	bindables.push_back(pvs);
-
-	bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), pvsbc));
-
-	aiMaterial* material = materials[mesh.mMaterialIndex];
-	aiString texFileName;
-	material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
-	std::string filePath = texFileName.C_Str();
-	filePath = ".\\Models\\nanosuit\\" + filePath;
-	bindables.push_back(Texture::Resolve(gfx, filePath, 1u));
-	bindables.push_back(Sampler::Resolve(gfx, 1u));
-	bool foundSpecMap = false;
-	if (material->GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
+	if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 	{
-		filePath = texFileName.C_Str();
-		filePath = ".\\Models\\nanosuit\\" + filePath;
-		bindables.push_back(Texture::Resolve(gfx, filePath, 2u));
-		foundSpecMap = true;
-	}
-	if(foundSpecMap)
-		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedSpec.cso"));
-	else
-		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTextured.cso"));
+		layout.Append<Dvtx::VertexLayout::Position3D>()
+			.Append<Dvtx::VertexLayout::Normal>()
+			.Append<Dvtx::VertexLayout::Tangent>()
+			.Append<Dvtx::VertexLayout::Texture2D>();
+		Dvtx::VertexBuffer vbuf(std::move(layout));
 
-	struct ObjectData {
-		alignas(16) dx::XMFLOAT3 material;
-		float specularIntensity = 0.60f;
-		float specularPower = 30.0f;
-		static std::string GetId()
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSDiffMapTBNMapSpecMap.cso"));
+		AABB aabb;
+		aabb.min.x = scale * mesh.mVertices[0].x;
+		aabb.min.y = scale * mesh.mVertices[0].y;
+		aabb.min.z = scale * mesh.mVertices[0].z;
+		aabb.max.x = scale * mesh.mVertices[0].x;
+		aabb.max.y = scale * mesh.mVertices[0].y;
+		aabb.max.z = scale * mesh.mVertices[0].z;
+
+		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 		{
-			return "ObjectData";
+			aabb.min.x = std::min(scale * mesh.mVertices[i].x, scale * aabb.min.x);
+			aabb.min.y = std::min(scale * mesh.mVertices[i].y, scale * aabb.min.y);
+			aabb.min.z = std::min(scale * mesh.mVertices[i].z, scale * aabb.min.z);
+			aabb.max.x = std::max(scale * mesh.mVertices[i].x, scale * aabb.max.x);
+			aabb.max.y = std::max(scale * mesh.mVertices[i].y, scale * aabb.max.y);
+			aabb.max.z = std::max(scale * mesh.mVertices[i].z, scale * aabb.max.z);
+			vbuf.EmplaceBack(
+				dx::XMFLOAT3(mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
+				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+			);
 		}
-	} objectData;
-	objectData.material = { 1.0f, 0.2f, 0.1f };
-	bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1));
 
-	return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+		bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
+
+		auto vs = VertexShader::Resolve(gfx, "PhongVSTexturedTBN.cso");
+		auto vsbc = vs->GetBytecode();
+		bindables.push_back(vs);
+		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
+
+		struct ObjectData {
+			alignas(16) dx::XMFLOAT3 material;
+			float specularIntensity = 0.60f;
+			float specularPower = 30.0f;
+			static std::string GetId()
+			{
+				return "ObjectData";
+			}
+		} objectData;
+		objectData.material = { 1.0f, 0.2f, 0.1f };
+		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+
+		struct NormalData {
+			alignas(16) BOOL hasNormalMap = FALSE;
+			BOOL negateXAndY = FALSE;
+			float padding[2];
+			static std::string GetId()
+			{
+				return "NormalData";
+			}
+		} normalData;
+		normalData.hasNormalMap = hasNormalMap;
+
+		bindables.push_back(PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+	}
+	else if (hasDiffuseMap && hasNormalMap)
+	{
+		layout.Append<Dvtx::VertexLayout::Position3D>()
+			.Append<Dvtx::VertexLayout::Normal>()
+			.Append<Dvtx::VertexLayout::Tangent>()
+			.Append<Dvtx::VertexLayout::Texture2D>();
+		Dvtx::VertexBuffer vbuf(std::move(layout));
+
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedTBNSpecular.cso"));
+		AABB aabb;
+		aabb.min.x = scale * mesh.mVertices[0].x;
+		aabb.min.y = scale * mesh.mVertices[0].y;
+		aabb.min.z = scale * mesh.mVertices[0].z;
+		aabb.max.x = scale * mesh.mVertices[0].x;
+		aabb.max.y = scale * mesh.mVertices[0].y;
+		aabb.max.z = scale * mesh.mVertices[0].z;
+
+		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+		{
+			aabb.min.x = std::min(scale * mesh.mVertices[i].x, scale * aabb.min.x);
+			aabb.min.y = std::min(scale * mesh.mVertices[i].y, scale * aabb.min.y);
+			aabb.min.z = std::min(scale * mesh.mVertices[i].z, scale * aabb.min.z);
+			aabb.max.x = std::max(scale * mesh.mVertices[i].x, scale * aabb.max.x);
+			aabb.max.y = std::max(scale * mesh.mVertices[i].y, scale * aabb.max.y);
+			aabb.max.z = std::max(scale * mesh.mVertices[i].z, scale * aabb.max.z);
+			vbuf.EmplaceBack(
+				dx::XMFLOAT3(mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
+				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+			);
+		}
+
+		bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
+
+		auto vs = VertexShader::Resolve(gfx, "PhongVSTexturedTBN.cso");
+		auto vsbc = vs->GetBytecode();
+		bindables.push_back(vs);
+		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
+
+
+		struct ObjectData {
+			alignas(16) dx::XMFLOAT3 material;
+			float specularIntensity = 0.60f;
+			float specularPower = 30.0f;
+			static std::string GetId()
+			{
+				return "ObjectData";
+			}
+		} objectData;
+		objectData.material = { 1.0f, 0.2f, 0.1f };
+		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+
+		struct NormalData {
+			alignas(16) BOOL hasNormalMap = FALSE;
+			BOOL negateXAndY = FALSE;
+			float padding[2];
+			static std::string GetId()
+			{
+				return "NormalData";
+			}
+		} normalData;
+		normalData.hasNormalMap = hasNormalMap;
+
+		bindables.push_back(PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
+
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+
+	}
+	else if (hasDiffuseMap && hasSpecularMap)
+	{
+		layout.Append<Dvtx::VertexLayout::Position3D>()
+			.Append<Dvtx::VertexLayout::Normal>()
+			.Append<Dvtx::VertexLayout::Texture2D>();
+		Dvtx::VertexBuffer vbuf(std::move(layout));
+
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedSpec.cso"));
+		AABB aabb;
+		aabb.min.x = scale * mesh.mVertices[0].x;
+		aabb.min.y = scale * mesh.mVertices[0].y;
+		aabb.min.z = scale * mesh.mVertices[0].z;
+		aabb.max.x = scale * mesh.mVertices[0].x;
+		aabb.max.y = scale * mesh.mVertices[0].y;
+		aabb.max.z = scale * mesh.mVertices[0].z;
+
+		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+		{
+			aabb.min.x = std::min(scale * mesh.mVertices[i].x, scale * aabb.min.x);
+			aabb.min.y = std::min(scale * mesh.mVertices[i].y, scale * aabb.min.y);
+			aabb.min.z = std::min(scale * mesh.mVertices[i].z, scale * aabb.min.z);
+			aabb.max.x = std::max(scale * mesh.mVertices[i].x, scale * aabb.max.x);
+			aabb.max.y = std::max(scale * mesh.mVertices[i].y, scale * aabb.max.y);
+			aabb.max.z = std::max(scale * mesh.mVertices[i].z, scale * aabb.max.z);
+			vbuf.EmplaceBack(
+				dx::XMFLOAT3(mesh.mVertices[i].x* scale, mesh.mVertices[i].y* scale, mesh.mVertices[i].z* scale),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+			);
+		}
+
+		bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
+
+		auto vs = VertexShader::Resolve(gfx, "PhongVSTextured.cso");
+		auto vsbc = vs->GetBytecode();
+		bindables.push_back(vs);
+		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
+
+		struct ObjectData {
+			alignas(16) dx::XMFLOAT3 material;
+			float specularIntensity = 0.60f;
+			float specularPower = 30.0f;
+			static std::string GetId()
+			{
+				return "ObjectData";
+			}
+		} objectData;
+		objectData.material = { 1.0f, 0.2f, 0.1f };
+		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+	}
+	else if (hasDiffuseMap)
+	{
+		layout.Append<Dvtx::VertexLayout::Position3D>()
+			.Append<Dvtx::VertexLayout::Normal>()
+			.Append<Dvtx::VertexLayout::Texture2D>();
+		Dvtx::VertexBuffer vbuf(std::move(layout));
+
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTextured.cso"));
+		AABB aabb;
+		aabb.min.x = scale * mesh.mVertices[0].x;
+		aabb.min.y = scale * mesh.mVertices[0].y;
+		aabb.min.z = scale * mesh.mVertices[0].z;
+		aabb.max.x = scale * mesh.mVertices[0].x;
+		aabb.max.y = scale * mesh.mVertices[0].y;
+		aabb.max.z = scale * mesh.mVertices[0].z;
+
+		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+		{
+			aabb.min.x = std::min(scale * mesh.mVertices[i].x, scale * aabb.min.x);
+			aabb.min.y = std::min(scale * mesh.mVertices[i].y, scale * aabb.min.y);
+			aabb.min.z = std::min(scale * mesh.mVertices[i].z, scale * aabb.min.z);
+			aabb.max.x = std::max(scale * mesh.mVertices[i].x, scale * aabb.max.x);
+			aabb.max.y = std::max(scale * mesh.mVertices[i].y, scale * aabb.max.y);
+			aabb.max.z = std::max(scale * mesh.mVertices[i].z, scale * aabb.max.z);
+			vbuf.EmplaceBack(
+				dx::XMFLOAT3(mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+			);
+		}
+
+		bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
+
+		auto vs = VertexShader::Resolve(gfx, "PhongVSTextured.cso");
+		auto vsbc = vs->GetBytecode();
+		bindables.push_back(vs);
+		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
+
+		struct ObjectData {
+			alignas(16) dx::XMFLOAT3 material;
+			float specularIntensity = 0.60f;
+			float specularPower = 30.0f;
+			float padding[1];
+			static std::string GetId()
+			{
+				return "ObjectData";
+			}
+		} objectData;
+		objectData.material = { 1.0f, 0.2f, 0.1f };
+		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+	}
+	else if (!hasDiffuseMap && !hasSpecularMap && !hasNormalMap)
+	{
+		layout.Append<Dvtx::VertexLayout::Position3D>()
+			.Append<Dvtx::VertexLayout::Normal>();
+		Dvtx::VertexBuffer vbuf(std::move(layout));
+
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPS.cso"));
+		AABB aabb;
+		aabb.min.x = scale * mesh.mVertices[0].x;
+		aabb.min.y = scale * mesh.mVertices[0].y;
+		aabb.min.z = scale * mesh.mVertices[0].z;
+		aabb.max.x = scale * mesh.mVertices[0].x;
+		aabb.max.y = scale * mesh.mVertices[0].y;
+		aabb.max.z = scale * mesh.mVertices[0].z;
+
+		for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+		{
+			aabb.min.x = std::min(scale * mesh.mVertices[i].x, scale * aabb.min.x);
+			aabb.min.y = std::min(scale * mesh.mVertices[i].y, scale * aabb.min.y);
+			aabb.min.z = std::min(scale * mesh.mVertices[i].z, scale * aabb.min.z);
+			aabb.max.x = std::max(scale * mesh.mVertices[i].x, scale * aabb.max.x);
+			aabb.max.y = std::max(scale * mesh.mVertices[i].y, scale * aabb.max.y);
+			aabb.max.z = std::max(scale * mesh.mVertices[i].z, scale * aabb.max.z);
+			vbuf.EmplaceBack(
+				dx::XMFLOAT3(mesh.mVertices[i].x* scale, mesh.mVertices[i].y* scale, mesh.mVertices[i].z* scale),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i])
+			);
+		}
+		bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
+
+		auto vs = VertexShader::Resolve(gfx, "PhongVS.cso");
+		auto vsbc = vs->GetBytecode();
+		bindables.push_back(vs);
+		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+	}
+	else
+	{
+		throw std::runtime_error("terrible combination of textures in material smh");
+	}
+
+	
 }
 
 DirectX::XMMATRIX Model::ConvertToMatrix(const aiMatrix4x4& mat) {

@@ -81,15 +81,22 @@ private:
 	std::unique_ptr<Node> _root;
 	std::string _name = "Sample Text";
 	std::unique_ptr<ModelWindow> _pwindow;
-	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials);
+	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials, float scale);
 	DirectX::XMMATRIX ConvertToMatrix(const aiMatrix4x4& mat);
 	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node);
-
+	std::string _assetLocation = "";
+	std::string _assetDir = "";
 public:
-	Model(Graphics& gfx, const std::string modelPath);
+	Model(Graphics& gfx, const std::string modelPath, float scale = 1.0f);
 	void Draw(Graphics& gfx);
 	void DrawAABB(Graphics& gfx);
 	void ShowWindow();
+	void Transform(DirectX::FXMMATRIX& transform)
+	{
+		auto nodeTransform = DirectX::XMLoadFloat4x4(&_root->_appliedtransform);
+		nodeTransform = DirectX::XMMatrixMultiply(transform, nodeTransform);
+		DirectX::XMStoreFloat4x4(&_root->_appliedtransform, nodeTransform);
+	}
 	IntersectionResult IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld);
 	~Model();
 };

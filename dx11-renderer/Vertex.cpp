@@ -99,6 +99,8 @@ const VertexLayout::Element::size_type VertexLayout::Element::sizeOf(ElementType
 	case Position3D:
 	case Float3Color:
 	case Normal:
+	case Tangent:
+	case BiTangent:
 		return sizeof(XMFLOAT3);
 	case Position2D:
 	case Texture2D:

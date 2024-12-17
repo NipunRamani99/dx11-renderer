@@ -23,6 +23,8 @@ namespace Dvtx {
 			Position3D,
 			Texture2D,
 			Normal,
+			Tangent,
+			BiTangent,
 			Float3Color,
 			Float4Color,
 			BGRAColor
@@ -55,6 +57,20 @@ namespace Dvtx {
 			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* semantic = "Normal";
 			static constexpr const char* code = "N3";
+		};
+		template<> struct Map<Tangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "Tangent";
+			static constexpr const char* code = "TAN3";
+		};
+		template<> struct Map<BiTangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr const DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "BiTangent";
+			static constexpr const char* code = "BITAN3";
 		};
 		template<> struct Map<Float3Color>
 		{
@@ -122,6 +138,10 @@ namespace Dvtx {
 					return GenerateDesc<Texture2D>(_offset);
 				case Normal:
 					return GenerateDesc<Normal>(_offset);
+				case Tangent:
+					return GenerateDesc<Tangent>(_offset);
+				case BiTangent:
+					return GenerateDesc<BiTangent>(_offset);
 				case Float3Color:
 					return GenerateDesc<Float3Color>(_offset);
 				case Float4Color:
@@ -145,6 +165,10 @@ namespace Dvtx {
 					return Map<Texture2D>::code;
 				case Normal:
 					return Map<Normal>::code;
+				case Tangent:
+					return Map<Tangent>::code;
+				case BiTangent:
+					return Map<BiTangent>::code;
 				case Float3Color:
 					return Map<Float3Color>::code;
 				case Float4Color:
@@ -254,6 +278,8 @@ namespace Dvtx {
 			case VertexLayout::ElementType::Position3D:
 			case VertexLayout::ElementType::Float3Color:
 			case VertexLayout::ElementType::Normal:
+			case VertexLayout::ElementType::Tangent:
+			case VertexLayout::ElementType::BiTangent:
 				SetAttribute<XMFLOAT3>(pattr, std::forward<T>(val));
 				break;
 			case VertexLayout::ElementType::Position2D:

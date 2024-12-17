@@ -8,6 +8,8 @@
 #include "PointLight.hpp"
 #include "Mesh.hpp"
 #include "TestPlane.hpp"
+#include "TaskManager.hpp"
+
 class App {
 private:
 	ImguiManager imgui;
@@ -31,11 +33,17 @@ private:
 public:
 	App();
 	int Go();
-	~App() {}
+	~App() 
+	{
+		TaskManager::Get().Stop();
+		TaskManager::Get().Wait();
+	}
 private:
 	void DoFrame();
 	std::vector<std::unique_ptr<class Drawable>> drawables;
 	static constexpr size_t nDrawables = 4;
 	std::unique_ptr<Model> model;
+	std::unique_ptr<Model> pokeWall;
+	std::unique_ptr<Model> gobber;
 	std::unique_ptr<TestPlane> plane;
 };
