@@ -24,7 +24,7 @@ public:
 		:
 		_cursorPos(float(SCREEN_WIDTH >> 1), float(SCREEN_HEIGHT >> 1)),
 		_prevCursorPos(_cursorPos),
-		_cameraPos(0.0f, 10.0f, -7.0f),
+		_cameraPos(-11.0f, 10.0f, -31.0f),
 		_up(0.0f, 1.0f, 0.0f),
 		_front(0.0f, 0.0f, 0.0f)
 	{

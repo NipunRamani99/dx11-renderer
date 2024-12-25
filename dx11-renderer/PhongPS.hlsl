@@ -16,6 +16,7 @@ cbuffer ObjectData : register(b1)
 	float3 materialColor = {0.7, 0.7, 0.5};
 	float specularIntensity = 0.1f;
 	float specularPower = 1.0f;
+    float padding;
 };
 
 cbuffer CamData : register(b2) {
@@ -39,5 +40,5 @@ float4 main(float3 viewPos : Position, float3 n : Normal) : SV_Target
     const float3 specular = CalcSpecular(diffuseColor, specularIntensity, viewPos, lightPos, n, specularPower, att);
 
 	// final color
-	return float4(saturate( diffuse + ambient ) * materialColor, 1.0f);
+    return float4(saturate(diffuse + ambient) * materialColor + specular, 1.0f);
 }

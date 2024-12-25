@@ -31,7 +31,7 @@ cbuffer CBuf : register(b3)
 
 Texture2D diffuseTex : register(t1);
 Texture2D normalTex : register(t2);
-SamplerState texSampler : register(s1);
+SamplerState texSampler : register(s0);
 
 
 float3 TransformNormalToViewSpace(float3 normal, matrix modelMatrix, matrix viewMatrix)

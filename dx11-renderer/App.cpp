@@ -27,7 +27,7 @@ App::App()
 	//model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
 	//pokeWall->Transform(DirectX::XMMatrixTranslation(2.0f, 10.0f, -3.0f));
 	//pokeWall->Transform(DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(-90.0f), 0.0f, 0.0f));
-	gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj");
+	gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj", 6.0f);
 	gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -7.0f));
 }
 
@@ -142,15 +142,15 @@ void App::DoFrame()
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
 	//plane->Draw(wnd.Gfx());
 	//plane->SpawnControl();
-	model->Draw(wnd.Gfx());
+	//model->Draw(wnd.Gfx());
 	//model->DrawAABB(wnd.Gfx());
-	model->ShowWindow();
+	//model->ShowWindow();
 	//pokeWall->Draw(wnd.Gfx());
 	//pokeWall->DrawAABB(wnd.Gfx());
 	//pokeWall->ShowWindow();
-	/*gobber->Draw(wnd.Gfx());
+	gobber->Draw(wnd.Gfx());
 	gobber->DrawAABB(wnd.Gfx());
-	gobber->ShowWindow();*/
+	gobber->ShowWindow();
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {

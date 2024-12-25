@@ -323,7 +323,11 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	bool hasDiffuseMap = false;
 	bool hasNormalMap = false;
 	bool hasSpecularMap = false;
+	bool hasGlossMap = false;
 	float shininess = 30.0f;
+	dx::XMFLOAT4 specularColor = { 0.18f,0.18f,0.18f,1.0f };
+	dx::XMFLOAT3 materialColor = { 1.0f, 0.0f, 1.0f };
+
 	if (mesh.mMaterialIndex >= 0)
 	{
 		aiMaterial* material = materials[mesh.mMaterialIndex];
@@ -333,12 +337,22 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			bindables.push_back(Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 0u));
 			hasDiffuseMap = true;
 		}
+		else
+		{
+			material->Get(AI_MATKEY_COLOR_DIFFUSE, reinterpret_cast<aiColor3D&>(materialColor));
+		}
 		if (material->GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 		{
-			bindables.push_back(Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 1u));
+			auto tex =  Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 1u);
+			hasGlossMap = tex->HasAlpha();
+			bindables.push_back(tex);
 			hasSpecularMap = true;
 		}
 		else
+		{
+			material->Get(AI_MATKEY_COLOR_SPECULAR, reinterpret_cast<aiColor3D&>(specularColor));
+		}
+		if (!hasGlossMap)
 		{
 			material->Get(AI_MATKEY_SHININESS, shininess);
 		}
@@ -428,19 +442,23 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			}
 		} objectData;
 		objectData.material = { 1.0f, 0.2f, 0.1f };
+		objectData.specularPower = shininess;
 		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
 
 		struct NormalData {
-			alignas(16) BOOL hasNormalMap = FALSE;
+			alignas(16) BOOL hasNormalMap = TRUE;
+			BOOL hasSpecularMap = TRUE;
 			BOOL negateXAndY = FALSE;
-			float padding[2];
+			BOOL hasGloss = FALSE;
+			DirectX::XMFLOAT3 specularColor = { 0.75f,0.75f,0.75f };
+			float specularMapWeight = 1.0f;
 			static std::string GetId()
 			{
-				return "NormalData";
+				return "NormalData2";
 			}
 		} normalData;
-		normalData.hasNormalMap = hasNormalMap;
-
+		normalData.hasGloss = hasGlossMap ? TRUE: FALSE;
+		normalData.specularColor = DirectX::XMFLOAT3(specularColor.x, specularColor.y, specularColor.z);
 		bindables.push_back(PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
 		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
 	}
@@ -645,6 +663,20 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			);
 		}
 		bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
+		struct ObjectData {
+			alignas(16) dx::XMFLOAT3 material;
+			float specularIntensity = 0.60f;
+			float specularPower = 30.0f;
+			float padding[1];
+			static std::string GetId()
+			{
+				return "ObjectData";
+			}
+		} objectData;
+		objectData.material = materialColor;
+		objectData.specularPower = shininess;
+		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+
 
 		auto vs = VertexShader::Resolve(gfx, "PhongVS.cso");
 		auto vsbc = vs->GetBytecode();
