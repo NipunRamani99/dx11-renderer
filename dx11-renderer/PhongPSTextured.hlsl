@@ -29,7 +29,7 @@ cbuffer CBuf : register(b3)
 };
 
 Texture2D diffuseTex : register(t0);
-SamplerState diffuseSampler : register(s1);
+SamplerState diffuseSampler : register(s0);
 
 float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {

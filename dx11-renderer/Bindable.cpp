@@ -16,6 +16,6 @@ DxgiInfoManager& Bindable::GetInfoManager(Graphics& gfx) noexcept(IS_DEBUG)
 #ifndef NDEBUG
 	return gfx.infoManager;
 #else
-	throw std::logic_error("YouFuckedUp! (tried to access gfx.infoManager while in Release mode!)");
+	throw std::logic_error("Tried to access gfx.infoManager while in Release mode!");
 #endif
 }

@@ -1,8 +1,8 @@
 cbuffer CBuf
 {
 	matrix model;
-	matrix modelView;
-	matrix modelViewProj;
+	matrix view;
+	matrix projection;
 };
 
 struct VSOut
@@ -21,8 +21,8 @@ struct VSIn
 VSOut main(VSIn input)
 {
 	VSOut vso;
-	vso.worldPos = (float3)mul(float4(input.pos, 1.0f), model);
-	vso.normal = (float3)mul(input.n, (float3x3)model);
-	vso.pos = mul(float4(input.pos, 1.0f), modelViewProj);
+    vso.worldPos = (float3) mul(float4(input.pos, 1.0f), mul(model, view));
+    vso.normal = (float3) mul(input.n, (float3x3) mul(model, view));
+    vso.pos = mul(float4(input.pos, 1.0f), mul(model, mul(view, projection)));
 	return vso;
 }

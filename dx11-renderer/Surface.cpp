@@ -195,6 +195,11 @@ void Surface::Copy(const Surface& src) noexcept(!IS_DEBUG)
 	memcpy(pBuffer.get(), src.pBuffer.get(), width * height * sizeof(Color));
 }
 
+const bool Surface::HasAlpha() const
+{
+	return alphaLoaded;
+}
+
 Surface::Surface(unsigned int width, unsigned int height, std::unique_ptr<Color[]> pBufferParam, bool alphaloaded) noexcept
 	:
 	width(width),

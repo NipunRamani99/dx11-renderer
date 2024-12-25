@@ -15,7 +15,7 @@ Texture::Texture(Graphics& gfx, const std::string & path, const unsigned int slo
 	
 	// Load surface from file
 	const Surface s = Surface::FromFile(path);
-	
+	hasAlpha = s.HasAlpha();
 	// create texture resource
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = s.GetWidth();

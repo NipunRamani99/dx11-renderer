@@ -9,7 +9,7 @@ namespace Bind
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _pTextureView;
 		const unsigned int _slot = 0;
 		std::string _path = "";
-
+		bool hasAlpha = false;
 	public:
 		Texture(Graphics& gfx, const std::string & path, const unsigned int slot);
 
@@ -30,6 +30,11 @@ namespace Bind
 		{
 			using namespace std::string_literals;
 			return _path + "#"s + std::to_string(_slot);
+		}
+
+		const bool HasAlpha() const noexcept
+		{
+			return hasAlpha;
 		}
 	};
 }
