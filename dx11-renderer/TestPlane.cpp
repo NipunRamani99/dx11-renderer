@@ -1,8 +1,8 @@
 #include "TestPlane.hpp"
 #include "imgui\imgui.h"
-TestPlane::TestPlane(Graphics& gfx)
+TestPlane::TestPlane(Graphics& gfx, float scale)
 {
-	auto model = Plane::Make();
+	auto model = Plane::Make(scale);
 	AddBind(Bind::VertexBuffer::Resolve(gfx, "TestPlane", model.vertices));
 	AddBind(Bind::IndexBuffer::Resolve(gfx, "TestPlane", model.indices));
 	AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
@@ -11,7 +11,7 @@ TestPlane::TestPlane(Graphics& gfx)
 	AddBind(vs);
 	AddBind(Bind::PixelShader::Resolve(gfx, "./PhongPSTexturedTBNSpecular.cso"));
 	AddBind(Bind::InputLayout::Resolve(gfx, model.vertices.GetVertexLayout(), pvsbc));
-	AddBind(Bind::Texture::Resolve(gfx, "./models/brick_wall/brick_wall_diffuse.jpg", 1u));
+	AddBind(Bind::Texture::Resolve(gfx, "./models/brick_wall/brick_wall_diffuse.jpg", 0u));
 	AddBind(Bind::Texture::Resolve(gfx, "./models/brick_wall/brick_wall_normal.jpg", 2u));
 	AddBind(Bind::Sampler::Resolve(gfx, 1u));
 

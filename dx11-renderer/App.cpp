@@ -11,24 +11,26 @@
 #include "TaskManager.hpp"
 GDIPlusManager gdipm;
 
-App::App()
+App::App(std::string commandLine)
 	:
 	imgui(),
 	wnd(SCREEN_WIDTH, SCREEN_HEIGHT, "DX11 Renderer"),
-	light(wnd.Gfx())
+	light(wnd.Gfx()),
+	_commandLine(commandLine)
 {
-	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 40.0f);
-	wnd.Gfx().SetProjection(projection);
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj", 2.0f);
-	//pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf");
+	pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf", 6.0f);
 
-	//plane = std::make_unique<TestPlane>(wnd.Gfx());
+	plane = std::make_unique<TestPlane>(wnd.Gfx(), 6.0f);
 	//model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
 	//pokeWall->Transform(DirectX::XMMatrixTranslation(2.0f, 10.0f, -3.0f));
-	//pokeWall->Transform(DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(-90.0f), 0.0f, 0.0f));
+	pokeWall->Transform(DirectX::XMMatrixRotationRollPitchYaw(-PI/2.0f, 0.0f, 0.0f) * DirectX::XMMatrixTranslation(-15.0f, 10.0f, -7.0f));
+	
 	gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj", 6.0f);
-	gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -7.0f));
+	gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -9.0f));
+	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f);
+	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));
 }
 
 int App::Go()
@@ -140,12 +142,12 @@ void App::DoFrame()
 
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
-	//plane->Draw(wnd.Gfx());
+	plane->Draw(wnd.Gfx());
 	//plane->SpawnControl();
-	//model->Draw(wnd.Gfx());
+	model->Draw(wnd.Gfx());
 	//model->DrawAABB(wnd.Gfx());
 	//model->ShowWindow();
-	//pokeWall->Draw(wnd.Gfx());
+	pokeWall->Draw(wnd.Gfx());
 	//pokeWall->DrawAABB(wnd.Gfx());
 	//pokeWall->ShowWindow();
 	gobber->Draw(wnd.Gfx());

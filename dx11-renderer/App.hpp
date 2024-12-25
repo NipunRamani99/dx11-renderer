@@ -30,8 +30,9 @@ private:
 	DirectX::XMFLOAT3 rdFloat;
 	int x = 0;
 	int y = 0;
+	std::string _commandLine;
 public:
-	App();
+	App(std::string commandLine = "");
 	int Go();
 	~App() 
 	{
