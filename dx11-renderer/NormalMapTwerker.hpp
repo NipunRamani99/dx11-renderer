@@ -59,6 +59,6 @@ private:
 		const XMVECTOR result = XMVectorMultiply(all255by2, XMVectorAdd(v, all1));
 		XMFLOAT3 output;
 		XMStoreFloat3(&output, result);
-		return {(char)round(output.x), (char) round(output.y), (char) round(output.z)};
+		return {(unsigned char)round(output.x), (unsigned char) round(output.y), (unsigned char) round(output.z)};
 	}
 };

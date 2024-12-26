@@ -115,7 +115,7 @@ void Node::DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = Dir
 	}
 }
 
-void Node::ShowWindow(Node *& selectedNode) const
+void Node::ShowWindow(Graphics & gfx, Node *& selectedNode, std::string windowName) const
 {
 	int selectedIndex = -1;
 	if (selectedNode != nullptr)
@@ -131,7 +131,7 @@ void Node::ShowWindow(Node *& selectedNode) const
 		selectedNode = ImGui::IsItemClicked() ? const_cast<Node*>(this) : selectedNode;
 		for (auto& pnode : _nodes)
 		{
-			pnode->ShowWindow(selectedNode);
+			pnode->ShowWindow(gfx, selectedNode, windowName);
 		}
 		ImGui::TreePop();
 	}
@@ -213,29 +213,33 @@ class ModelWindow
 {
 public:
 	ModelWindow() {}
-	void ShowWindow(std::string name, const Node & rootNode)
+	void ShowWindow(Graphics& gfx, std::string windowName, const Node& rootNode)
 	{
-		ImGui::Begin("Model");
-		ImGui::Columns(2, nullptr, true);
-		if (ImGui::TreeNodeEx(name.c_str()))
+		
+		if (ImGui::Begin(windowName.c_str()))
 		{
+			ImGui::Columns(2, nullptr, true);
+			if (ImGui::TreeNodeEx(windowName.c_str()))
+			{
 
-			rootNode.ShowWindow(_pselectednode);
-			ImGui::TreePop();
+				rootNode.ShowWindow(gfx, _pselectednode, windowName);
+				ImGui::TreePop();
 
+			}
+			ImGui::NextColumn();
+			selectedIndex = _pselectednode != nullptr ? _pselectednode->GetId() : -1;
+
+			ImGui::SliderAngle("Yaw", (float*)&transforms[selectedIndex].yaw, -180.0f, 180.0f);
+			ImGui::SliderAngle("Pitch", (float*)&transforms[selectedIndex].pitch, -180.0f, 180.0f);
+			ImGui::SliderAngle("Roll", (float*)&transforms[selectedIndex].roll, -180.0f, 180.0f);
+			ImGui::InputFloat("Position X", (float*)&transforms[selectedIndex].x, 0.1f, 1.0f, "%.3f");
+			ImGui::InputFloat("Position Y", (float*)&transforms[selectedIndex].y, 0.1f, 1.0f, "%.3f");
+			ImGui::InputFloat("Position Z", (float*)&transforms[selectedIndex].z, 0.1f, 1.0f, "%.3f");
+			ImGui::Text("Selected Index: %d", selectedIndex);
 		}
-		ImGui::NextColumn();
-		selectedIndex = _pselectednode != nullptr ? _pselectednode->GetId() : -1;
-		ImGui::SliderAngle("Yaw", (float*)&transforms[selectedIndex].yaw, -180.0f, 180.0f);
-		ImGui::SliderAngle("Pitch", (float*)&transforms[selectedIndex].pitch, -180.0f, 180.0f);
-		ImGui::SliderAngle("Roll", (float*)&transforms[selectedIndex].roll, -180.0f, 180.0f);
-		ImGui::InputFloat("Position X", (float*)&transforms[selectedIndex].x, 0.1f, 1.0f, "%.3f");
-		ImGui::InputFloat("Position Y", (float*)&transforms[selectedIndex].y, 0.1f, 1.0f, "%.3f");
-		ImGui::InputFloat("Position Z", (float*)&transforms[selectedIndex].z, 0.1f, 1.0f, "%.3f");
-		ImGui::Text("Selected Index: %d", selectedIndex);
 		ImGui::End();
-	}
 
+	}
 	DirectX::XMMATRIX GetTransformation()
 	{
 		DirectX::XMMATRIX appliedTransfrom = DirectX::XMMatrixIdentity();
@@ -727,9 +731,9 @@ std::unique_ptr<Node> Model::ParseNode(int & nextId, const aiNode& node)
 	return pNode;
 }
 
-void Model::ShowWindow()
+void Model::ShowWindow(Graphics& gfx, std::string windowName)
 {
-	_pwindow->ShowWindow(_name, *_root);
+	_pwindow->ShowWindow(gfx, windowName, *_root);
 }
 
 IntersectionResult Model::IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld)

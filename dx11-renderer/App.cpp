@@ -9,6 +9,8 @@
 #include "Vertex.h"
 #include "AABBVisualisation.hpp"
 #include "TaskManager.hpp"
+#include <shellapi.h>
+#include "NormalMapTwerker.hpp"
 GDIPlusManager gdipm;
 
 App::App(std::string commandLine)
@@ -18,6 +20,23 @@ App::App(std::string commandLine)
 	light(wnd.Gfx()),
 	_commandLine(commandLine)
 {
+	if (commandLine != "")
+	{
+		int nArgs;
+		const auto pLineW = GetCommandLineW();
+		const auto pArgs =  CommandLineToArgvW(pLineW, &nArgs);
+		if (nArgs >= 4 && std::wstring(pArgs[1]) == L"--ntwerk-rotx180")
+		{
+			const std::wstring pPathInW = pArgs[2];
+			const std::wstring pPathOutW = pArgs[3];
+			NormalMapTwerker::RotateXAxis180(
+				std::string(pPathInW.begin(), pPathInW.end()),
+				std::string(pPathOutW.begin(), pPathOutW.end())
+			);
+			throw std::runtime_error("Normal Map Processed Successfully. Ignore runtime error message");
+		}
+	}
+
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj", 2.0f);
 	pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf", 6.0f);
@@ -99,7 +118,6 @@ int App::Go()
 		{
 			keepRunning = false;
 		}
-		TaskManager & manager = TaskManager::Get();
 		if (wnd.kbd.KeyIsPressed('K'))
 		{
 			if (canToggle)
@@ -143,16 +161,16 @@ void App::DoFrame()
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
 	plane->Draw(wnd.Gfx());
-	//plane->SpawnControl();
+	plane->SpawnControl();
 	model->Draw(wnd.Gfx());
 	//model->DrawAABB(wnd.Gfx());
-	//model->ShowWindow();
+	model->ShowWindow(wnd.Gfx(), "Nanosuit");
 	pokeWall->Draw(wnd.Gfx());
 	//pokeWall->DrawAABB(wnd.Gfx());
-	//pokeWall->ShowWindow();
+	pokeWall->ShowWindow(wnd.Gfx(), "The Wall");
 	gobber->Draw(wnd.Gfx());
 	gobber->DrawAABB(wnd.Gfx());
-	gobber->ShowWindow();
+	gobber->ShowWindow(wnd.Gfx(), "gobber");
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {
@@ -163,37 +181,26 @@ void App::DoFrame()
 			ImGui::SliderFloat("Speed Factor", &speed_factor, 0.0f, 4.0f);
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Text("Status: %s", wnd.kbd.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING");
-		}
+			ImGui::Text("Yaw: %.2f", _fpsCam._yaw);
+			ImGui::Text("Pitch: %.2f", _fpsCam._pitch);
+			ImGui::Text("Mouse : %d %d", wnd.mouse.GetPosX(), wnd.mouse.GetPosY());
+			ImGui::Text("Prev Mouse X: %.2f", prevMouseX);
+			ImGui::Text("Prev Mouse Y: %.2f", prevMouseY);
+			ImGui::Text("Mouse clicked: %d", wnd.mouse.LeftIsPressed());
+			ImGui::Text("Ray Hit: %d", result.hit);
+			ImGui::Text("Node selected: %s", result.node ? result.node->GetName().c_str() : "None");
+			ImGui::Text("Cam Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
+			ImGui::Text("Cam Dir: %.2f, %.2f, %.2f", dir.x, dir.y, dir.z);
+
+			ImGui::Text("RO: %.2f, %.2f, %.2f", roFloat.x, roFloat.y, roFloat.z);
+			ImGui::Text("RD: %.2f, %.2f, %.2f", rdFloat.x, rdFloat.y, rdFloat.z);
 
 
-		ImGui::Text("Yaw: %.2f", _fpsCam._yaw);
-		ImGui::Text("Pitch: %.2f", _fpsCam._pitch);
-		ImGui::Text("Mouse : %d %d", wnd.mouse.GetPosX(), wnd.mouse.GetPosY());
-		ImGui::Text("Prev Mouse X: %.2f", prevMouseX);
-		ImGui::Text("Prev Mouse Y: %.2f", prevMouseY);
-		ImGui::Text("Mouse clicked: %d", wnd.mouse.LeftIsPressed());
-		ImGui::Text("Ray Hit: %d", result.hit);
-		ImGui::Text("Node selected: %s", result.node ? result.node->GetName().c_str() : "None");
-		ImGui::Text("Cam Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
-		ImGui::Text("Cam Dir: %.2f, %.2f, %.2f", dir.x, dir.y, dir.z);
-
-		ImGui::Text("RO: %.2f, %.2f, %.2f", roFloat.x, roFloat.y, roFloat.z);
-		ImGui::Text("RD: %.2f, %.2f, %.2f", rdFloat.x, rdFloat.y, rdFloat.z);
-
-		ImGui::End();
-		static ImGuiTextBuffer Buf;
-		if (ImGui::Begin("Event Logs"))
-		{
-			
-			const Mouse::Event event = wnd.mouse.Read();
-			std::string eventStr = event.ToString();
-			Buf.append(eventStr.cbegin()._Ptr, eventStr.cend()._Ptr);
-			Buf.append("\n");
-			ImGui::TextUnformatted(Buf.begin());
-			ImGui::SetScrollHereY(1.0f);
-			
 		}
 		ImGui::End();
+
+
+
 	}
 	cam.SpawnControl();
 	light.SpawnControlWindow();

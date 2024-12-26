@@ -66,7 +66,7 @@ public:
 	void AddNode(std::unique_ptr<Node> node);
 	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
 	void DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
-	void ShowWindow(Node *& selectedNode) const;
+	void ShowWindow(Graphics & gfx, Node *& selectedNode, std::string windowName = "model") const;
 	void SetAppliedTransform(DirectX::FXMMATRIX appliedTransform);
     void IntersectNode(const DirectX::XMMATRIX& accumulatedTransform, const tinybvh::Ray& rayWorld, IntersectionResult& closestHit);
 	std::string GetName() const;
@@ -90,7 +90,7 @@ public:
 	Model(Graphics& gfx, const std::string modelPath, float scale = 1.0f);
 	void Draw(Graphics& gfx);
 	void DrawAABB(Graphics& gfx);
-	void ShowWindow();
+	void ShowWindow(Graphics & gfx, std::string windowName = "model");
 	void Transform(DirectX::FXMMATRIX& transform)
 	{
 		auto nodeTransform = DirectX::XMLoadFloat4x4(&_root->_appliedtransform);
