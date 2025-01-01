@@ -5,17 +5,20 @@
 #include "Texture.hpp"
 #include "Surface.hpp"
 #include "Sampler.hpp"
-Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb, std::string name)
+#include "ChiliDX.hpp"
+#include <vector>
+Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb, std::string name, std::string shaderName)
 	:
-	Mesh(gfx,bindables,aabb, name)
+	Mesh(gfx,bindables,aabb, name, shaderName)
 {
 	this->bvh = std::move(bvh);
 	this->vertices = std::move(vertices);
 }
 
-Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB& aabb, std::string name)
+Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB& aabb, std::string name, std::string shaderName)
 	:
-	viz(gfx, aabb, name)
+	viz(gfx, aabb, name),
+	_shaderName(shaderName)
 {
 	using namespace Bind;
 
@@ -115,7 +118,7 @@ void Node::DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = Dir
 	}
 }
 
-void Node::ShowWindow(Node *& selectedNode) const
+void Node::ShowWindow(Graphics & gfx, Node *& selectedNode, std::string windowName) const
 {
 	int selectedIndex = -1;
 	if (selectedNode != nullptr)
@@ -131,7 +134,7 @@ void Node::ShowWindow(Node *& selectedNode) const
 		selectedNode = ImGui::IsItemClicked() ? const_cast<Node*>(this) : selectedNode;
 		for (auto& pnode : _nodes)
 		{
-			pnode->ShowWindow(selectedNode);
+			pnode->ShowWindow(gfx, selectedNode, windowName);
 		}
 		ImGui::TreePop();
 	}
@@ -208,34 +211,62 @@ int Node::GetId() const
 {
 	return id;
 }
-
 class ModelWindow
 {
 public:
 	ModelWindow() {}
-	void ShowWindow(std::string name, const Node & rootNode)
+	void ShowWindow(Graphics& gfx, std::string windowName, const Node& rootNode)
 	{
-		ImGui::Begin("Model");
-		ImGui::Columns(2, nullptr, true);
-		if (ImGui::TreeNodeEx(name.c_str()))
+		
+		if (ImGui::Begin(windowName.c_str()))
 		{
+			ImGui::Columns(2, nullptr, true);
+			if (ImGui::TreeNodeEx(windowName.c_str()))
+			{
 
-			rootNode.ShowWindow(_pselectednode);
-			ImGui::TreePop();
+				rootNode.ShowWindow(gfx, _pselectednode, windowName);
+				ImGui::TreePop();
 
+			}
+			ImGui::NextColumn();
+			selectedIndex = _pselectednode != nullptr ? _pselectednode->GetId() : -1;
+			if (selectedIndex != -1)
+			{
+				auto i = transforms.find(selectedIndex);
+				if (i == transforms.end())
+				{
+					auto transform = _pselectednode->GetAppliedTransform();
+					DirectX::XMFLOAT3 translation = ChiliDX::ExtractTranslation(transform);
+					DirectX::XMFLOAT3 rotation = ChiliDX::ExtractPitchYawRoll(transform);
+					DirectX::XMFLOAT3 scale = ChiliDX::ExtractScale(transform);
+
+					Pos pos;
+					pos.x = translation.x;
+					pos.y = translation.y;
+					pos.z = translation.z;
+					pos.pitch = rotation.x;
+					pos.yaw = rotation.y;
+					pos.roll = rotation.z;
+					transforms.insert({ selectedIndex, pos });
+				}
+			}
+			ImGui::SliderAngle("Yaw", (float*)&transforms[selectedIndex].yaw, -180.0f, 180.0f);
+			ImGui::SliderAngle("Pitch", (float*)&transforms[selectedIndex].pitch, -180.0f, 180.0f);
+			ImGui::SliderAngle("Roll", (float*)&transforms[selectedIndex].roll, -180.0f, 180.0f);
+			ImGui::InputFloat("Position X", (float*)&transforms[selectedIndex].x, 0.1f, 1.0f, "%.3f");
+			ImGui::InputFloat("Position Y", (float*)&transforms[selectedIndex].y, 0.1f, 1.0f, "%.3f");
+			ImGui::InputFloat("Position Z", (float*)&transforms[selectedIndex].z, 0.1f, 1.0f, "%.3f");
+			ImGui::Text("Selected Index: %d", selectedIndex);
+		
+			std::string shaderName = _pselectednode != nullptr ? 
+										_pselectednode->GetMeshes().size() > 0 ? 
+												_pselectednode->GetMeshes()[0]->GetShaderName() : "" 
+									: "";
+			ImGui::Text("Shader Used: %s", shaderName.c_str());
 		}
-		ImGui::NextColumn();
-		selectedIndex = _pselectednode != nullptr ? _pselectednode->GetId() : -1;
-		ImGui::SliderAngle("Yaw", (float*)&transforms[selectedIndex].yaw, -180.0f, 180.0f);
-		ImGui::SliderAngle("Pitch", (float*)&transforms[selectedIndex].pitch, -180.0f, 180.0f);
-		ImGui::SliderAngle("Roll", (float*)&transforms[selectedIndex].roll, -180.0f, 180.0f);
-		ImGui::InputFloat("Position X", (float*)&transforms[selectedIndex].x, 0.1f, 1.0f, "%.3f");
-		ImGui::InputFloat("Position Y", (float*)&transforms[selectedIndex].y, 0.1f, 1.0f, "%.3f");
-		ImGui::InputFloat("Position Z", (float*)&transforms[selectedIndex].z, 0.1f, 1.0f, "%.3f");
-		ImGui::Text("Selected Index: %d", selectedIndex);
 		ImGui::End();
-	}
 
+	}
 	DirectX::XMMATRIX GetTransformation()
 	{
 		DirectX::XMMATRIX appliedTransfrom = DirectX::XMMatrixIdentity();
@@ -391,7 +422,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	bindables.push_back(IndexBuffer::Resolve(gfx, mesh.mName.C_Str(), indices));
 
 	Dvtx::VertexLayout layout;
-
+	std::string shaderName = "";
 	if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 	{
 		layout.Append<Dvtx::VertexLayout::Position3D>()
@@ -401,6 +432,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
 		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSDiffMapTBNMapSpecMap.cso"));
+		shaderName = "PhongPSDiffMapTBNMapSpecMap.hlsl";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -460,7 +492,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		normalData.hasGloss = hasGlossMap ? TRUE: FALSE;
 		normalData.specularColor = DirectX::XMFLOAT3(specularColor.x, specularColor.y, specularColor.z);
 		bindables.push_back(PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
-		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 	}
 	else if (hasDiffuseMap && hasNormalMap)
 	{
@@ -470,7 +502,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			.Append<Dvtx::VertexLayout::Texture2D>();
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
-		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedTBNSpecular.cso"));
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSDiffMapTBNMapSpecMap.cso"));
+		shaderName = "PhongPSDiffMapTBNMapSpecMap";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -516,19 +549,22 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
 
 		struct NormalData {
-			alignas(16) BOOL hasNormalMap = FALSE;
-			BOOL negateXAndY = FALSE;
-			float padding[2];
+			alignas(16) BOOL hasNormalMap = TRUE;
+			BOOL hasSpecularMap = FALSE;
+			BOOL negateYAndZ = FALSE;
+			BOOL hasGloss = FALSE;
+			DirectX::XMFLOAT3 specularColor = { 0.75f,0.75f,0.75f };
+			float specularMapWeight = 1.0f;
 			static std::string GetId()
 			{
-				return "NormalData";
+				return "NoSpecMap";
 			}
 		} normalData;
 		normalData.hasNormalMap = hasNormalMap;
 
 		bindables.push_back(PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
 
-		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 
 	}
 	else if (hasDiffuseMap && hasSpecularMap)
@@ -539,6 +575,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
 		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedSpec.cso"));
+		shaderName = "PhongPSTexturedSpec";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -580,7 +617,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		} objectData;
 		objectData.material = { 1.0f, 0.2f, 0.1f };
 		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
-		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 	}
 	else if (hasDiffuseMap)
 	{
@@ -590,6 +627,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
 		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTextured.cso"));
+		shaderName = "PhongPSTextured";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -632,7 +670,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		} objectData;
 		objectData.material = { 1.0f, 0.2f, 0.1f };
 		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
-		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 	}
 	else if (!hasDiffuseMap && !hasSpecularMap && !hasNormalMap)
 	{
@@ -641,6 +679,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
 		bindables.push_back(PixelShader::Resolve(gfx, "PhongPS.cso"));
+		shaderName = "PhongPS";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -682,7 +721,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		auto vsbc = vs->GetBytecode();
 		bindables.push_back(vs);
 		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
-		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str());
+		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 	}
 	else
 	{
@@ -727,9 +766,9 @@ std::unique_ptr<Node> Model::ParseNode(int & nextId, const aiNode& node)
 	return pNode;
 }
 
-void Model::ShowWindow()
+void Model::ShowWindow(Graphics& gfx, std::string windowName)
 {
-	_pwindow->ShowWindow(_name, *_root);
+	_pwindow->ShowWindow(gfx, windowName, *_root);
 }
 
 IntersectionResult Model::IntersectMesh(const DirectX::XMFLOAT3 rayOriginWorld, const DirectX::XMFLOAT3 rayDirectionWorld)

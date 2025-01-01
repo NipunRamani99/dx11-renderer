@@ -8,7 +8,7 @@
 int CALLBACK WinMain(
 	HINSTANCE,
 	HINSTANCE,
-	LPSTR,
+	LPSTR lpCmdLine,
 	int)
 {
 	std::string current = std::filesystem::current_path().string();
@@ -24,7 +24,7 @@ int CALLBACK WinMain(
 	std::cout << "Current Working Directory: " << currentDir << std::endl;
 
 	try {
-		return App{}.Go();
+		return App{ lpCmdLine }.Go();
 	} catch (Exception & e) {
 		MessageBox(nullptr, e.what(), e.GetType(), MB_OK | MB_ICONEXCLAMATION);
 	} catch (std::exception& e) {

@@ -18,15 +18,18 @@ private:
 	AABBVisualisation viz;
 	std::unique_ptr<tinybvh::BVH> bvh;
 	std::vector<tinybvh::bvhvec4> vertices;
+	std::string _shaderName = "";
 
 public:
 	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables,  
 		std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, 
 		const AABB& aabb = AABB(), 
-		std::string name = "");
+		std::string name = "",
+		std::string shaderName = "");
 	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, 
 		const AABB & aabb = AABB(), 
-		std::string name= "");
+		std::string name= "",
+		std::string shaderName = "");
 	void Update(float) noexcept;
 	void Draw(Graphics & gfx, DirectX::XMMATRIX accumulatedTransform) noexcept;
 	void DrawAABB(Graphics& gfx, DirectX::XMMATRIX accumulatedTransform) noexcept;
@@ -35,6 +38,10 @@ public:
 	const AABB& getAABB() const;
 	void SetBVH(std::unique_ptr<tinybvh::BVH> bvh);
 	const tinybvh::BVH& GetBVH();
+	const std::string GetShaderName() const noexcept
+	{
+		return _shaderName;
+	}
 };
 
 class Node;
@@ -66,11 +73,19 @@ public:
 	void AddNode(std::unique_ptr<Node> node);
 	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
 	void DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform);
-	void ShowWindow(Node *& selectedNode) const;
+	void ShowWindow(Graphics & gfx, Node *& selectedNode, std::string windowName = "model") const;
 	void SetAppliedTransform(DirectX::FXMMATRIX appliedTransform);
     void IntersectNode(const DirectX::XMMATRIX& accumulatedTransform, const tinybvh::Ray& rayWorld, IntersectionResult& closestHit);
 	std::string GetName() const;
 	int GetId() const;
+	const std::vector<Mesh*> GetMeshes() const noexcept
+	{
+		return _mesh;
+	}
+	DirectX::XMFLOAT4X4 GetAppliedTransform() const noexcept
+	{
+		return _appliedtransform;
+	}
 };
 
 class ModelWindow;
@@ -90,7 +105,7 @@ public:
 	Model(Graphics& gfx, const std::string modelPath, float scale = 1.0f);
 	void Draw(Graphics& gfx);
 	void DrawAABB(Graphics& gfx);
-	void ShowWindow();
+	void ShowWindow(Graphics & gfx, std::string windowName = "model");
 	void Transform(DirectX::FXMMATRIX& transform)
 	{
 		auto nodeTransform = DirectX::XMLoadFloat4x4(&_root->_appliedtransform);

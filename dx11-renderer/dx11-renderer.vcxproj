@@ -197,6 +197,7 @@
     <ClInclude Include="Bindable.hpp" />
     <ClInclude Include="BindableBase.hpp" />
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="ChiliDX.hpp" />
     <ClInclude Include="ChiliMath.hpp" />
     <ClInclude Include="BindableCodex.hpp" />
     <ClInclude Include="Color.hpp" />

@@ -20,8 +20,12 @@ cbuffer ObjectData : register(b1)
 
 cbuffer NormalData : register(b4)
 {
-    bool normalMapEnabled = false;
-    bool negateXAndY = false;
+    bool normalMapEnabled = true;
+    bool hasSpecularMap = true;
+    bool negateYAndZ = false;
+    bool hasGloss = false;
+    float3 specularColor = float3(1.0f, 0.0f, 1.0f);
+    float specularMapWeight = 0.671f;
 };
 
 cbuffer CamData : register(b2)
@@ -55,7 +59,7 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
 {
     float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
     
-    if (negateXAndY)
+    if (negateYAndZ)
     {
         sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
         sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
