@@ -23,7 +23,7 @@ cbuffer NormalData : register(b4)
 {
     bool normalMapEnabled = true;
     bool hasSpecularMap = true;
-    bool negateXAndY = false;
+    bool negateYAndZ = false;
     bool hasGloss = false;
     float3 specularColor = float3(1.0f, 0.0f, 1.0f);
     float specularMapWeight = 0.671f;
@@ -50,7 +50,7 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
 {
     float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
     
-    if (negateXAndY)
+    if (negateYAndZ)
     {
         sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
         sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
@@ -90,7 +90,7 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
     const float3 diffuse = CalcDiffuse(diffuseColor, dirToL, texNorm, att);
 	
     // calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-    const float3 specular = CalcSpecular(specularReflectionColor, 1.0f, viewPos, viewLightPos, texNorm, specularPower, att);
+    const float3 specular = CalcSpecular(specularReflectionColor, specularIntensity, viewPos, viewLightPos, texNorm, specularPower, att);
 
 	// final color
     return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular), 1.0f);

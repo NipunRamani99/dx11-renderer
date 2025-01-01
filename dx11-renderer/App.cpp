@@ -48,7 +48,7 @@ App::App(std::string commandLine)
 	
 	gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj", 6.0f);
 	gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -9.0f));
-	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f);
+	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 400.0f);
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));
 }
 
@@ -161,7 +161,7 @@ void App::DoFrame()
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
 	plane->Draw(wnd.Gfx());
-	plane->SpawnControl();
+	plane->SpawnControl(wnd.Gfx());
 	model->Draw(wnd.Gfx());
 	//model->DrawAABB(wnd.Gfx());
 	model->ShowWindow(wnd.Gfx(), "Nanosuit");
@@ -191,16 +191,10 @@ void App::DoFrame()
 			ImGui::Text("Node selected: %s", result.node ? result.node->GetName().c_str() : "None");
 			ImGui::Text("Cam Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
 			ImGui::Text("Cam Dir: %.2f, %.2f, %.2f", dir.x, dir.y, dir.z);
-
 			ImGui::Text("RO: %.2f, %.2f, %.2f", roFloat.x, roFloat.y, roFloat.z);
 			ImGui::Text("RD: %.2f, %.2f, %.2f", rdFloat.x, rdFloat.y, rdFloat.z);
-
-
 		}
 		ImGui::End();
-
-
-
 	}
 	cam.SpawnControl();
 	light.SpawnControlWindow();

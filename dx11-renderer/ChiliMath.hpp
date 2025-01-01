@@ -30,3 +30,4 @@ constexpr T to_rad(T deg)
 {
 	return deg * PI / (T)180.0;
 }
+
