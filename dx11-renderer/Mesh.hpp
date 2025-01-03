@@ -9,6 +9,7 @@
 #include "tiny_bvh\tiny_bvh.h"
 #include <memory>
 #include <optional>
+#include "imgui\imgui.h"
 
 class Mesh : public Drawable
 {
@@ -67,7 +68,21 @@ private:
 	DirectX::XMFLOAT4X4 _basetransform;
 	DirectX::XMFLOAT4X4 _appliedtransform;
 	int id = 0;
-	
+public:
+	struct ObjectData {
+		alignas(16) DirectX::XMFLOAT3 material = { 0.447970f,0.327254f,0.176283f};
+		float specularIntensity = 0.60f;
+		float specularPower = 120.0f;
+	};
+
+	struct NormalData {
+		alignas(16) BOOL hasNormalMap = TRUE;
+		BOOL hasSpecularMap = TRUE;
+		BOOL negateXAndY = FALSE;
+		BOOL hasGloss = FALSE;
+		DirectX::XMFLOAT3 specularColor = { 0.75f,0.75f,0.75f };
+		float specularMapWeight = 1.0f;
+	};
 public:
 	Node(int id, std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX & transform);
 	void AddNode(std::unique_ptr<Node> node);
@@ -85,6 +100,42 @@ public:
 	DirectX::XMFLOAT4X4 GetAppliedTransform() const noexcept
 	{
 		return _appliedtransform;
+	}
+
+	template<typename T>
+	bool Control(Graphics& gfx, T& c)
+	{
+		bool retn = false;
+		if (_mesh.empty())
+		{
+			return false;
+		}
+		if constexpr (std::is_same<T, NormalData>::value)
+		{
+			if (Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>())
+			{
+				ImGui::Text("Material");
+				bool hasNormalMap = (bool)c.hasNormalMap;
+				ImGui::Checkbox("Norm Map", &hasNormalMap);
+				c.hasNormalMap = hasNormalMap ? TRUE : FALSE;
+				pcb->Update(gfx, c);
+				retn = true;
+			}
+		}
+		if constexpr (std::is_same<T, ObjectData>::value)
+		{
+			if (Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>())
+			{
+				ImGui::Text("Material");
+
+				ImGui::ColorPicker3("Material: ", reinterpret_cast<float*>(&c.material));
+
+
+				pcb->Update(gfx, c);
+				retn = true;
+			}
+		}
+		return retn;
 	}
 };
 

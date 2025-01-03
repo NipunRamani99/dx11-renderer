@@ -257,12 +257,18 @@ public:
 			ImGui::InputFloat("Position Y", (float*)&transforms[selectedIndex].y, 0.1f, 1.0f, "%.3f");
 			ImGui::InputFloat("Position Z", (float*)&transforms[selectedIndex].z, 0.1f, 1.0f, "%.3f");
 			ImGui::Text("Selected Index: %d", selectedIndex);
-		
-			std::string shaderName = _pselectednode != nullptr ? 
-										_pselectednode->GetMeshes().size() > 0 ? 
-												_pselectednode->GetMeshes()[0]->GetShaderName() : "" 
-									: "";
+
+			std::string shaderName = _pselectednode != nullptr ?
+				_pselectednode->GetMeshes().size() > 0 ?
+				_pselectednode->GetMeshes()[0]->GetShaderName() : ""
+				: "";
 			ImGui::Text("Shader Used: %s", shaderName.c_str());
+
+			if (_pselectednode)
+			{
+				_pselectednode->Control(gfx, normalData);
+				_pselectednode->Control(gfx, objectData);
+			}
 		}
 		ImGui::End();
 
@@ -297,6 +303,8 @@ private:
 		float y = 0.0f;
 		float z = 0.0f;
 	};
+	Node::NormalData normalData;
+	Node::ObjectData objectData;
 	std::unordered_map<int, Pos> transforms;
 	Node* _pselectednode = nullptr;
 };
@@ -464,34 +472,14 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		bindables.push_back(vs);
 		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
 
-		struct ObjectData {
-			alignas(16) dx::XMFLOAT3 material;
-			float specularIntensity = 0.60f;
-			float specularPower = 30.0f;
-			static std::string GetId()
-			{
-				return "ObjectData";
-			}
-		} objectData;
+		Node::ObjectData objectData;
 		objectData.material = { 1.0f, 0.2f, 0.1f };
 		objectData.specularPower = shininess;
-		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
-
-		struct NormalData {
-			alignas(16) BOOL hasNormalMap = TRUE;
-			BOOL hasSpecularMap = TRUE;
-			BOOL negateXAndY = FALSE;
-			BOOL hasGloss = FALSE;
-			DirectX::XMFLOAT3 specularColor = { 0.75f,0.75f,0.75f };
-			float specularMapWeight = 1.0f;
-			static std::string GetId()
-			{
-				return "NormalData2";
-			}
-		} normalData;
+		bindables.push_back(PixelConstantBuffer<Node::ObjectData>::Resolve(gfx, objectData, 1u));
+		Node::NormalData normalData;
 		normalData.hasGloss = hasGlossMap ? TRUE: FALSE;
 		normalData.specularColor = DirectX::XMFLOAT3(specularColor.x, specularColor.y, specularColor.z);
-		bindables.push_back(PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
+		bindables.push_back(PixelConstantBuffer<Node::NormalData>::Resolve(gfx, normalData, 4u));
 		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 	}
 	else if (hasDiffuseMap && hasNormalMap)
@@ -536,33 +524,14 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
 
 
-		struct ObjectData {
-			alignas(16) dx::XMFLOAT3 material;
-			float specularIntensity = 0.60f;
-			float specularPower = 30.0f;
-			static std::string GetId()
-			{
-				return "ObjectData";
-			}
-		} objectData;
+		Node::ObjectData objectData;
 		objectData.material = { 1.0f, 0.2f, 0.1f };
-		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+		bindables.push_back(PixelConstantBuffer<Node::ObjectData>::Resolve(gfx, objectData, 1u));
 
-		struct NormalData {
-			alignas(16) BOOL hasNormalMap = TRUE;
-			BOOL hasSpecularMap = FALSE;
-			BOOL negateYAndZ = FALSE;
-			BOOL hasGloss = FALSE;
-			DirectX::XMFLOAT3 specularColor = { 0.75f,0.75f,0.75f };
-			float specularMapWeight = 1.0f;
-			static std::string GetId()
-			{
-				return "NoSpecMap";
-			}
-		} normalData;
+		Node::NormalData normalData;
 		normalData.hasNormalMap = hasNormalMap;
 
-		bindables.push_back(PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
+		bindables.push_back(PixelConstantBuffer<Node::NormalData>::Resolve(gfx, normalData, 4u));
 
 		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 
@@ -606,17 +575,9 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		bindables.push_back(vs);
 		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
 
-		struct ObjectData {
-			alignas(16) dx::XMFLOAT3 material;
-			float specularIntensity = 0.60f;
-			float specularPower = 30.0f;
-			static std::string GetId()
-			{
-				return "ObjectData";
-			}
-		} objectData;
+		Node::ObjectData objectData;
 		objectData.material = { 1.0f, 0.2f, 0.1f };
-		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+		bindables.push_back(PixelConstantBuffer<Node::ObjectData>::Resolve(gfx, objectData, 1u));
 		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 	}
 	else if (hasDiffuseMap)
@@ -657,19 +618,9 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		auto vsbc = vs->GetBytecode();
 		bindables.push_back(vs);
 		bindables.push_back(InputLayout::Resolve(gfx, vbuf.GetVertexLayout(), vsbc));
-
-		struct ObjectData {
-			alignas(16) dx::XMFLOAT3 material;
-			float specularIntensity = 0.60f;
-			float specularPower = 30.0f;
-			float padding[1];
-			static std::string GetId()
-			{
-				return "ObjectData";
-			}
-		} objectData;
+		Node::ObjectData objectData;
 		objectData.material = { 1.0f, 0.2f, 0.1f };
-		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+		bindables.push_back(PixelConstantBuffer<Node::ObjectData>::Resolve(gfx, objectData, 1u));
 		return make_unique<Mesh>(gfx, bindables, std::move(bvh), vertices, aabb, mesh.mName.C_Str(), shaderName);
 	}
 	else if (!hasDiffuseMap && !hasSpecularMap && !hasNormalMap)
@@ -702,19 +653,10 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			);
 		}
 		bindables.push_back(VertexBuffer::Resolve(gfx, mesh.mName.C_Str(), vbuf));
-		struct ObjectData {
-			alignas(16) dx::XMFLOAT3 material;
-			float specularIntensity = 0.60f;
-			float specularPower = 30.0f;
-			float padding[1];
-			static std::string GetId()
-			{
-				return "ObjectData";
-			}
-		} objectData;
+		Node::ObjectData objectData;
 		objectData.material = materialColor;
 		objectData.specularPower = shininess;
-		bindables.push_back(PixelConstantBuffer<ObjectData>::Resolve(gfx, objectData, 1u));
+		bindables.push_back(PixelConstantBuffer<Node::ObjectData>::Resolve(gfx, objectData, 1u));
 
 
 		auto vs = VertexShader::Resolve(gfx, "PhongVS.cso");

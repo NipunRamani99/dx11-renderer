@@ -48,22 +48,26 @@ SamplerState texSampler : register(s0);
 
 float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangentView : Tangent, float3 bitangentView : BiTangent, float2 texCoord : TexCoord) : SV_Target
 {
-    float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
-    
-    if (negateYAndZ)
+    float3 texNorm = normalize(normalView);
+    if (normalMapEnabled)
     {
-        sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-        sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
-        sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
-    }
-    else
-    {
-        sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-        sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
-        sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
-    }
-    float3 texNorm = MapNormal(sampleNorm, normalView, tangentView, bitangentView, view);
     
+        float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
+    
+        if (negateYAndZ)
+        {
+            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
+            sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
+            sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
+        }
+        else
+        {
+            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
+            sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
+            sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
+        }
+        texNorm = MapNormal(sampleNorm, normalView, tangentView, bitangentView, view);
+    }
     float3 specularReflectionColor;
     float3 specularPow = specularPower;
     if(hasSpecularMap)
