@@ -111,16 +111,10 @@ namespace Bind
 
 		static std::shared_ptr<PixelConstantBuffer> Resolve(Graphics& gfx, const C& consts, UINT slot = 0)
 		{
-			return Codex::Get().Resolve<PixelConstantBuffer>(gfx, consts, slot);
+			return Codex::Get().Resolve<PixelConstantBuffer<C>>(gfx, consts, slot);
 		}
 
 		static std::string GenerateUID(const C& consts, UINT slot = 0)
-		{
-			using namespace std::string_literals;
-			return typeid(PixelConstantBuffer).name() + "#"s + consts.GetId() + "#"s + std::to_string(slot);
-		}
-
-		static std::string GenerateUID(UINT slot = 0)
 		{
 			using namespace std::string_literals;
 			return typeid(PixelConstantBuffer).name() + "#"s + std::to_string(slot);
