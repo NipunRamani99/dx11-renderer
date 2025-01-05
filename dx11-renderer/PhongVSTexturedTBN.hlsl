@@ -11,6 +11,7 @@ struct VSIn
     float3 pos : Position;
     float3 n : Normal;
     float3 tangent : Tangent;
+    float3 bitangent : BiTangent;
     float3 texCoord : TexCoord;
 };
 
@@ -30,8 +31,8 @@ VSOut main(VSIn input)
     const float4x4 modelView = mul(model, view);
     const float4x4 modelViewProj = mul(modelView, projection);
     float3 N = input.n;
-    float3 T = normalize(input.tangent - dot(input.tangent, N) * N);
-    float3 B = cross(N, T);
+    float3 T = input.tangent;
+    float3 B = input.bitangent;
     vso.viewPos = (float3) mul(float4(input.pos, 1.0f), modelView);
     vso.normal = (float3) mul(N, (float3x3) (modelView));
     vso.tangent = (float3) mul(T, (float3x3) (modelView));

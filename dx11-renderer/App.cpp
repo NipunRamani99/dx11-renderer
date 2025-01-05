@@ -38,16 +38,16 @@ App::App(std::string commandLine)
 	}
 
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
-	model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj", 2.0f);
-	pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf", 6.0f);
+	//model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj", 2.0f);
+	//pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf", 6.0f);
 
-	plane = std::make_unique<TestPlane>(wnd.Gfx(), 6.0f);
-	//model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
-	//pokeWall->Transform(DirectX::XMMatrixTranslation(2.0f, 10.0f, -3.0f));
-	pokeWall->Transform(DirectX::XMMatrixRotationRollPitchYaw(-PI/2.0f, 0.0f, 0.0f) * DirectX::XMMatrixTranslation(-15.0f, 10.0f, -7.0f));
-	
-	gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj", 6.0f);
-	gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -9.0f));
+	////plane = std::make_unique<TestPlane>(wnd.Gfx(), 6.0f);
+	////model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
+	////pokeWall->Transform(DirectX::XMMatrixTranslation(2.0f, 10.0f, -3.0f));
+	//pokeWall->Transform(DirectX::XMMatrixRotationRollPitchYaw(-PI/2.0f, 0.0f, 0.0f) * DirectX::XMMatrixTranslation(-15.0f, 10.0f, -7.0f));
+	//
+	//gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj", 6.0f);
+	//gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -9.0f));
 	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 400.0f);
 	wnd.Gfx().SetProjection(projection);
 

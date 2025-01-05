@@ -118,6 +118,10 @@ public:
 				bool hasNormalMap = (bool)c.hasNormalMap;
 				ImGui::Checkbox("Norm Map", &hasNormalMap);
 				c.hasNormalMap = hasNormalMap ? TRUE : FALSE;
+
+				bool negateXAndY = (bool)c.negateXAndY;
+				ImGui::Checkbox("Negate Normal Map X and Y: ", &negateXAndY);
+				c.negateXAndY = negateXAndY ? TRUE : FALSE;
 				pcb->Update(gfx, c);
 				retn = true;
 			}
