@@ -436,6 +436,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		layout.Append<Dvtx::VertexLayout::Position3D>()
 			.Append<Dvtx::VertexLayout::Normal>()
 			.Append<Dvtx::VertexLayout::Tangent>()
+			.Append<Dvtx::VertexLayout::BiTangent>()
 			.Append<Dvtx::VertexLayout::Texture2D>();
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
@@ -461,6 +462,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 				dx::XMFLOAT3(mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale),
 				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
 				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mBitangents[i]),
 				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
 			);
 		}
@@ -487,6 +489,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		layout.Append<Dvtx::VertexLayout::Position3D>()
 			.Append<Dvtx::VertexLayout::Normal>()
 			.Append<Dvtx::VertexLayout::Tangent>()
+			.Append<Dvtx::VertexLayout::BiTangent>()
 			.Append<Dvtx::VertexLayout::Texture2D>();
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
@@ -512,6 +515,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 				dx::XMFLOAT3(mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale),
 				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
 				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
+				*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mBitangents[i]),
 				*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
 			);
 		}

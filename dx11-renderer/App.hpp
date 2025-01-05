@@ -46,5 +46,7 @@ private:
 	std::unique_ptr<Model> model;
 	std::unique_ptr<Model> pokeWall;
 	std::unique_ptr<Model> gobber;
+	std::unique_ptr<Model> sponza;
 	std::unique_ptr<TestPlane> plane;
+
 };
