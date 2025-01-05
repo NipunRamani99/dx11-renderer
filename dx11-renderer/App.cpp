@@ -49,7 +49,9 @@ App::App(std::string commandLine)
 	gobber = std::make_unique<Model>(wnd.Gfx(), "./models/Gobber/GoblinX.obj", 6.0f);
 	gobber->Transform(DirectX::XMMatrixTranslation(0.0f, 7.0f, -9.0f));
 	projection = DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 400.0f);
-	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 9.0f / 16.0f, 0.5f, 40.0f));
+	wnd.Gfx().SetProjection(projection);
+
+	sponza = std::make_unique<Model>(wnd.Gfx(), "./models/Sponza/Sponza.obj", 1.0f/20.0f);
 }
 
 int App::Go()
@@ -160,17 +162,20 @@ void App::DoFrame()
 
 	wnd.Gfx().BeginFrame(c, c, 1.0f);
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
-	plane->Draw(wnd.Gfx());
-	plane->SpawnControl(wnd.Gfx());
-	model->Draw(wnd.Gfx());
+	//plane->Draw(wnd.Gfx());
+	//plane->SpawnControl(wnd.Gfx());
+	//model->Draw(wnd.Gfx());
 	//model->DrawAABB(wnd.Gfx());
-	model->ShowWindow(wnd.Gfx(), "Nanosuit");
-	pokeWall->Draw(wnd.Gfx());
+	//model->ShowWindow(wnd.Gfx(), "Nanosuit");
+	//pokeWall->Draw(wnd.Gfx());
 	//pokeWall->DrawAABB(wnd.Gfx());
-	pokeWall->ShowWindow(wnd.Gfx(), "The Wall");
-	gobber->Draw(wnd.Gfx());
-	gobber->DrawAABB(wnd.Gfx());
-	gobber->ShowWindow(wnd.Gfx(), "gobber");
+	//pokeWall->ShowWindow(wnd.Gfx(), "The Wall");
+	//gobber->Draw(wnd.Gfx());
+	//gobber->DrawAABB(wnd.Gfx());
+	//gobber->ShowWindow(wnd.Gfx(), "gobber");
+	sponza->Draw(wnd.Gfx());
+	sponza->ShowWindow(wnd.Gfx());
+
 	light.Draw(wnd.Gfx());
 
 	if (wnd.Gfx().IsImguiEnabled()) {
