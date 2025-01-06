@@ -4,34 +4,62 @@
 #include "ChiliMath.hpp"
 #include <string>
 #include <DirectXMath.h>
-
-class NormalMapTwerker
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <filesystem>
+class TextureProcessor
 {
 
 public:
-	static void RotateXAxis180(std::string pIn, std::string pOut)
+	template<typename Func>
+	static void TransformTexture(const std::string pIn, const std::string pOut, Func transform)
 	{
 		using namespace DirectX;
 		Surface s = Surface::FromFile(pIn);
-		const auto rotation = XMMatrixRotationX(PI);
 		auto pBegin = s.GetBufferPtr();
 		auto pixels = s.GetWidth() * s.GetHeight();
 		auto pEnd = s.GetBufferPtrConst() + pixels;
 
-		for (auto pCurrent = pBegin ; pCurrent < pEnd; pCurrent++)
+		for (auto pCurrent = pBegin; pCurrent < pEnd; pCurrent++)
 		{
-			Surface::Color c = *pCurrent;
-			XMVECTOR v = ColorToVector(c);
-			v = XMVector3Transform(v, rotation);
-			*pCurrent = VectorToColor(v);
+			const auto n = ColorToVector(*pCurrent);
+			*pCurrent = VectorToColor(transform(n));
 		}
 
 		s.Save(pOut);
 	}
 
+	static void RotateXAxis180(std::string pIn, std::string pOut)
+	{
+		using namespace DirectX;
+		const auto flipY = XMVectorSet(1.0f, -1.0f, 1.0f, 1.0f);
+		const auto ProcessNormal = [flipY](FXMVECTOR n) -> XMVECTOR
+			{
+				return XMVectorMultiply(n, flipY);
+			};
+		TransformTexture(pIn, pOut, ProcessNormal);
+	}
+
 	static void RotateXAxis180(std::string pIn)
 	{
 		RotateXAxis180(pIn, pIn);
+	}
+
+	static void ProcessModel(const std::string pathModel)
+	{
+		Assimp::Importer importer;
+		const aiScene * scene = importer.ReadFile(pathModel, 0);
+		std::string assetDir = std::filesystem::path{ pathModel }.parent_path().string();
+		for (size_t i = 0; i < scene->mNumMaterials; i++)
+		{
+			const aiMaterial* mat = scene->mMaterials[i];
+			aiString fileName;
+			if (mat->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &fileName) == aiReturn_SUCCESS)
+			{
+				RotateXAxis180(assetDir + "/" + fileName.C_Str());
+			}			
+		}
 	}
 private:
 
