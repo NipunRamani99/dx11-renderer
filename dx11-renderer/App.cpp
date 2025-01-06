@@ -10,7 +10,8 @@
 #include "AABBVisualisation.hpp"
 #include "TaskManager.hpp"
 #include <shellapi.h>
-#include "NormalMapTwerker.hpp"
+#include "TextureProcessor.hpp"
+#include <iostream>
 GDIPlusManager gdipm;
 
 App::App(std::string commandLine)
@@ -24,16 +25,23 @@ App::App(std::string commandLine)
 	{
 		int nArgs;
 		const auto pLineW = GetCommandLineW();
-		const auto pArgs =  CommandLineToArgvW(pLineW, &nArgs);
+		const auto pArgs = CommandLineToArgvW(pLineW, &nArgs);
 		if (nArgs >= 4 && std::wstring(pArgs[1]) == L"--ntwerk-rotx180")
 		{
 			const std::wstring pPathInW = pArgs[2];
 			const std::wstring pPathOutW = pArgs[3];
-			NormalMapTwerker::RotateXAxis180(
+			TextureProcessor::RotateXAxis180(
 				std::string(pPathInW.begin(), pPathInW.end()),
 				std::string(pPathOutW.begin(), pPathOutW.end())
 			);
 			throw std::runtime_error("Normal Map Processed Successfully. Ignore runtime error message");
+		}
+		std::wcout << pLineW;
+		if (nArgs >= 3 && std::wstring(pArgs[1]) == L"--model-rotx180")
+		{
+			const std::wstring pPathInW = pArgs[2];
+			TextureProcessor::ProcessModel(std::string(pPathInW.begin(), pPathInW.end()));
+			throw std::runtime_error("Mesh Processed Successfully. Ignore runtime error message");
 		}
 	}
 
