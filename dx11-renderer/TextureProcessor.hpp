@@ -76,9 +76,9 @@ private:
 		return output;
 	}
 
-	// Map [0, 255] -> (-1.0f, 1.0f)
+	// Map [-1, 1] -> [0, 255]/[0,1]
 	// Formula : f(x): x is in [a,b] and f(x) is in [c,d] = c + (d - c)(x - a)/(b - a)
-	// Substituting: (255.0f/2.0f) * (x + 1)
+	// Substituting: (255.0f/2.0f) * (x + 1)  / 2 
 	static Surface::Color VectorToColor(const DirectX::FXMVECTOR v)
 	{
 		using namespace DirectX;
