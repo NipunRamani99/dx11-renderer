@@ -6,7 +6,7 @@ PointLight::PointLight(Graphics& gfx, float radius)
 	mesh(gfx, radius),
 	cbuf(gfx, 0)
 {
-	cbdata = { _pos, { 0.05f, 0.05f, 0.09f }, { 1.0f, 1.0f, 1.0f }, {-1.0f, 0.0f, 0.0f} , 1.0f, 1.0f, 0.045f, 0.0075f };
+	cbdata = { _pos, { 0.05f, 0.05f, 0.09f }, { 1.0f, 1.0f, 1.0f } , 1.0f, 1.0f, 0.045f, 0.0075f, FALSE };
 }
 
 void PointLight::SpawnControlWindow() noexcept
@@ -28,19 +28,6 @@ void PointLight::SpawnControlWindow() noexcept
 		ImGui::SliderFloat("G#3", &cbdata.diffuseColor.y, 0.0f, 1.0f, "%.1f");
 		ImGui::SliderFloat("B#3", &cbdata.diffuseColor.z, 0.0f, 1.0f, "%.1f");
 
-		ImGui::Text("Light Direction");
-		ImGui::SliderFloat("R#4", &cbdata.lightDirection.x, -1.0f, 1.0f, "%.1f");
-		ImGui::SliderFloat("G#4", &cbdata.lightDirection.y, -1.0f, 1.0f, "%.1f");
-		ImGui::SliderFloat("B#4", &cbdata.lightDirection.z, -1.0f, 1.0f, "%.1f");
-		// Load XMFLOAT3 into XMVECTOR
-		DirectX::XMVECTOR lightDir = DirectX::XMLoadFloat3(&cbdata.lightDirection);
-
-		// Normalize the vector
-		lightDir = DirectX::XMVector3Normalize(lightDir);
-
-		// Store the normalized vector back into XMFLOAT3
-		DirectX::XMStoreFloat3(&cbdata.lightDirection, lightDir);
-
 		ImGui::Text("Diffuse Intensity");
 		ImGui::SliderFloat("Intensity#1", &cbdata.diffuseIntensity, 0.0f, 1.0f, "%.2f");
 		ImGui::Text("Attenuation Constant");
@@ -49,7 +36,9 @@ void PointLight::SpawnControlWindow() noexcept
 		ImGui::SliderFloat("Intensity#3", &cbdata.attLin, 0.0001f, 1.0f, "%.4f");
 		ImGui::Text("Quad Attenuation Constant");
 		ImGui::SliderFloat("Intensity#4", &cbdata.attQuad, 0.000001f, 1.0f, "%.7f");
-
+		bool renderNormal = cbdata.renderNormals  == TRUE;
+		ImGui::Checkbox("Render Normals", &renderNormal);
+		cbdata.renderNormals = renderNormal ? TRUE : FALSE;
 
 
 		if (ImGui::Button("Reset"))
@@ -64,7 +53,7 @@ void PointLight::SpawnControlWindow() noexcept
 void PointLight::Reset() noexcept
 {
 	_pos = { 0.0f, 0.0f, 0.0f };
-	cbdata = { _pos, { 0.05f, 0.05f, 0.09f }, { 1.0f, 1.0f, 1.0f }, {-1.0f, 0.0f, 0.0f}, 1.0f, 1.0f, 0.045f, 0.0075f };
+	cbdata = { _pos, { 0.05f, 0.05f, 0.09f }, { 1.0f, 1.0f, 1.0f }, 1.0f, 1.0f, 0.045f, 0.0075f, FALSE };
 	
 }
 

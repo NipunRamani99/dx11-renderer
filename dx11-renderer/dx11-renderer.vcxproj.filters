@@ -347,6 +347,9 @@
     <ClInclude Include="ChiliDX.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextureProcessor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">
@@ -404,12 +407,6 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="SolidVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ToonVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ToonPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PhongPSTextured.hlsl">

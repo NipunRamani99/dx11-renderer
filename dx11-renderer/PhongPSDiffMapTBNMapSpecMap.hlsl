@@ -10,6 +10,7 @@ cbuffer LightCBuf : register(b0)
     float attConst = 1.0f;
     float attLin = 0.045f;
     float attQuad = 0.0075f;
+    bool renderNormals = false;
 };
 
 cbuffer ObjectData : register(b1)
@@ -96,6 +97,14 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
     // calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
     const float3 specular = CalcSpecular(specularReflectionColor, specularIntensity, viewPos, viewLightPos, texNorm, specularPower, att);
 
-	// final color
-    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular), 1.0f);
+    if(!renderNormals)
+    {
+        // final color
+        return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular), 1.0f);
+    }
+	else
+    {
+        texNorm = (texNorm + 1.0f) / 2.0f;
+        return float4(texNorm, 1.0f);
+    }
 } 
