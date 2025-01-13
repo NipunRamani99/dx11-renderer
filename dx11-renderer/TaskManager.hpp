@@ -96,7 +96,7 @@ private:
 				task.Run();
 				_tasks.pop_front();
 			}
-			std::remove_if(_timedTasks.begin(), _timedTasks.end(), [](TimedTask& task) { return task.done; });
+			_timedTasks.erase(std::remove_if(_timedTasks.begin(), _timedTasks.end(), [](TimedTask& task) { return task.done; }));
 			_timedTasks.shrink_to_fit();
 		}
 	}

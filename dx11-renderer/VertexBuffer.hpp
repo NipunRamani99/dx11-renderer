@@ -15,7 +15,7 @@ namespace Bind
 	public:
 		VertexBuffer(Graphics& gfx, const std::string& tag, const Dvtx::VertexBuffer& vbuf)
 			:
-			stride(vbuf.GetVertexLayout().Size()),
+			stride((UINT)vbuf.GetVertexLayout().Size()),
 			_tag(tag)
 		{
 			INFOMAN(gfx);

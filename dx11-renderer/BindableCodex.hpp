@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable : 4100)
 #include "Bindable.hpp"
 #include <type_traits>
 #include <unordered_map>

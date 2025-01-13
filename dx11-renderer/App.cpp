@@ -16,35 +16,43 @@ GDIPlusManager gdipm;
 
 App::App(std::string commandLine)
 	:
+	roFloat{ 0.0f, 0.0f, 0.0f },
+	rdFloat{ 0.0f, 0.0f, 0.0f },
 	imgui(),
 	wnd(SCREEN_WIDTH, SCREEN_HEIGHT, "DX11 Renderer"),
 	light(wnd.Gfx()),
 	_commandLine(commandLine)
 {
-	if (commandLine != "")
+	if (this->_commandLine != "")
 	{
 		int nArgs;
 		const auto pLineW = GetCommandLineW();
 		const auto pArgs = CommandLineToArgvW(pLineW, &nArgs);
-		if (nArgs >= 4 && std::wstring(pArgs[1]) == L"--ntwerk-rotx180")
+		
+		// MSVC please
+		#pragma warning(push)
+		#pragma warning(disable : 4244)
+		if (nArgs >= 3 && std::wstring(pArgs[1]) == L"--twerk-objnorm")
 		{
-			const std::wstring pPathInW = pArgs[2];
-			const std::wstring pPathOutW = pArgs[3];
-			TextureProcessor::RotateXAxis180(
-				std::string(pPathInW.begin(), pPathInW.end()),
-				std::string(pPathOutW.begin(), pPathOutW.end())
+			const std::wstring pathInWide = pArgs[2];
+			TexturePreprocessor::FlipYAllNormalMapsInObj(
+				std::string(pathInWide.begin(), pathInWide.end())
 			);
-			throw std::runtime_error("Normal Map Processed Successfully. Ignore runtime error message");
+			throw std::runtime_error("Normal maps all processed successfully. Just kidding about that whole runtime error thing.");
 		}
-		std::wcout << pLineW;
-		if (nArgs >= 3 && std::wstring(pArgs[1]) == L"--model-rotx180")
+		else if (nArgs >= 3 && std::wstring(pArgs[1]) == L"--twerk-flipy")
 		{
-			const std::wstring pPathInW = pArgs[2];
-			TextureProcessor::ProcessModel(std::string(pPathInW.begin(), pPathInW.end()));
-			throw std::runtime_error("Mesh Processed Successfully. Ignore runtime error message");
+			const std::wstring pathInWide = pArgs[2];
+			const std::wstring pathOutWide = pArgs[3];
+			TexturePreprocessor::FlipYNormalMap(
+				std::string(pathInWide.begin(), pathInWide.end()),
+				std::string(pathOutWide.begin(), pathOutWide.end())
+			);
+			throw std::runtime_error("Normal map processed successfully. Just kidding about that whole runtime error thing.");
 		}
+		#pragma warning(pop)
 	}
-
+	    
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	//model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj", 2.0f);
 	//pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf", 6.0f);
@@ -65,20 +73,19 @@ App::App(std::string commandLine)
 int App::Go()
 {
 	POINT center = wnd.GetCenterPosition();
-	prevMouseX = center.x;
-	prevMouseY = center.y;
+	prevMouseX =(float) center.x;
+	prevMouseY =(float) center.y;
 
 	while (keepRunning) {
 		if (auto ecode = wnd.ProcessMessage()) 
 		{
-			return *ecode;
+			return *ecode;  
 		}
 		if (!_showCursor)
 		{
 			wnd.CenterCursorPosition();
 
 			// Handle input for strafing (left/right)
-			float dt = 1.0f / 60.0f;
 			if (wnd.kbd.KeyIsPressed('A'))
 			{
 				_fpsCam.Translate({ 1.0f, 0.0f, 0.0f });
@@ -101,8 +108,8 @@ int App::Go()
 		float currentMouseY = float(wnd.mouse.GetPosY());
 		while (auto event = wnd.mouse.ReadRaw())
 		{
-			float deltaX = event->GetDeltaX();
-			float deltaY = event->GetDeltaY();
+			float deltaX = (float) event->GetDeltaX();
+			float deltaY = (float) event->GetDeltaY();
 
 			if (!_showCursor)
 				_fpsCam.Update(-deltaX, -deltaY);
@@ -163,8 +170,7 @@ void App::DoFrame()
 	{
 		wnd.Gfx().EnableImgui();
 	}
-	float currentMouseX = float(wnd.mouse.GetPosX());
-	float currentMouseY = float(wnd.mouse.GetPosY());
+
 	DirectX::XMFLOAT3 pos = _fpsCam.GetPos();
 	DirectX::XMFLOAT3 dir = _fpsCam.GetDir();
 
@@ -194,8 +200,8 @@ void App::DoFrame()
 			ImGui::SliderFloat("Speed Factor", &speed_factor, 0.0f, 4.0f);
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Text("Status: %s", wnd.kbd.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING");
-			ImGui::Text("Yaw: %.2f", _fpsCam._yaw);
-			ImGui::Text("Pitch: %.2f", _fpsCam._pitch);
+			ImGui::Text("Yaw: %.2f", _fpsCam.GetYaw());
+			ImGui::Text("Pitch: %.2f", _fpsCam.GetPitch());
 			ImGui::Text("Mouse : %d %d", wnd.mouse.GetPosX(), wnd.mouse.GetPosY());
 			ImGui::Text("Prev Mouse X: %.2f", prevMouseX);
 			ImGui::Text("Prev Mouse Y: %.2f", prevMouseY);

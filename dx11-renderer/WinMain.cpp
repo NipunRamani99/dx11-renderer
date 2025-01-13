@@ -24,7 +24,7 @@ int CALLBACK WinMain(
 	std::cout << "Current Working Directory: " << currentDir << std::endl;
 
 	try {
-		return App{ lpCmdLine }.Go();
+		return App{ std::string{lpCmdLine} }.Go();
 	} catch (Exception & e) {
 		MessageBox(nullptr, e.what(), e.GetType(), MB_OK | MB_ICONEXCLAMATION);
 	} catch (std::exception& e) {

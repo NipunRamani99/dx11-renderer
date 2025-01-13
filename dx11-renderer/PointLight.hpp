@@ -19,7 +19,7 @@ private:
 
 	mutable Bind::PixelConstantBuffer<PointLightCBuf> cbuf;
 	mutable SolidSphere mesh;
-	DirectX::XMFLOAT3 _pos = { 2.0f,11.0f, -20.0f };
+	DirectX::XMFLOAT3 _pos = {2.0f, 10.0f, 0.0f};
 	PointLightCBuf cbdata;
 
 public:

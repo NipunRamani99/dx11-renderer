@@ -3,6 +3,9 @@
 #include "resource.h"
 #include "WindowsThrowMacros.h"
 #include "imgui/imgui_impl_win32.h"
+#pragma warning(push)
+#pragma warning( disable : 4018)
+
 Window::WindowClass Window::WindowClass::wndClass;
 Window::WindowClass::WindowClass() noexcept
 	:
@@ -58,14 +61,14 @@ Window::Window(int width, int height, const char* name)
 		throw HWND_LAST_EXCEPT();
 	};
 	// create window & get hwnd
-	hwnd = CreateWindow(WindowClass::GetName(), name, style, CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top, nullptr, nullptr, WindowClass::GetInstance(), this);
-	if (hwnd == nullptr) {
+	_hwnd = CreateWindow(WindowClass::GetName(), name, style, CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top, nullptr, nullptr, WindowClass::GetInstance(), this);
+	if (_hwnd == nullptr) {
 		throw HWND_LAST_EXCEPT();
 	}
-	ShowWindow(hwnd, SW_SHOWDEFAULT);
-	ImGui_ImplWin32_Init(hwnd);
+	ShowWindow(_hwnd, SW_SHOWDEFAULT);
+	ImGui_ImplWin32_Init(_hwnd);
 	// create graphics object
-	pGfx = std::make_unique<Graphics>(hwnd);
+	pGfx = std::make_unique<Graphics>(_hwnd);
 
 	RAWINPUTDEVICE Rid;
 	Rid.usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
@@ -83,7 +86,7 @@ Window::Window(int width, int height, const char* name)
 Window::~Window()
 {
 	ImGui_ImplWin32_Shutdown();
-	DestroyWindow(hwnd);
+	DestroyWindow(_hwnd);
 }
 
 std::optional<int> Window::ProcessMessage() noexcept
@@ -108,7 +111,7 @@ std::optional<int> Window::ProcessMessage() noexcept
 
 void Window::SetTitle(const std::string& title)
 {
-	if (SetWindowText(hwnd, title.c_str()) == 0)
+	if (SetWindowText(_hwnd, title.c_str()) == 0)
 	{
 		throw HWND_LAST_EXCEPT();
 	}
@@ -125,18 +128,18 @@ Graphics& Window::Gfx()
 POINT Window::GetCenterPosition()
 {
 	RECT rect;
-	GetWindowRect(hwnd, &rect);
+	GetWindowRect(_hwnd, &rect);
 	rect.left += SCREEN_WIDTH >> 1;
 	rect.top += SCREEN_HEIGHT >> 1;
 	POINT centerPoint{ rect.left, rect.top };
-	ScreenToClient(hwnd, &centerPoint);
+	ScreenToClient(_hwnd, &centerPoint);
 	return centerPoint;
 }
 
 void Window::CenterCursorPosition()
 {
 	RECT rect;
-	GetWindowRect(hwnd, &rect);
+	GetWindowRect(_hwnd, &rect);
 	rect.left += SCREEN_WIDTH >> 1;
 	rect.top += SCREEN_HEIGHT >> 1;
 	SetCursorPos(rect.left, rect.top);
@@ -218,7 +221,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noe
 				break;
 			}
 			const POINTS pt = MAKEPOINTS(lparam);
-			if (pt.x >= 0 && pt.y >= 0 && pt.x < width && pt.y < width) {
+			if (pt.x >= 0 && pt.y >= 0 && pt.x < width && pt.y < height) {
 				mouse.OnMouseMove(pt.x, pt.y);
 				if (!mouse.IsInWindow())
 				{
@@ -390,3 +393,5 @@ const char* Window::NoGfxException::GetType() const noexcept
 {
 	return "No Graphics Exception";
 }
+
+#pragma warning(pop)

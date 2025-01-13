@@ -2,7 +2,9 @@
 //This header provides minimal version of Windows.h by excluding unwanted parts of the Win32 API
 
 // target Windows 7 or later
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0601
+#endif
 #include <sdkddkver.h>
 // The following #defines disable a bunch of unused windows stuff. If you 
 // get weird errors when trying to do some windows stuff, try removing some
@@ -44,5 +46,7 @@
 #define NOTAPE
 #endif
 #define NOMINMAX
+#ifndef STRICT
 #define STRICT
+#endif
 #include <Windows.h>

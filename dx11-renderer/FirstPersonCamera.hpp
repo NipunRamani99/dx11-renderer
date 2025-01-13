@@ -16,17 +16,18 @@ private:
 	float _cameraSpeed = 0.10f;
 	DirectX::XMFLOAT2 _cursorPos;
 	DirectX::XMFLOAT2 _prevCursorPos;
+	float _pitch = 0.0f;
+	float _yaw = 0.0f;
 
 public:
-	float _pitch = 0.0f;
-	float _yaw = 90.0f;
+
 	FirstPersonCamera()
 		:
 		_cursorPos(float(SCREEN_WIDTH >> 1), float(SCREEN_HEIGHT >> 1)),
 		_prevCursorPos(_cursorPos),
-		_cameraPos(-11.0f, 10.0f, -31.0f),
+		_cameraPos(-20.0f, 10.0f, 0.0f),
 		_up(0.0f, 1.0f, 0.0f),
-		_front(0.0f, 0.0f, 0.0f)
+		_front(0.0f, 0.0f, 0.0f)  
 	{
 		// Convert pitch and yaw to radians for trigonometric functions
 		float pitchRad = DirectX::XMConvertToRadians(_pitch);
@@ -34,7 +35,7 @@ public:
 
 		// Update the front vector based on the yaw and pitch
 		_front.x = cosf(pitchRad) * cosf(yawRad);
-		_front.y = sinf(pitchRad);
+		_front.y = sinf(pitchRad);  
 		_front.z = cosf(pitchRad) * sinf(yawRad);
 
 		// Normalize the front vector
@@ -69,6 +70,16 @@ public:
 		return _cameraPos;
 	}
 
+	inline float GetPitch() const noexcept
+	{
+		return _pitch;
+	}
+
+	inline float GetYaw() const noexcept
+	{
+		return _yaw;
+	}
+
 	void Translate(DirectX::XMFLOAT3 translation) noexcept
 	{
 		namespace dx = DirectX;
@@ -95,7 +106,7 @@ public:
 		yoffset *= sensitivity;
 
 		// Update yaw and pitch based on the mouse movement
-		_yaw += xoffset;
+   		_yaw += xoffset;
 		_pitch += yoffset;
 
 		// Clamp the pitch value to prevent flipping

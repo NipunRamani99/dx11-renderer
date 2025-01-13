@@ -26,8 +26,8 @@ private:
 	float prevMouseY = 0;
 	DirectX::XMMATRIX projection;
 	IntersectionResult result;
-	DirectX::XMFLOAT3 roFloat;
-	DirectX::XMFLOAT3 rdFloat;
+	DirectX::XMFLOAT3 roFloat{ 0.0f, 0.0f, 0.0f };
+	DirectX::XMFLOAT3 rdFloat{ 0.0f, 0.0f, 0.0f };
 	int x = 0;
 	int y = 0;
 	std::string _commandLine;

@@ -7,7 +7,7 @@ class Sphere
 {
 public:
 
-	static IndexedTriangleList MakeTesselated(Dvtx::VertexLayout layout, int latDiv, int longDiv)
+	static IndexedTriangleList MakeTesselated(Dvtx::VertexLayout layout, unsigned short latDiv, unsigned short longDiv)
 	{
 		namespace dx = DirectX;
 		assert(latDiv >= 3);
@@ -46,12 +46,12 @@ public:
 		vbuf.EmplaceBack(basefloat);
 		dx::XMStoreFloat3(&vbuf.Back().Attr<Dvtx::VertexLayout::Position3D>(), dx::XMVectorNegate(base));
 
-		const auto calcIdx = [latDiv, longDiv](unsigned int iLat, unsigned int iLong)
+		const auto calcIdx = [latDiv, longDiv](unsigned short iLat, unsigned short iLong) -> unsigned short
 			{ return iLat * longDiv + iLong; };
 		std::vector<unsigned short> indices;
-		for (unsigned int iLat = 0; iLat < latDiv - 2; iLat++)
+		for (unsigned short iLat = 0; iLat < latDiv - 2; iLat++)
 		{
-			for (unsigned int iLong = 0; iLong < longDiv - 1; iLong++)
+			for (unsigned short iLong = 0; iLong < longDiv - 1; iLong++)
 			{
 				indices.push_back(calcIdx(iLat, iLong));
 				indices.push_back(calcIdx(iLat + 1, iLong));
@@ -70,7 +70,7 @@ public:
 		}
 
 		// cap fans
-		for (unsigned int iLong = 0; iLong < longDiv - 1; iLong++)
+		for (unsigned short iLong = 0; iLong < longDiv - 1; iLong++)
 		{
 			// north
 			indices.push_back(iNorthPole);
