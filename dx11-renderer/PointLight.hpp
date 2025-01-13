@@ -8,8 +8,8 @@ private:
 	struct PointLightCBuf
 	{
 		alignas(16) mutable DirectX::XMFLOAT3 pos;
-		mutable DirectX::XMFLOAT3 ambient;
-		DirectX::XMFLOAT3 diffuseColor;
+		alignas(16) mutable DirectX::XMFLOAT3 ambient;
+		alignas(16) DirectX::XMFLOAT3 diffuseColor;
 		float diffuseIntensity = 1.0f;
 		float attConst = 1.0f;
 		float attLin = 0.045f;
