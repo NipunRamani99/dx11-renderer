@@ -68,9 +68,9 @@ const AABB& Mesh::getAABB() const
 	return _aabb;
 }
 
-void Mesh::SetBVH(std::unique_ptr<tinybvh::BVH> bvh)
+void Mesh::SetBVH(std::unique_ptr<tinybvh::BVH> pbvh)
 {
-	this->bvh = std::move(bvh);
+	this->bvh = std::move(pbvh);
 }
 
 const tinybvh::BVH & Mesh::GetBVH()
@@ -126,9 +126,9 @@ void Node::ShowWindow(Graphics & gfx, Node *& selectedNode, std::string windowNa
 	{
 		selectedIndex = selectedNode->GetId();
 	}
-	ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow |
-		(selectedIndex == GetId() ? ImGuiTreeNodeFlags_Selected : 0 |
-			_nodes.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
+	ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow | 
+			(selectedIndex == GetId() ? ImGuiTreeNodeFlags_Selected : 0) |
+			(_nodes.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
 	if (ImGui::TreeNodeEx((void*)(intptr_t)GetId(), flag, _name.c_str()))
 	{
 		selectedIndex = ImGui::IsItemClicked() ? GetId() : selectedIndex;

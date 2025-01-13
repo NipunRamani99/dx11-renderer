@@ -67,8 +67,8 @@ void PointLight::Draw(Graphics& gfx) const noexcept(!IS_DEBUG)
 void PointLight::Bind(Graphics& gfx, DirectX::FXMMATRIX & view) const noexcept
 {
 	auto dataCopy = cbdata;
-	const auto _pos = DirectX::XMLoadFloat3(&cbdata.pos);
-	DirectX::XMStoreFloat3(&dataCopy.pos, DirectX::XMVector3Transform(_pos, view));
+	const auto pos = DirectX::XMLoadFloat3(&cbdata.pos);
+	DirectX::XMStoreFloat3(&dataCopy.pos, DirectX::XMVector3Transform(pos, view));
 	cbuf.Update(gfx, dataCopy);
 	cbuf.Bind(gfx);
 }

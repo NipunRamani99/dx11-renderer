@@ -40,7 +40,7 @@ float3 TransformNormalToViewSpace(float3 normal, matrix modelMatrix, matrix view
     float4x4 modelViewMatrix = mul(modelMatrix, viewMatrix);
 
     // Compute the normal matrix (transpose of the inverse)
-    float3x3 normalMatrix = inverse(linearPart(modelViewMatrix));
+    float3x3 normalMatrix = (float3x3) inverse(linearPart(modelViewMatrix));
 
     // Transform the normal into view space
     return normalize(mul(normal, normalMatrix));

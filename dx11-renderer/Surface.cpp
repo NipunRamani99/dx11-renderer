@@ -90,7 +90,6 @@ Surface Surface::FromFile(const std::string& name)
 {
 	unsigned int width = 0;
 	unsigned int height = 0;
-	unsigned int pitch = 0;
 	std::unique_ptr<Color[]> pBuffer = nullptr;
 	bool alphaLoaded = false;
 	{

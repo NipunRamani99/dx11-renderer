@@ -88,7 +88,7 @@ void Mouse::OnMouseEnter() noexcept
 	TrimBuffer();
 }
 
-void Mouse::OnLeftPressed(int x, int y) noexcept
+void Mouse::OnLeftPressed(int, int) noexcept
 {
 	leftIsPressed = true;
 
@@ -96,7 +96,7 @@ void Mouse::OnLeftPressed(int x, int y) noexcept
 	TrimBuffer();
 }
 
-void Mouse::OnLeftReleased(int x, int y) noexcept
+void Mouse::OnLeftReleased(int , int) noexcept
 {
 	leftIsPressed = false;
 
@@ -104,7 +104,7 @@ void Mouse::OnLeftReleased(int x, int y) noexcept
 	TrimBuffer();
 }
 
-void Mouse::OnRightPressed(int x, int y) noexcept
+void Mouse::OnRightPressed(int, int) noexcept
 {
 	rightIsPressed = true;
 
@@ -112,7 +112,7 @@ void Mouse::OnRightPressed(int x, int y) noexcept
 	TrimBuffer();
 }
 
-void Mouse::OnRightReleased(int x, int y) noexcept
+void Mouse::OnRightReleased(int, int) noexcept
 {
 	rightIsPressed = false;
 
@@ -120,21 +120,21 @@ void Mouse::OnRightReleased(int x, int y) noexcept
 	TrimBuffer();
 }
 
-void Mouse::OnWheelUp(int x, int y) noexcept
+void Mouse::OnWheelUp(int, int) noexcept
 {
 	buffer.push(Mouse::Event(Mouse::Event::Type::WheelUp, *this));
 	TrimBuffer();
 }
 
-void Mouse::OnWheelDown(int x, int y) noexcept
+void Mouse::OnWheelDown(int, int) noexcept
 {
 	buffer.push(Mouse::Event(Mouse::Event::Type::WheelDown, *this));
 	TrimBuffer();
 }
 
-void Mouse::OnMouseRawInput(int x, int y) noexcept
+void Mouse::OnMouseRawInput(int dx, int dy) noexcept
 {
-	RawInputEvent rawEvent(x, y);
+	RawInputEvent rawEvent(dx, dy);
 	rawBuffer.push(rawEvent);
 }
 
@@ -154,18 +154,18 @@ void Mouse::TrimRawBuffer() noexcept
 	}
 }
 
-void Mouse::OnWheelDelta(int x, int y, int delta) noexcept
+void Mouse::OnWheelDelta(int px, int py, int delta) noexcept
 {
 	wheelDeltaCarry += delta;
 	// generate events for every 120 
 	while (wheelDeltaCarry >= WHEEL_DELTA)
 	{
 		wheelDeltaCarry -= WHEEL_DELTA;
-		OnWheelUp(x, y);
+		OnWheelUp(px, py);
 	}
 	while (wheelDeltaCarry <= -WHEEL_DELTA)
 	{
 		wheelDeltaCarry += WHEEL_DELTA;
-		OnWheelDown(x, y);
+		OnWheelDown(px, py);
 	}
 }

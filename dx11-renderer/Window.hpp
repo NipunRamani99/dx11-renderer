@@ -12,7 +12,7 @@ class Window {
 private:
 	unsigned int width = SCREEN_WIDTH;
 	unsigned int height = SCREEN_HEIGHT;
-	HWND hwnd;
+	HWND _hwnd;
 	std::unique_ptr<Graphics> pGfx;
 	std::vector<char> rawInputBuffer;
 public:

@@ -6,7 +6,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "AABBVisualisation.hpp"
+#pragma warning(push, 0)
 #include "tiny_bvh\tiny_bvh.h"
+#pragma warning(pop)
 #include <memory>
 #include <optional>
 #include "imgui\imgui.h"

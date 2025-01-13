@@ -311,9 +311,6 @@
     <ClInclude Include="WindowsConstants.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="FirstPersonCamera.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AABBVisualisation.hpp">
       <Filter>Header Files\Graphics\Drawable</Filter>
     </ClInclude>
@@ -348,6 +345,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureProcessor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FirstPersonCamera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,48 +8,53 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <filesystem>
-class TextureProcessor
+class TexturePreprocessor
 {
 
 public:
+
 	template<typename Func>
-	static void TransformTexture(const std::string pIn, const std::string pOut, Func transform)
+	static void TransformSurface(Surface& surf, Func transform)
+	{
+		for (std::size_t x = 0; x < surf.GetWidth(); x++)
+		{
+			for (std::size_t y = 0; y < surf.GetHeight(); y++)
+			{
+				const auto n = ColorToVector(surf.GetPixel((unsigned int)x, (unsigned int)y));
+				surf.PutPixel((unsigned int)x,(unsigned int)y, VectorToColor(transform(n, x, y)));
+			}
+		}
+	}
+
+	template<typename Func>
+	static void TransformTextureFile(const std::string pIn, const std::string pOut, Func transform)
 	{
 		using namespace DirectX;
 		Surface s = Surface::FromFile(pIn);
-		auto pBegin = s.GetBufferPtr();
-		auto pixels = s.GetWidth() * s.GetHeight();
-		auto pEnd = s.GetBufferPtrConst() + pixels;
-
-		for (auto pCurrent = pBegin; pCurrent < pEnd; pCurrent++)
-		{
-			const auto n = ColorToVector(*pCurrent);
-			*pCurrent = VectorToColor(transform(n));
-		}
-
+		TransformSurface(s, transform);
 		s.Save(pOut);
 	}
 
-	static void RotateXAxis180(std::string pIn, std::string pOut)
+	static void FlipYNormalMap(std::string pIn, std::string pOut)
 	{
 		using namespace DirectX;
 		const auto flipY = XMVectorSet(1.0f, -1.0f, 1.0f, 1.0f);
-		const auto ProcessNormal = [flipY](FXMVECTOR n) -> XMVECTOR
+		const auto ProcessNormal = [flipY](FXMVECTOR n, std::size_t x, std::size_t y) -> XMVECTOR
 			{
 				return XMVectorMultiply(n, flipY);
 			};
-		TransformTexture(pIn, pOut, ProcessNormal);
+		TransformTextureFile(pIn, pOut, ProcessNormal);
 	}
 
 	static void RotateXAxis180(std::string pIn)
 	{
-		RotateXAxis180(pIn, pIn);
+		FlipYNormalMap(pIn, pIn);
 	}
 
-	static void ProcessModel(const std::string pathModel)
+	static void FlipYAllNormalMapsInObj(const std::string& pathModel)
 	{
 		Assimp::Importer importer;
-		const aiScene * scene = importer.ReadFile(pathModel, 0);
+		const aiScene* scene = importer.ReadFile(pathModel, 0);
 		std::string assetDir = std::filesystem::path{ pathModel }.parent_path().string();
 		for (size_t i = 0; i < scene->mNumMaterials; i++)
 		{
@@ -58,9 +63,54 @@ public:
 			if (mat->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &fileName) == aiReturn_SUCCESS)
 			{
 				RotateXAxis180(assetDir + "/" + fileName.C_Str());
-			}			
+			}
 		}
 	}
+
+
+	void ValidateNormalMap(const std::string& pathIn, float thresholdMin, float thresholdMax)
+	{
+		OutputDebugStringA(("Validating normal map [" + pathIn + "]\n").c_str());
+		// function for processing each normal in texture
+		using namespace DirectX;
+		auto sum = XMVectorZero();
+		const auto ProcessNormal = [thresholdMin, thresholdMax, &sum](FXMVECTOR n, std::size_t x, std::size_t y) -> XMVECTOR
+			{
+				const float len = XMVectorGetX(XMVector3Length(n));
+				const float z = XMVectorGetZ(n);
+				if (len < thresholdMin || len > thresholdMax)
+				{
+					XMFLOAT3 vec;
+					XMStoreFloat3(&vec, n);
+					std::ostringstream oss;
+					oss << "Bad normal length: " << len << " at: (" << x << "," << y << ") normal: (" << vec.x << "," << vec.y << "," << vec.z << ")\n";
+					OutputDebugStringA(oss.str().c_str());
+				}
+				if (z < 0.0f)
+				{
+					XMFLOAT3 vec;
+					XMStoreFloat3(&vec, n);
+					std::ostringstream oss;
+					oss << "Bad normal Z direction at: (" << x << "," << y << ") normal: (" << vec.x << "," << vec.y << "," << vec.z << ")\n";
+					OutputDebugStringA(oss.str().c_str());
+				}
+				sum = XMVectorAdd(sum, n);
+				return n;
+			};
+		// execute the validation for each texel
+		auto surf = Surface::FromFile(pathIn);
+		TransformSurface(surf, ProcessNormal);
+		// output bias
+		{
+			XMFLOAT2 sumv;
+			XMStoreFloat2(&sumv, sum);
+			std::ostringstream oss;
+			oss << "Normal map biases: (" << sumv.x << "," << sumv.y << ")\n";
+			OutputDebugStringA(oss.str().c_str());
+		}
+	}
+
+
 private:
 
 	// Map [0, 255] -> (-1.0f, 1.0f)
