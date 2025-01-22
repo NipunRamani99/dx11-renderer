@@ -28,6 +28,8 @@ Texture2D specularTex : register(t1);
 
 float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
+    float4 texC = diffuseTex.Sample(texSampler, texCoord);
+    clip(texC.a < 0.1f ? -1 : 1);
     n = normalize(n);
 	// fragment to light vector data 
     const float3 vToL = lightPos - viewPos;

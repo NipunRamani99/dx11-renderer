@@ -48,6 +48,8 @@ float3 TransformNormalToViewSpace(float3 normal, matrix modelMatrix, matrix view
 
 float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
+    float4 texC = diffuseTex.Sample(texSampler, texCoord);
+    clip(texC.a < 0.1f ? -1 : 1);
     float3 texNorm = normalTex.Sample(texSampler, texCoord).xyz;
     texNorm.x = texNorm.x * 2.0f - 1.0f;
     texNorm.y = -texNorm.y * 2.0f + 1.0f;

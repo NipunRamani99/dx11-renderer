@@ -49,6 +49,8 @@ SamplerState texSampler : register(s0);
 
 float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangentView : Tangent, float3 bitangentView : BiTangent, float2 texCoord : TexCoord) : SV_Target
 {
+    float4 texC = diffuseTex.Sample(texSampler, texCoord);
+    clip(texC.a < 0.1f ? -1 : 1);
     float3 texNorm = normalize(normalView);
     if (normalMapEnabled)
     {
