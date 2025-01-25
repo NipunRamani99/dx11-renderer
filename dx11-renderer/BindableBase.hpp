@@ -10,3 +10,5 @@
 #include "VertexShader.hpp"
 #include "Texture.hpp"
 #include "Sampler.hpp"
+#include "Blender.hpp"
+#include "RasterizerState.hpp"

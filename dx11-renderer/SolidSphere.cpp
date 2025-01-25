@@ -29,8 +29,7 @@ SolidSphere::SolidSphere(Graphics& gfx, float radius)
 
 	struct PSColorConstant
 	{
-		dx::XMFLOAT3 color = { 1.0f,1.0f,1.0f };
-		float padding;
+		dx::XMFLOAT4 color = { 1.0f,1.0f,1.0f, 1.0f };
 		static std::string GetId()
 		{
 			return "PSColorConstant";
@@ -39,7 +38,7 @@ SolidSphere::SolidSphere(Graphics& gfx, float radius)
 	AddBind(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorConst));
 
 	AddBind(InputLayout::Resolve(gfx, layout, pvsbc));
-
+	AddBind(Bind::Blender::Resolve(gfx, false));
 	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 }

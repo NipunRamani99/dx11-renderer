@@ -28,6 +28,8 @@ Texture2D specularTex : register(t1);
 
 float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
+    float4 texC = diffuseTex.Sample(texSampler, texCoord);
+    clip(texC.a < 0.1f ? -1 : 1);
     n = normalize(n);
 	// fragment to light vector data 
     const float3 vToL = lightPos - viewPos;
@@ -43,6 +45,7 @@ float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexC
     const float specularPower = pow(2.0f,specularSample.a * 13.0f);
     
     const float3 specular = CalcSpecular(specularReflectionColor, specularIntensity, viewPos, lightPos, n, specularPower, att);
+
 	// final color
-    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
+    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), texC.a);
 }

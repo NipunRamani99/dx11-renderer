@@ -50,6 +50,14 @@ SamplerState texSampler : register(s0);
 float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangentView : Tangent, float3 bitangentView : BiTangent, float2 texCoord : TexCoord) : SV_Target
 {
     float3 texNorm = normalize(normalView);
+    float4 texC = diffuseTex.Sample(texSampler, texCoord);
+#ifdef MASK
+    clip(texC.a < 0.1f ? -1 : 1);
+    if(dot(normalView, viewPos) >= 0.0f)
+    {
+        normalView = -normalView;
+    }
+#endif
     if (normalMapEnabled)
     {
     
@@ -71,19 +79,7 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
     }
     float3 specularReflectionColor;
     float3 specularPow = specularPower;
-    if(hasSpecularMap)
-    {
-        const float4 specularSample = specTex.Sample(texSampler, texCoord);
-        specularReflectionColor = specularSample.rgb * specularMapWeight;
-        if(hasGloss)
-        {
-            specularPow = pow(2.0f, specularSample.a * 13.0f);
-        }
-    }
-    else
-    {
-        specularReflectionColor = specularColor;
-    }
+    specularReflectionColor = specularColor;
 	// fragment to light vector data 
     const float3 vToL = viewLightPos - viewPos;
     const float distToL = length(vToL);
@@ -96,7 +92,8 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
 	
     // calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
     const float3 specular = CalcSpecular(specularReflectionColor, specularIntensity, viewPos, viewLightPos, texNorm, specularPower, att);
-
+    
+   
     // final color
-    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular), 1.0f);
+    return float4(saturate((diffuse + ambient) * texC.rgb + specular), texC.a);
 } 

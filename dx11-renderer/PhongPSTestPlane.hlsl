@@ -57,8 +57,10 @@ float3 TransformNormalToViewSpace(float3 normalTex, float3 normalW, float3 tange
 
 float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangentView : Tangent, float3 bitangentView : BiTangent, float2 texCoord : TexCoord) : SV_Target
 {
+    float4 texC = diffuseTex.Sample(texSampler, texCoord);
+    clip(texC.a < 0.01f ? -1 : 1);
+        
     float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
-    
     if (negateYAndZ)
     {
         sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
@@ -87,8 +89,7 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
 	// calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
     const float3 specular = CalcSpecular(diffuseColor, specularIntensity, viewPos, lightPos, texNorm, specularPower, att);
     const float3 specularReflectionColor = float3(1.0f, 1.0f, 1.0f);
-
-	// final color
-    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
+    // final color
+    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), texC.a);
 
 }

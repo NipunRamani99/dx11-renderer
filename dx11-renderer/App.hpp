@@ -36,8 +36,6 @@ public:
 	int Go();
 	~App() 
 	{
-		TaskManager::Get().Stop();
-		TaskManager::Get().Wait();
 	}
 private:
 	void DoFrame();
@@ -48,5 +46,5 @@ private:
 	std::unique_ptr<Model> gobber;
 	std::unique_ptr<Model> sponza;
 	std::unique_ptr<TestPlane> plane;
-
+	std::unique_ptr<TestPlane> plane2;
 };

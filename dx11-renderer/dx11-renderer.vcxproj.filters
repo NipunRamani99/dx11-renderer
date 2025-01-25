@@ -350,6 +350,12 @@
     <ClInclude Include="FirstPersonCamera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RasterizerState.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Blender.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">
@@ -373,30 +379,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PixelShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ColorIndexPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ColorBlendVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ColorBlendPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ColorIndexVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="TextureVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="TexturePS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="PhongVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -415,10 +397,10 @@
     <FxCompile Include="PhongVSTextured.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTexturedSpec.hlsl">
+    <FxCompile Include="PhongPSSpecMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTexturedNormalMap.hlsl">
+    <FxCompile Include="PhongPSNormalMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="MatrixOps.hlsl">
@@ -427,14 +409,17 @@
     <FxCompile Include="PhongVSTexturedTBN.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTexturedTBNSpecular.hlsl">
+    <FxCompile Include="PhongPSTestPlane.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSDiffMapTBNMapSpecMap.hlsl">
+    <FxCompile Include="PhongPSNormalSpecMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ShaderOps.hlsl">
       <Filter>Shaders\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPSSpecNormMask.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

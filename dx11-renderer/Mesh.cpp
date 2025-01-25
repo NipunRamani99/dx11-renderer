@@ -6,6 +6,8 @@
 #include "Surface.hpp"
 #include "Sampler.hpp"
 #include "ChiliDX.hpp"
+#include "Blender.hpp"
+#include "RasterizerState.hpp"
 #include <vector>
 
 Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, const AABB& aabb, std::string name, std::string shaderName)
@@ -96,14 +98,15 @@ void Node::AddNode(std::unique_ptr<Node> node)
 void Node::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = DirectX::XMMatrixIdentity())
 {
 	const auto nodeTransform = DirectX::XMLoadFloat4x4(&_appliedtransform) * DirectX::XMLoadFloat4x4(&_basetransform) * accumulatedTransform;
-	for (auto pmesh : _mesh)
-	{
-		pmesh->Draw(gfx, nodeTransform);
-	}
 	for (auto& pnode : _nodes)
 	{
 		pnode->Draw(gfx, nodeTransform);
 	}
+	for (auto pmesh : _mesh)
+	{
+		pmesh->Draw(gfx, nodeTransform);
+	}
+	
 }
 
 void Node::DrawAABB(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = DirectX::XMMatrixIdentity())
@@ -364,6 +367,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	bool hasNormalMap = false;
 	bool hasSpecularMap = false;
 	bool hasGlossMap = false;
+	bool hasAlpha = false;
 	float shininess = 30.0f;
 	dx::XMFLOAT4 specularColor = { 0.18f,0.18f,0.18f,1.0f };
 	dx::XMFLOAT3 materialColor = { 1.0f, 0.0f, 1.0f };
@@ -374,8 +378,10 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 		aiString texFileName;
 		if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texFileName) == aiReturn_SUCCESS)
 		{
-			bindables.push_back(Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 0u));
+			auto tex = Texture::Resolve(gfx, _assetDir + "/" + texFileName.C_Str(), 0u);
+			bindables.push_back(tex);
 			hasDiffuseMap = true;
+			hasAlpha = tex->HasAlpha();
 		}
 		else
 		{
@@ -429,9 +435,12 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	std::unique_ptr<tinybvh::BVH> bvh = std::make_unique<tinybvh::BVH>();
 	bvh->Build(vertices.data(), mesh.mNumFaces);
 	bindables.push_back(IndexBuffer::Resolve(gfx, mesh.mName.C_Str(), indices));
-
+	if (hasAlpha)
+		bindables.push_back(RasterizerState::Resolve(gfx, hasAlpha));
+	
 	Dvtx::VertexLayout layout;
 	std::string shaderName = "";
+	bindables.push_back(Bind::Blender::Resolve(gfx, false));
 	if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 	{
 		layout.Append<Dvtx::VertexLayout::Position3D>()
@@ -440,9 +449,13 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			.Append<Dvtx::VertexLayout::BiTangent>()
 			.Append<Dvtx::VertexLayout::Texture2D>();
 		Dvtx::VertexBuffer vbuf(std::move(layout));
+		if (hasAlpha)
+		{
+			int x = 0;
+		}
+		bindables.push_back(PixelShader::Resolve(gfx, hasAlpha ? "PhongPSSpecNormMask.cso" : "PhongPSNormalSpecMap.cso"));
+		shaderName = hasAlpha ? "PhongPSSpecNormMask.cso" : "PhongPSNormalSpecMap.cso";
 
-		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSDiffMapTBNMapSpecMap.cso"));
-		shaderName = "PhongPSDiffMapTBNMapSpecMap.hlsl";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -494,8 +507,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			.Append<Dvtx::VertexLayout::Texture2D>();
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
-		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSDiffMapTBNMapSpecMap.cso"));
-		shaderName = "PhongPSDiffMapTBNMapSpecMap";
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSNormalMap.cso"));
+		shaderName = "PhongPSNormalMap";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -548,8 +561,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 			.Append<Dvtx::VertexLayout::Texture2D>();
 		Dvtx::VertexBuffer vbuf(std::move(layout));
 
-		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSTexturedSpec.cso"));
-		shaderName = "PhongPSTexturedSpec";
+		bindables.push_back(PixelShader::Resolve(gfx, "PhongPSSpecMap.cso"));
+		shaderName = "PhongPSSpecMap";
 		AABB aabb;
 		aabb.min.x = scale * mesh.mVertices[0].x;
 		aabb.min.y = scale * mesh.mVertices[0].y;
@@ -673,9 +686,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh, aiMate
 	else
 	{
 		throw std::runtime_error("terrible combination of textures in material smh");
-	}
-
-	
+	}	
 }
 
 DirectX::XMMATRIX Model::ConvertToMatrix(const aiMatrix4x4& mat) {
