@@ -35,6 +35,7 @@ float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexC
 {
     float4 texC = diffuseTex.Sample(texSampler, texCoord);
     clip(texC.a < 0.1f ? -1 : 1);
+
     // Vector to Light
     const float3 vToL = viewLightPos - viewPos;
 	const float distToL = length(vToL);
@@ -49,5 +50,5 @@ float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexC
     const float3 specularReflectionColor = float3(1.0f,1.0f,1.0f);
 
 	// final color
-    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
+    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), texC.a);
 }

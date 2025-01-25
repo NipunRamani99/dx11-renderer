@@ -27,18 +27,22 @@ private:
 	} normalData;
 
 	struct ObjectData {
-		alignas(16) DirectX::XMFLOAT3 material;
+		/*alignas(16) DirectX::XMFLOAT3 material;
 		float specularIntensity = 0.60f;
 		float specularPower = 30.0f;
 		float padding[1];
-		std::string name;
+		std::string name;*/
+		DirectX::XMFLOAT4 color;
 		static std::string GetId()
 		{
 			return "ObjectData";
 		}
 	} objectData;
+
+	std::shared_ptr<Bind::PixelConstantBuffer<ObjectData>> _pPcb;
+	std::string _name = "Test Plane";
 public:
-	TestPlane(Graphics & gfx, float scale=1.0f);
+	TestPlane(Graphics & gfx, DirectX::XMFLOAT3 pos,  DirectX::XMFLOAT4 color, std::string name, float scale=1.0f);
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 	void SpawnControl(Graphics & gfx) noexcept;
 };

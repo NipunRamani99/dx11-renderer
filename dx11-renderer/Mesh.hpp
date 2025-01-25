@@ -13,6 +13,7 @@
 #include <optional>
 #include "imgui\imgui.h"
 
+
 class Mesh : public Drawable
 {
 private:
@@ -22,7 +23,6 @@ private:
 	std::unique_ptr<tinybvh::BVH> bvh;
 	std::vector<tinybvh::bvhvec4> vertices;
 	std::string _shaderName = "";
-
 public:
 	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables,  
 		std::unique_ptr<tinybvh::BVH> bvh, std::vector<tinybvh::bvhvec4> & vertices, 
@@ -144,6 +144,8 @@ public:
 		return retn;
 	}
 };
+
+
 
 class ModelWindow;
 class Model

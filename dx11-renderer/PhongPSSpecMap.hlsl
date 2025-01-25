@@ -45,6 +45,7 @@ float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexC
     const float specularPower = pow(2.0f,specularSample.a * 13.0f);
     
     const float3 specular = CalcSpecular(specularReflectionColor, specularIntensity, viewPos, lightPos, n, specularPower, att);
+
 	// final color
-    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), 1.0f);
+    return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), texC.a);
 }

@@ -56,8 +56,10 @@ App::App(std::string commandLine)
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	//model = std::make_unique<Model>(wnd.Gfx(), "./models/nanosuit/nanosuit.obj", 2.0f);
 	//pokeWall = std::make_unique<Model>(wnd.Gfx(), "./models/flat_wall/flatwall.gltf", 6.0f);
+	
+	plane = std::make_unique<TestPlane>(wnd.Gfx(), _fpsCam.GetPos(), DirectX::XMFLOAT4{0.2f, 0.2f, 1.0f, 0.00f}, "Plane 1", 6.0f);
+	plane2 = std::make_unique<TestPlane>(wnd.Gfx(), _fpsCam.GetPos(), DirectX::XMFLOAT4{ 0.2f, 0.2f, 1.0f, 0.00f }, "Plane 2" ,6.0f);
 
-	////plane = std::make_unique<TestPlane>(wnd.Gfx(), 6.0f);
 	////model->Transform(DirectX::XMMatrixRotationRollPitchYaw(0.0f, DirectX::XMConvertToRadians(180.0f), 0.0f));
 	////pokeWall->Transform(DirectX::XMMatrixTranslation(2.0f, 10.0f, -3.0f));
 	//pokeWall->Transform(DirectX::XMMatrixRotationRollPitchYaw(-PI/2.0f, 0.0f, 0.0f) * DirectX::XMMatrixTranslation(-15.0f, 10.0f, -7.0f));
@@ -160,7 +162,7 @@ int App::Go()
 void App::DoFrame()
 {
 	static float angle = 0.0f;
-	const float c = 0.5f;
+	const float c = 0.0f;
 	wnd.Gfx().SetCamera(_fpsCam.GetMatrix());
 	if (wnd.kbd.KeyIsPressed(VK_SPACE))
 	{
@@ -174,10 +176,8 @@ void App::DoFrame()
 	DirectX::XMFLOAT3 pos = _fpsCam.GetPos();
 	DirectX::XMFLOAT3 dir = _fpsCam.GetDir();
 
-	wnd.Gfx().BeginFrame(c, c, 1.0f);
+	wnd.Gfx().BeginFrame(c, c, 0.0f);
 	light.Bind(wnd.Gfx(), _fpsCam.GetMatrix());
-	//plane->Draw(wnd.Gfx());
-	//plane->SpawnControl(wnd.Gfx());
 	//model->Draw(wnd.Gfx());
 	//model->DrawAABB(wnd.Gfx());
 	//model->ShowWindow(wnd.Gfx(), "Nanosuit");
@@ -189,8 +189,12 @@ void App::DoFrame()
 	//gobber->ShowWindow(wnd.Gfx(), "gobber");
 	sponza->Draw(wnd.Gfx());
 	sponza->ShowWindow(wnd.Gfx());
-
 	light.Draw(wnd.Gfx());
+	plane->Draw(wnd.Gfx());
+	plane->SpawnControl(wnd.Gfx());
+	plane2->Draw(wnd.Gfx());
+	plane2->SpawnControl(wnd.Gfx());
+	
 
 	if (wnd.Gfx().IsImguiEnabled()) {
 

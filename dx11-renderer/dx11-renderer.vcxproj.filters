@@ -350,6 +350,12 @@
     <ClInclude Include="FirstPersonCamera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RasterizerState.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Blender.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">
@@ -391,10 +397,10 @@
     <FxCompile Include="PhongVSTextured.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTexturedSpec.hlsl">
+    <FxCompile Include="PhongPSSpecMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTexturedNormalMap.hlsl">
+    <FxCompile Include="PhongPSNormalMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="MatrixOps.hlsl">
@@ -403,14 +409,17 @@
     <FxCompile Include="PhongVSTexturedTBN.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTexturedTBNSpecular.hlsl">
+    <FxCompile Include="PhongPSTestPlane.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSDiffMapTBNMapSpecMap.hlsl">
+    <FxCompile Include="PhongPSNormalSpecMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ShaderOps.hlsl">
       <Filter>Shaders\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPSSpecNormMask.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
