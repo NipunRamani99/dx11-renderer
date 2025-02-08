@@ -8,6 +8,6 @@ class GDIPlusManager
     static int refCount;
 
   public:
-    GDIPlusManager ();
-    ~GDIPlusManager ();
+    GDIPlusManager();
+    ~GDIPlusManager();
 };

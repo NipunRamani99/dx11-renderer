@@ -17,9 +17,6 @@ BraceWrapping:
   BeforeElse:          true
   BeforeCatch:         true
 
-# Insert a space before parentheses of function calls and declarations.
-SpaceBeforeParens: Always
-
 # Insert spaces inside parentheses, e.g. ( foo, bar ).
 SpacesInParentheses: true
 

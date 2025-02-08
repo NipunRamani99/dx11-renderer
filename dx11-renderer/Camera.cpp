@@ -2,45 +2,45 @@
 #include "imgui/imgui.h"
 namespace dx = DirectX;
 
-DirectX::XMMATRIX Camera::GetMatrix () const noexcept
+DirectX::XMMATRIX Camera::GetMatrix() const noexcept
 {
-    DirectX::XMVECTOR pos = dx::XMVector3Transform ( dx::XMVectorSet ( 0.0f, 0.0f, -r + 0.00001f, 0.0f ),
-                                                     dx::XMMatrixRotationRollPitchYaw ( phi, -theta, 0.0f ) );
+    DirectX::XMVECTOR pos = dx::XMVector3Transform( dx::XMVectorSet( 0.0f, 0.0f, -r + 0.00001f, 0.0f ),
+                                                    dx::XMMatrixRotationRollPitchYaw( phi, -theta, 0.0f ) );
 
-    return dx::XMMatrixLookAtLH ( pos, dx::XMVectorZero (), dx::XMVectorSet ( 0.0f, 1.0f, 0.0f, 0.0f ) ) *
-           dx::XMMatrixRotationRollPitchYaw ( pitch, -yaw, roll );
+    return dx::XMMatrixLookAtLH( pos, dx::XMVectorZero(), dx::XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f ) ) *
+           dx::XMMatrixRotationRollPitchYaw( pitch, -yaw, roll );
 }
 
-DirectX::XMFLOAT3 Camera::GetPos () const noexcept
+DirectX::XMFLOAT3 Camera::GetPos() const noexcept
 {
-    DirectX::XMVECTOR pos = dx::XMVector3Transform ( dx::XMVectorSet ( 0.0f, 0.0f, -r, 0.0f ),
-                                                     dx::XMMatrixRotationRollPitchYaw ( phi, -theta, 0.0f ) );
+    DirectX::XMVECTOR pos = dx::XMVector3Transform( dx::XMVectorSet( 0.0f, 0.0f, -r, 0.0f ),
+                                                    dx::XMMatrixRotationRollPitchYaw( phi, -theta, 0.0f ) );
     DirectX::XMFLOAT3 posFloat;
-    DirectX::XMStoreFloat3 ( &posFloat, pos );
+    DirectX::XMStoreFloat3( &posFloat, pos );
     return posFloat;
 }
 
-void Camera::SpawnControl () noexcept
+void Camera::SpawnControl() noexcept
 {
-    if ( ImGui::Begin ( "Camera" ) )
+    if ( ImGui::Begin( "Camera" ) )
     {
-        ImGui::Text ( "Position" );
-        ImGui::SliderFloat ( "R", &r, 0.0f, 80.0f, "%.1f" );
-        ImGui::SliderAngle ( "Theta", &theta, -180.0f, 180.0f );
-        ImGui::SliderAngle ( "Phi", &phi, -89.0f, 89.0f );
-        ImGui::Text ( "Orientation" );
-        ImGui::SliderAngle ( "Roll", &roll, -180.0f, 180.0f );
-        ImGui::SliderAngle ( "Pitch", &pitch, -180.0f, 180.0f );
-        ImGui::SliderAngle ( "Yaw", &yaw, -180.0f, 180.0f );
-        if ( ImGui::Button ( "Reset" ) )
+        ImGui::Text( "Position" );
+        ImGui::SliderFloat( "R", &r, 0.0f, 80.0f, "%.1f" );
+        ImGui::SliderAngle( "Theta", &theta, -180.0f, 180.0f );
+        ImGui::SliderAngle( "Phi", &phi, -89.0f, 89.0f );
+        ImGui::Text( "Orientation" );
+        ImGui::SliderAngle( "Roll", &roll, -180.0f, 180.0f );
+        ImGui::SliderAngle( "Pitch", &pitch, -180.0f, 180.0f );
+        ImGui::SliderAngle( "Yaw", &yaw, -180.0f, 180.0f );
+        if ( ImGui::Button( "Reset" ) )
         {
-            Reset ();
+            Reset();
         }
     }
-    ImGui::End ();
+    ImGui::End();
 }
 
-void Camera::Reset () noexcept
+void Camera::Reset() noexcept
 {
     r     = 20.0f;
     theta = 0.0f;

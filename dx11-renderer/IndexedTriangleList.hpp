@@ -10,21 +10,21 @@ class IndexedTriangleList
     std::vector<unsigned short> indices;
 
   public:
-    IndexedTriangleList () = default;
-    IndexedTriangleList ( Dvtx::VertexBuffer verts_in, std::vector<unsigned short> indices_in )
-        : vertices ( std::move ( verts_in ) ), indices ( std::move ( indices_in ) )
+    IndexedTriangleList() = default;
+    IndexedTriangleList( Dvtx::VertexBuffer verts_in, std::vector<unsigned short> indices_in )
+        : vertices( std::move( verts_in ) ), indices( std::move( indices_in ) )
     {
-        assert ( vertices.Size () > 2 );
+        assert( vertices.Size() > 2 );
     }
-    void Transform ( DirectX::FXMMATRIX matrix )
+    void Transform( DirectX::FXMMATRIX matrix )
     {
         using Elements = Dvtx::VertexLayout::ElementType;
-        for ( size_t i = 0; i < vertices.Size (); i++ )
+        for ( size_t i = 0; i < vertices.Size(); i++ )
         {
             auto v                      = vertices[i];
-            const DirectX::XMVECTOR pos = DirectX::XMLoadFloat3 ( &v.Attr<Dvtx::VertexLayout::Position3D> () );
-            DirectX::XMStoreFloat3 ( &v.Attr<Dvtx::VertexLayout::Position3D> (),
-                                     DirectX::XMVector3Transform ( pos, matrix ) );
+            const DirectX::XMVECTOR pos = DirectX::XMLoadFloat3( &v.Attr<Dvtx::VertexLayout::Position3D>() );
+            DirectX::XMStoreFloat3( &v.Attr<Dvtx::VertexLayout::Position3D>(),
+                                    DirectX::XMVector3Transform( pos, matrix ) );
         }
     }
 

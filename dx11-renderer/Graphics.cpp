@@ -13,64 +13,63 @@
 using namespace Microsoft;
 namespace dx = DirectX;
 // Graphics exception stuff
-Graphics::HrException::HrException ( int line, const char* file, HRESULT hr,
-                                     std::vector<std::string> infoMsgs ) noexcept
-    : Exception ( line, file ), hr ( hr )
+Graphics::HrException::HrException( int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs ) noexcept
+    : Exception( line, file ), hr( hr )
 {
     // join all info messages with newlines into single string
     for ( const auto& m : infoMsgs )
     {
         info += m;
-        info.push_back ( '\n' );
+        info.push_back( '\n' );
     }
     // remove final newline if exists
-    if ( !info.empty () )
+    if ( !info.empty() )
     {
-        info.pop_back ();
+        info.pop_back();
     }
 }
 
-const char* Graphics::HrException::what () const noexcept
+const char* Graphics::HrException::what() const noexcept
 {
     std::ostringstream oss;
-    oss << GetType () << std::endl
-        << "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode () << std::dec << " ("
-        << (unsigned long)GetErrorCode () << ")" << std::endl
-        << "[Error String] " << GetErrorString () << std::endl
-        << "[Description] " << GetErrorDescription () << std::endl
-        << GetOriginString ();
-    whatBuffer = oss.str ();
-    return whatBuffer.c_str ();
+    oss << GetType() << std::endl
+        << "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode() << std::dec << " ("
+        << (unsigned long)GetErrorCode() << ")" << std::endl
+        << "[Error String] " << GetErrorString() << std::endl
+        << "[Description] " << GetErrorDescription() << std::endl
+        << GetOriginString();
+    whatBuffer = oss.str();
+    return whatBuffer.c_str();
 }
 
-const char* Graphics::HrException::GetType () const noexcept
+const char* Graphics::HrException::GetType() const noexcept
 {
     return "Chili Graphics Exception";
 }
 
-HRESULT Graphics::HrException::GetErrorCode () const noexcept
+HRESULT Graphics::HrException::GetErrorCode() const noexcept
 {
     return hr;
 }
 
-std::string Graphics::HrException::GetErrorString () const noexcept
+std::string Graphics::HrException::GetErrorString() const noexcept
 {
-    return DXGetErrorString ( hr );
+    return DXGetErrorString( hr );
 }
 
-std::string Graphics::HrException::GetErrorDescription () const noexcept
+std::string Graphics::HrException::GetErrorDescription() const noexcept
 {
     char buf[512];
-    DXGetErrorDescription ( hr, buf, sizeof ( buf ) );
+    DXGetErrorDescription( hr, buf, sizeof( buf ) );
     return buf;
 }
 
-const char* Graphics::DeviceRemovedException::GetType () const noexcept
+const char* Graphics::DeviceRemovedException::GetType() const noexcept
 {
     return "Chili Graphics Exception [Device Removed] (DXGI_ERROR_DEVICE_REMOVED)";
 }
 
-Graphics::Graphics ( HWND hwnd )
+Graphics::Graphics( HWND hwnd )
 {
     namespace wrl                         = Microsoft::WRL;
 
@@ -97,12 +96,12 @@ Graphics::Graphics ( HWND hwnd )
 #endif
     HRESULT hr;
     // create device and front/back buffers, and swap chain and rendering context
-    GFX_THROW_INFO ( D3D11CreateDeviceAndSwapChain ( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
-                                                     D3D11_SDK_VERSION, &sd, &pSwap, &pDevice, nullptr, &pContext ) );
+    GFX_THROW_INFO( D3D11CreateDeviceAndSwapChain( nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
+                                                   D3D11_SDK_VERSION, &sd, &pSwap, &pDevice, nullptr, &pContext ) );
 
     WRL::ComPtr<ID3D11Resource> pBackBuffer;
-    GFX_THROW_INFO ( pSwap->GetBuffer ( 0, __uuidof ( ID3D11Resource ), &pBackBuffer ) );
-    GFX_THROW_INFO ( pDevice->CreateRenderTargetView ( pBackBuffer.Get (), nullptr, &pTarget ) );
+    GFX_THROW_INFO( pSwap->GetBuffer( 0, __uuidof( ID3D11Resource ), &pBackBuffer ) );
+    GFX_THROW_INFO( pDevice->CreateRenderTargetView( pBackBuffer.Get(), nullptr, &pTarget ) );
 
     // create depth stensil state
     D3D11_DEPTH_STENCIL_DESC dsDesc = {};
@@ -110,10 +109,10 @@ Graphics::Graphics ( HWND hwnd )
     dsDesc.DepthWriteMask           = D3D11_DEPTH_WRITE_MASK_ALL;
     dsDesc.DepthFunc                = D3D11_COMPARISON_LESS;
     wrl::ComPtr<ID3D11DepthStencilState> pDSState;
-    GFX_THROW_INFO ( pDevice->CreateDepthStencilState ( &dsDesc, &pDSState ) );
+    GFX_THROW_INFO( pDevice->CreateDepthStencilState( &dsDesc, &pDSState ) );
 
     // bind depth state
-    pContext->OMSetDepthStencilState ( pDSState.Get (), 1u );
+    pContext->OMSetDepthStencilState( pDSState.Get(), 1u );
 
     // create depth stensil texture
     wrl::ComPtr<ID3D11Texture2D> pDepthStencil;
@@ -127,17 +126,17 @@ Graphics::Graphics ( HWND hwnd )
     depthTexDesc.SampleDesc.Quality   = 0u;
     depthTexDesc.Usage                = D3D11_USAGE_DEFAULT;
     depthTexDesc.BindFlags            = D3D11_BIND_DEPTH_STENCIL;
-    GFX_THROW_INFO ( pDevice->CreateTexture2D ( &depthTexDesc, nullptr, &pDepthStencil ) );
+    GFX_THROW_INFO( pDevice->CreateTexture2D( &depthTexDesc, nullptr, &pDepthStencil ) );
 
     // create view of depth stensil texture
     D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc = {};
     depthViewDesc.Format                        = DXGI_FORMAT_D32_FLOAT;
     depthViewDesc.ViewDimension                 = D3D11_DSV_DIMENSION_TEXTURE2D;
     depthViewDesc.Texture2D.MipSlice            = 0u;
-    GFX_THROW_INFO ( pDevice->CreateDepthStencilView ( pDepthStencil.Get (), &depthViewDesc, &pDSV ) );
+    GFX_THROW_INFO( pDevice->CreateDepthStencilView( pDepthStencil.Get(), &depthViewDesc, &pDSV ) );
 
     // bind depth stensil view to OM
-    pContext->OMSetRenderTargets ( 1u, pTarget.GetAddressOf (), pDSV.Get () );
+    pContext->OMSetRenderTargets( 1u, pTarget.GetAddressOf(), pDSV.Get() );
 
     // configure viewport
     D3D11_VIEWPORT vp;
@@ -147,128 +146,128 @@ Graphics::Graphics ( HWND hwnd )
     vp.MaxDepth = 1.0f;
     vp.TopLeftX = 0.0f;
     vp.TopLeftY = 0.0f;
-    pContext->RSSetViewports ( 1u, &vp );
+    pContext->RSSetViewports( 1u, &vp );
 
     // init imgui d3d impl
-    ImGui_ImplDX11_Init ( pDevice.Get (), pContext.Get () );
+    ImGui_ImplDX11_Init( pDevice.Get(), pContext.Get() );
 }
 
-void Graphics::EndFrame ()
+void Graphics::EndFrame()
 {
 
     if ( imguiEnabled )
     {
-        ImGui::Render ();
-        ImGui_ImplDX11_RenderDrawData ( ImGui::GetDrawData () );
+        ImGui::Render();
+        ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
     }
 
     HRESULT hr;
 #ifndef NDEBUG
-    infoManager.Set ();
+    infoManager.Set();
 #endif // !NDEBUG
-    if ( FAILED ( hr = pSwap->Present ( 1u, 0u ) ) )
+    if ( FAILED( hr = pSwap->Present( 1u, 0u ) ) )
     {
         if ( hr == DXGI_ERROR_DEVICE_REMOVED )
         {
-            throw GFX_DEVICE_REMOVED_EXCEPT ( pDevice->GetDeviceRemovedReason () );
+            throw GFX_DEVICE_REMOVED_EXCEPT( pDevice->GetDeviceRemovedReason() );
         }
         else
         {
-            throw GFX_EXCEPT ( hr );
+            throw GFX_EXCEPT( hr );
         }
     }
 }
 
-void Graphics::BeginFrame ( float red, float green, float blue ) noexcept
+void Graphics::BeginFrame( float red, float green, float blue ) noexcept
 {
     const float color[] = { red, green, blue, 1.0f };
-    pContext->ClearRenderTargetView ( pTarget.Get (), color );
-    pContext->ClearDepthStencilView ( pDSV.Get (), D3D11_CLEAR_DEPTH, 1.0f, 0u );
+    pContext->ClearRenderTargetView( pTarget.Get(), color );
+    pContext->ClearDepthStencilView( pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u );
 
     if ( imguiEnabled )
     {
-        ImGui_ImplDX11_NewFrame ();
-        ImGui_ImplWin32_NewFrame ();
-        ImGui::NewFrame ();
+        ImGui_ImplDX11_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
     }
 }
 
-void Graphics::DrawIndexed ( UINT count ) noexcept ( !IS_DEBUG )
+void Graphics::DrawIndexed( UINT count ) noexcept( !IS_DEBUG )
 {
-    pContext->DrawIndexed ( count, 0u, 0u );
+    pContext->DrawIndexed( count, 0u, 0u );
 }
 
-void Graphics::SetProjection ( DirectX::FXMMATRIX proj ) noexcept
+void Graphics::SetProjection( DirectX::FXMMATRIX proj ) noexcept
 {
     projection = proj;
 }
 
-DirectX::XMMATRIX Graphics::GetProjection () const noexcept
+DirectX::XMMATRIX Graphics::GetProjection() const noexcept
 {
     return projection;
 }
 
-void Graphics::EnableImgui () noexcept
+void Graphics::EnableImgui() noexcept
 {
     imguiEnabled = true;
 }
 
-void Graphics::DisableImgui () noexcept
+void Graphics::DisableImgui() noexcept
 {
     imguiEnabled = false;
 }
 
-bool Graphics::IsImguiEnabled () const noexcept
+bool Graphics::IsImguiEnabled() const noexcept
 {
     return imguiEnabled;
 }
 
-void Graphics::SetCamera ( DirectX::XMMATRIX camera ) noexcept
+void Graphics::SetCamera( DirectX::XMMATRIX camera ) noexcept
 {
     this->_camera = camera;
 }
 
-DirectX::XMMATRIX Graphics::GetCamera () const noexcept
+DirectX::XMMATRIX Graphics::GetCamera() const noexcept
 {
     return _camera;
 }
 
-Graphics::InfoException::InfoException ( int line, const char* file, std::vector<std::string> infoMsgs ) noexcept
-    : Exception ( line, file )
+Graphics::InfoException::InfoException( int line, const char* file, std::vector<std::string> infoMsgs ) noexcept
+    : Exception( line, file )
 {
     // join all info messages with newlines into single string
     for ( const auto& m : infoMsgs )
     {
         info += m;
-        info.push_back ( '\n' );
+        info.push_back( '\n' );
     }
     // remove final newline if exists
-    if ( !info.empty () )
+    if ( !info.empty() )
     {
-        info.pop_back ();
+        info.pop_back();
     }
 }
 
-const char* Graphics::InfoException::what () const noexcept
+const char* Graphics::InfoException::what() const noexcept
 {
     std::ostringstream oss;
-    oss << GetType () << std::endl << "\n[Error Info]\n" << GetErrorInfo () << std::endl << std::endl;
-    oss << GetOriginString ();
-    whatBuffer = oss.str ();
-    return whatBuffer.c_str ();
+    oss << GetType() << std::endl << "\n[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
+    oss << GetOriginString();
+    whatBuffer = oss.str();
+    return whatBuffer.c_str();
 }
 
-const char* Graphics::InfoException::GetType () const noexcept
+const char* Graphics::InfoException::GetType() const noexcept
 {
     return "Chili Graphics Info Exception";
 }
 
-std::string Graphics::InfoException::GetErrorInfo () const noexcept
+std::string Graphics::InfoException::GetErrorInfo() const noexcept
 {
     return info;
 }
 
-Graphics::~Graphics ()
+Graphics::~Graphics()
 {
-    ImGui_ImplDX11_Shutdown ();
+    ImGui_ImplDX11_Shutdown();
 }

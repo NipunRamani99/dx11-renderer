@@ -7,47 +7,47 @@
 class Cube
 {
   public:
-    static IndexedTriangleList Make ()
+    static IndexedTriangleList Make()
     {
         namespace dx         = DirectX;
 
         constexpr float side = 1.0f / 2.0f;
         Dvtx::VertexLayout layout;
-        layout.Append ( Dvtx::VertexLayout::Position3D );
-        Dvtx::VertexBuffer vbuf ( layout );
+        layout.Append( Dvtx::VertexLayout::Position3D );
+        Dvtx::VertexBuffer vbuf( layout );
 
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, -side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, -side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, -side, side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, -side, side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, side, side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, -side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, -side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, -side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, -side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, side, side } );
 
-        return { std::move ( vbuf ), { 0, 2, 1, 2, 3, 1, 1, 3, 5, 3, 7, 5, 2, 6, 3, 3, 6, 7,
-                                       4, 5, 7, 4, 7, 6, 0, 4, 2, 2, 4, 6, 0, 1, 4, 1, 5, 4 } };
+        return { std::move( vbuf ), { 0, 2, 1, 2, 3, 1, 1, 3, 5, 3, 7, 5, 2, 6, 3, 3, 6, 7,
+                                      4, 5, 7, 4, 7, 6, 0, 4, 2, 2, 4, 6, 0, 1, 4, 1, 5, 4 } };
     }
 
-    static IndexedTriangleList MakeWireframe ()
+    static IndexedTriangleList MakeWireframe()
     {
         namespace dx         = DirectX;
 
         constexpr float side = 1.0f / 2.0f;
         Dvtx::VertexLayout layout;
-        layout.Append ( Dvtx::VertexLayout::Position3D );
-        Dvtx::VertexBuffer vbuf ( layout );
+        layout.Append( Dvtx::VertexLayout::Position3D );
+        Dvtx::VertexBuffer vbuf( layout );
 
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, -side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, -side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, side, -side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, -side, side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, -side, side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ -side, side, side } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ side, side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, -side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, -side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, side, -side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, -side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, -side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ -side, side, side } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ side, side, side } );
 
-        return { std::move ( vbuf ),
+        return { std::move( vbuf ),
                  {
                      0, 1, 0, 2, 1, 3,       // Bottom front edges
                      4, 5, 4, 6, 5, 7,       // Bottom back edges
@@ -58,30 +58,30 @@ class Cube
                  } };
     }
 
-    static IndexedTriangleList MakeWireframe ( const AABB& aabb )
+    static IndexedTriangleList MakeWireframe( const AABB& aabb )
     {
 
         namespace dx = DirectX;
         Dvtx::VertexLayout layout;
-        layout.Append ( Dvtx::VertexLayout::Position3D );
-        Dvtx::VertexBuffer vbuf ( layout );
+        layout.Append( Dvtx::VertexLayout::Position3D );
+        Dvtx::VertexBuffer vbuf( layout );
 
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.min.x, aabb.min.y, aabb.min.z } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.min.x, aabb.min.y, aabb.max.z } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.max.x, aabb.min.y, aabb.max.z } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.max.x, aabb.min.y, aabb.min.z } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.min.x, aabb.max.y, aabb.min.z } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.min.x, aabb.max.y, aabb.max.z } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.max.x, aabb.max.y, aabb.max.z } );
-        vbuf.EmplaceBack ( dx::XMFLOAT3{ aabb.max.x, aabb.max.y, aabb.min.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.min.x, aabb.min.y, aabb.min.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.min.x, aabb.min.y, aabb.max.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.max.x, aabb.min.y, aabb.max.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.max.x, aabb.min.y, aabb.min.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.min.x, aabb.max.y, aabb.min.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.min.x, aabb.max.y, aabb.max.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.max.x, aabb.max.y, aabb.max.z } );
+        vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.max.x, aabb.max.y, aabb.min.z } );
         std::vector<dx::XMFLOAT3> vertices;
-        vertices.resize ( 8 );
-        for ( size_t i = 0; i < vbuf.Size (); i++ )
+        vertices.resize( 8 );
+        for ( size_t i = 0; i < vbuf.Size(); i++ )
         {
-            vertices[i] = vbuf[i].Attr<Dvtx::VertexLayout::Position3D> ();
+            vertices[i] = vbuf[i].Attr<Dvtx::VertexLayout::Position3D>();
         }
 
-        return { std::move ( vbuf ),
+        return { std::move( vbuf ),
                  {
                      0, 1, 1, 2, 2, 3, 3, 0, // Bottom Edges
                      4, 5, 5, 6, 6, 7, 7, 4, // Top edges

@@ -14,36 +14,36 @@ class IndexBuffer : public Bindable
     Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer;
 
   public:
-    IndexBuffer ( Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices );
+    IndexBuffer( Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices );
 
-    IndexBuffer ( Graphics& gfx, const std::string& tag, const std::vector<unsigned short>& indices );
+    IndexBuffer( Graphics& gfx, const std::string& tag, const std::vector<unsigned short>& indices );
 
-    void Bind ( Graphics& gfx ) noexcept override;
+    void Bind( Graphics& gfx ) noexcept override;
 
-    UINT GetCount () const noexcept;
+    UINT GetCount() const noexcept;
 
-    static std::shared_ptr<IndexBuffer> Resolve ( Graphics& gfx, const std::string& tag,
-                                                  const std::vector<unsigned int>& indices )
+    static std::shared_ptr<IndexBuffer> Resolve( Graphics& gfx, const std::string& tag,
+                                                 const std::vector<unsigned int>& indices )
     {
-        return Codex::Get ().Resolve<IndexBuffer> ( gfx, tag, indices );
+        return Codex::Get().Resolve<IndexBuffer>( gfx, tag, indices );
     }
 
-    static std::shared_ptr<IndexBuffer> Resolve ( Graphics& gfx, const std::string& tag,
-                                                  const std::vector<unsigned short>& indices )
+    static std::shared_ptr<IndexBuffer> Resolve( Graphics& gfx, const std::string& tag,
+                                                 const std::vector<unsigned short>& indices )
     {
-        return Codex::Get ().Resolve<IndexBuffer> ( gfx, tag, indices );
+        return Codex::Get().Resolve<IndexBuffer>( gfx, tag, indices );
     }
 
-    template <typename... Ignore> static std::string GenerateUID ( const std::string& tag, Ignore&&... ignore )
+    template <typename... Ignore> static std::string GenerateUID( const std::string& tag, Ignore&&... ignore )
     {
         using namespace std::string_literals;
-        return typeid ( IndexBuffer ).name () + "#"s + tag;
+        return typeid( IndexBuffer ).name() + "#"s + tag;
     }
 
-    std::string GetUID () const noexcept override
+    std::string GetUID() const noexcept override
     {
         using namespace std::string_literals;
-        return typeid ( IndexBuffer ).name () + "#"s + _tag;
+        return typeid( IndexBuffer ).name() + "#"s + _tag;
     }
 };
 } // namespace Bind

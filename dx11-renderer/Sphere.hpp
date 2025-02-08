@@ -6,41 +6,41 @@
 class Sphere
 {
   public:
-    static IndexedTriangleList MakeTesselated ( Dvtx::VertexLayout layout, unsigned short latDiv,
-                                                unsigned short longDiv )
+    static IndexedTriangleList MakeTesselated( Dvtx::VertexLayout layout, unsigned short latDiv,
+                                               unsigned short longDiv )
     {
         namespace dx = DirectX;
-        assert ( latDiv >= 3 );
-        assert ( longDiv >= 3 );
+        assert( latDiv >= 3 );
+        assert( longDiv >= 3 );
 
         constexpr float radius     = 1.0f;
-        const auto base            = dx::XMVectorSet ( 0.0f, 0.0f, radius, 0.0f );
+        const auto base            = dx::XMVectorSet( 0.0f, 0.0f, radius, 0.0f );
         const float lattitudeAngle = PI / latDiv;
         const float longitudeAngle = 2.0f * PI / longDiv;
-        Dvtx::VertexBuffer vbuf ( layout );
+        Dvtx::VertexBuffer vbuf( layout );
 
         for ( int iLat = 1; iLat < latDiv; iLat++ )
         {
-            const auto latBase = dx::XMVector3Transform ( base, dx::XMMatrixRotationX ( lattitudeAngle * iLat ) );
+            const auto latBase = dx::XMVector3Transform( base, dx::XMMatrixRotationX( lattitudeAngle * iLat ) );
             for ( int iLong = 0; iLong < longDiv; iLong++ )
             {
                 dx::XMFLOAT3 pos;
-                auto v = dx::XMVector3Transform ( latBase, dx::XMMatrixRotationZ ( longitudeAngle * iLong ) );
-                dx::XMStoreFloat3 ( &pos, v );
-                vbuf.EmplaceBack ( pos );
+                auto v = dx::XMVector3Transform( latBase, dx::XMMatrixRotationZ( longitudeAngle * iLong ) );
+                dx::XMStoreFloat3( &pos, v );
+                vbuf.EmplaceBack( pos );
             }
         }
 
         // add the cap vertices
-        const auto iNorthPole = (unsigned short)vbuf.Size ();
+        const auto iNorthPole = (unsigned short)vbuf.Size();
         dx::XMFLOAT3 basefloat;
-        dx::XMStoreFloat3 ( &basefloat, base );
-        vbuf.EmplaceBack ( basefloat );
-        const auto iSouthPole = (unsigned short)vbuf.Size ();
-        vbuf.EmplaceBack ( basefloat );
-        dx::XMStoreFloat3 ( &vbuf.Back ().Attr<Dvtx::VertexLayout::Position3D> (), dx::XMVectorNegate ( base ) );
+        dx::XMStoreFloat3( &basefloat, base );
+        vbuf.EmplaceBack( basefloat );
+        const auto iSouthPole = (unsigned short)vbuf.Size();
+        vbuf.EmplaceBack( basefloat );
+        dx::XMStoreFloat3( &vbuf.Back().Attr<Dvtx::VertexLayout::Position3D>(), dx::XMVectorNegate( base ) );
 
-        const auto calcIdx = [latDiv, longDiv] ( unsigned short iLat, unsigned short iLong ) -> unsigned short {
+        const auto calcIdx = [latDiv, longDiv]( unsigned short iLat, unsigned short iLong ) -> unsigned short {
             return iLat * longDiv + iLong;
         };
         std::vector<unsigned short> indices;
@@ -48,51 +48,51 @@ class Sphere
         {
             for ( unsigned short iLong = 0; iLong < longDiv - 1; iLong++ )
             {
-                indices.push_back ( calcIdx ( iLat, iLong ) );
-                indices.push_back ( calcIdx ( iLat + 1, iLong ) );
-                indices.push_back ( calcIdx ( iLat, iLong + 1 ) );
-                indices.push_back ( calcIdx ( iLat, iLong + 1 ) );
-                indices.push_back ( calcIdx ( iLat + 1, iLong ) );
-                indices.push_back ( calcIdx ( iLat + 1, iLong + 1 ) );
+                indices.push_back( calcIdx( iLat, iLong ) );
+                indices.push_back( calcIdx( iLat + 1, iLong ) );
+                indices.push_back( calcIdx( iLat, iLong + 1 ) );
+                indices.push_back( calcIdx( iLat, iLong + 1 ) );
+                indices.push_back( calcIdx( iLat + 1, iLong ) );
+                indices.push_back( calcIdx( iLat + 1, iLong + 1 ) );
             }
             // wrap band
-            indices.push_back ( calcIdx ( iLat, longDiv - 1 ) );
-            indices.push_back ( calcIdx ( iLat + 1, longDiv - 1 ) );
-            indices.push_back ( calcIdx ( iLat, 0 ) );
-            indices.push_back ( calcIdx ( iLat, 0 ) );
-            indices.push_back ( calcIdx ( iLat + 1, longDiv - 1 ) );
-            indices.push_back ( calcIdx ( iLat + 1, 0 ) );
+            indices.push_back( calcIdx( iLat, longDiv - 1 ) );
+            indices.push_back( calcIdx( iLat + 1, longDiv - 1 ) );
+            indices.push_back( calcIdx( iLat, 0 ) );
+            indices.push_back( calcIdx( iLat, 0 ) );
+            indices.push_back( calcIdx( iLat + 1, longDiv - 1 ) );
+            indices.push_back( calcIdx( iLat + 1, 0 ) );
         }
 
         // cap fans
         for ( unsigned short iLong = 0; iLong < longDiv - 1; iLong++ )
         {
             // north
-            indices.push_back ( iNorthPole );
-            indices.push_back ( calcIdx ( 0, iLong ) );
-            indices.push_back ( calcIdx ( 0, iLong + 1 ) );
+            indices.push_back( iNorthPole );
+            indices.push_back( calcIdx( 0, iLong ) );
+            indices.push_back( calcIdx( 0, iLong + 1 ) );
             // south
-            indices.push_back ( calcIdx ( latDiv - 2, iLong + 1 ) );
-            indices.push_back ( calcIdx ( latDiv - 2, iLong ) );
-            indices.push_back ( iSouthPole );
+            indices.push_back( calcIdx( latDiv - 2, iLong + 1 ) );
+            indices.push_back( calcIdx( latDiv - 2, iLong ) );
+            indices.push_back( iSouthPole );
         }
         // wrap triangles
         // north
-        indices.push_back ( iNorthPole );
-        indices.push_back ( calcIdx ( 0, longDiv - 1 ) );
-        indices.push_back ( calcIdx ( 0, 0 ) );
+        indices.push_back( iNorthPole );
+        indices.push_back( calcIdx( 0, longDiv - 1 ) );
+        indices.push_back( calcIdx( 0, 0 ) );
         // south
-        indices.push_back ( calcIdx ( latDiv - 2, 0 ) );
-        indices.push_back ( calcIdx ( latDiv - 2, longDiv - 1 ) );
-        indices.push_back ( iSouthPole );
+        indices.push_back( calcIdx( latDiv - 2, 0 ) );
+        indices.push_back( calcIdx( latDiv - 2, longDiv - 1 ) );
+        indices.push_back( iSouthPole );
 
-        return { std::move ( vbuf ), std::move ( indices ) };
+        return { std::move( vbuf ), std::move( indices ) };
     }
 
-    static IndexedTriangleList MakeSolid ()
+    static IndexedTriangleList MakeSolid()
     {
         Dvtx::VertexLayout layout;
-        layout.Append ( Dvtx::VertexLayout::Position3D );
-        return MakeTesselated ( layout, 12, 24 );
+        layout.Append( Dvtx::VertexLayout::Position3D );
+        return MakeTesselated( layout, 12, 24 );
     }
 };

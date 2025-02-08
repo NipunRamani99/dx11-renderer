@@ -15,7 +15,7 @@ class TransformCbuf : public Bindable
         DirectX::XMMATRIX model;
         DirectX::XMMATRIX view;
         DirectX::XMMATRIX projection;
-        const std::string GetId () const
+        const std::string GetId() const
         {
             return "cbuf_transform";
         }
@@ -24,10 +24,10 @@ class TransformCbuf : public Bindable
 
   private:
     static std::unique_ptr<VertexConstantBuffer<Transforms>> pVcbuf;
-    void UpdateAndBindImpl ( Graphics& gfx ) noexcept;
+    void UpdateAndBindImpl( Graphics& gfx ) noexcept;
 
   public:
-    TransformCbuf ( Graphics& gfx, const Drawable& parent );
-    void Bind ( Graphics& gfx ) noexcept override;
+    TransformCbuf( Graphics& gfx, const Drawable& parent );
+    void Bind( Graphics& gfx ) noexcept override;
 };
 } // namespace Bind

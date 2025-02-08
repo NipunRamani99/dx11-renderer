@@ -13,28 +13,27 @@ class InputLayout : public Bindable
     Dvtx::VertexLayout _layout;
 
   public:
-    InputLayout ( Graphics& gfx, const Dvtx::VertexLayout& layout, ID3DBlob* pVertexShaderBytecode );
+    InputLayout( Graphics& gfx, const Dvtx::VertexLayout& layout, ID3DBlob* pVertexShaderBytecode );
 
-    void Bind ( Graphics& gfx ) noexcept override;
+    void Bind( Graphics& gfx ) noexcept override;
 
-    static std::shared_ptr<Bindable> Resolve ( Graphics& gfx, const Dvtx::VertexLayout& layout,
-                                               ID3DBlob* pVertexShaderByteCode )
+    static std::shared_ptr<Bindable> Resolve( Graphics& gfx, const Dvtx::VertexLayout& layout,
+                                              ID3DBlob* pVertexShaderByteCode )
     {
-        return Codex::Get ().Resolve<InputLayout> ( gfx, layout, pVertexShaderByteCode );
+        return Codex::Get().Resolve<InputLayout>( gfx, layout, pVertexShaderByteCode );
     }
 
-    template <typename... Ignore>
-    static std::string GenerateUID ( const Dvtx::VertexLayout& layout, Ignore&&... ignore )
+    template <typename... Ignore> static std::string GenerateUID( const Dvtx::VertexLayout& layout, Ignore&&... ignore )
     {
         using namespace std::string_literals;
-        std::string name = typeid ( InputLayout ).name () + "#"s + layout.GetCode ();
+        std::string name = typeid( InputLayout ).name() + "#"s + layout.GetCode();
         return name;
     }
 
-    std::string GetUID () const noexcept override
+    std::string GetUID() const noexcept override
     {
         using namespace std::string_literals;
-        return typeid ( InputLayout ).name () + "#"s + _layout.GetCode ();
+        return typeid( InputLayout ).name() + "#"s + _layout.GetCode();
     }
 };
 } // namespace Bind

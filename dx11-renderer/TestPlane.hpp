@@ -15,13 +15,13 @@ class TestPlane : public Drawable
 
     struct NormalData
     {
-        alignas ( 16 ) BOOL hasNormalMap = TRUE;
-        BOOL hasSpecularMap              = FALSE;
-        BOOL negateYAndZ                 = FALSE;
-        BOOL hasGloss                    = FALSE;
-        DirectX::XMFLOAT3 specularColor  = { 0.75f, 0.75f, 0.75f };
-        float specularMapWeight          = 1.0f;
-        static std::string GetId ()
+        alignas( 16 ) BOOL hasNormalMap = TRUE;
+        BOOL hasSpecularMap             = FALSE;
+        BOOL negateYAndZ                = FALSE;
+        BOOL hasGloss                   = FALSE;
+        DirectX::XMFLOAT3 specularColor = { 0.75f, 0.75f, 0.75f };
+        float specularMapWeight         = 1.0f;
+        static std::string GetId()
         {
             return "TestPlaneNormalData";
         }
@@ -35,7 +35,7 @@ class TestPlane : public Drawable
         float padding[1];
         std::string name;*/
         DirectX::XMFLOAT4 color;
-        static std::string GetId ()
+        static std::string GetId()
         {
             return "ObjectData";
         }
@@ -45,7 +45,7 @@ class TestPlane : public Drawable
     std::string _name = "Test Plane";
 
   public:
-    TestPlane ( Graphics& gfx, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT4 color, std::string name, float scale = 1.0f );
-    DirectX::XMMATRIX GetTransformXM () const noexcept override;
-    void SpawnControl ( Graphics& gfx ) noexcept;
+    TestPlane( Graphics& gfx, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT4 color, std::string name, float scale = 1.0f );
+    DirectX::XMMATRIX GetTransformXM() const noexcept override;
+    void SpawnControl( Graphics& gfx ) noexcept;
 };

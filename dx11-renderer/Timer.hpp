@@ -5,22 +5,22 @@ using namespace std::chrono;
 class Timer
 {
   public:
-    Timer ()
+    Timer()
     {
-        last = steady_clock::now ();
+        last = steady_clock::now();
     }
 
-    duration<float> Mark () noexcept
+    duration<float> Mark() noexcept
     {
 
         const auto old             = last;
-        last                       = steady_clock::now ();
+        last                       = steady_clock::now();
         const duration<float> time = last - old;
         return time;
     }
-    duration<float> Peek () const noexcept
+    duration<float> Peek() const noexcept
     {
-        const duration<float> time = steady_clock::now () - last;
+        const duration<float> time = steady_clock::now() - last;
         return time;
     }
 

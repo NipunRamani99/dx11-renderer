@@ -1,2 +1,2 @@
 #pragma once
-#define noxnd noexcept ( !IS_DEBUG )
+#define noxnd noexcept( !IS_DEBUG )
