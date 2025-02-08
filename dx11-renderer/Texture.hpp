@@ -4,37 +4,39 @@
 
 namespace Bind
 {
-	class Texture : public Bindable {
-	private:
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _pTextureView;
-		const unsigned int _slot = 0;
-		std::string _path = "";
-		bool hasAlpha = false;
-	public:
-		Texture(Graphics& gfx, const std::string & path, const unsigned int slot);
+class Texture : public Bindable
+{
+  private:
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _pTextureView;
+    const unsigned int _slot = 0;
+    std::string _path        = "";
+    bool hasAlpha            = false;
 
-		void Bind(Graphics& gfx) noexcept override;
+  public:
+    Texture ( Graphics& gfx, const std::string& path, const unsigned int slot );
 
-		static std::shared_ptr<Texture> Resolve(Graphics& gfx, const std::string& path, const unsigned int slot)
-		{
-			return Codex::Get().Resolve<Texture>(gfx, path, slot);
-		}
+    void Bind ( Graphics& gfx ) noexcept override;
 
-		static const std::string GenerateUID(const std::string& path, const unsigned int slot)
-		{
-			using namespace std::string_literals;
-			return path + "#"s + std::to_string(slot);
-		}
+    static std::shared_ptr<Texture> Resolve ( Graphics& gfx, const std::string& path, const unsigned int slot )
+    {
+        return Codex::Get ().Resolve<Texture> ( gfx, path, slot );
+    }
 
-		std::string GetUID() const noexcept override
-		{
-			using namespace std::string_literals;
-			return _path + "#"s + std::to_string(_slot);
-		}
+    static const std::string GenerateUID ( const std::string& path, const unsigned int slot )
+    {
+        using namespace std::string_literals;
+        return path + "#"s + std::to_string ( slot );
+    }
 
-		const bool HasAlpha() const noexcept
-		{
-			return hasAlpha;
-		}
-	};
-}
+    std::string GetUID () const noexcept override
+    {
+        using namespace std::string_literals;
+        return _path + "#"s + std::to_string ( _slot );
+    }
+
+    const bool HasAlpha () const noexcept
+    {
+        return hasAlpha;
+    }
+};
+} // namespace Bind

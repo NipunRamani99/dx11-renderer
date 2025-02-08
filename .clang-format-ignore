@@ -1,0 +1,9 @@
+/dx11-renderer/imgui/*
+/dx11-renderer/ImGuiColorTextEdit/*
+/dx11-renderer/tiny_bvh/*
+/dx11-renderer/assimp/*
+/dx11-renderer/x64/*
+/dx11-renderer/Models/*
+/dx11-renderer/*.ini
+/dx11-renderer/*.cso
+/dx11-renderer/*.hlsl

@@ -5,42 +5,45 @@
 #include "BindableCodex.hpp"
 namespace Bind
 {
-	class IndexBuffer : public Bindable {
-	protected:
-		UINT count;
-		std::string _tag = "";
-		DXGI_FORMAT format;
-		Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer;
-	public:
-		IndexBuffer(Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices);
+class IndexBuffer : public Bindable
+{
+  protected:
+    UINT count;
+    std::string _tag = "";
+    DXGI_FORMAT format;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer;
 
-		IndexBuffer(Graphics& gfx, const std::string& tag, const std::vector<unsigned short>& indices);
+  public:
+    IndexBuffer ( Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices );
 
-		void Bind(Graphics& gfx) noexcept override;
+    IndexBuffer ( Graphics& gfx, const std::string& tag, const std::vector<unsigned short>& indices );
 
-		UINT GetCount() const noexcept;
-		
-		static std::shared_ptr<IndexBuffer> Resolve(Graphics& gfx, const std::string& tag, const std::vector<unsigned int>& indices)
-		{
-			return Codex::Get().Resolve<IndexBuffer>(gfx, tag, indices);
-		}
+    void Bind ( Graphics& gfx ) noexcept override;
 
-		static std::shared_ptr<IndexBuffer> Resolve(Graphics& gfx, const std::string& tag, const std::vector<unsigned short>& indices)
-		{
-			return Codex::Get().Resolve<IndexBuffer>(gfx, tag, indices);
-		}
+    UINT GetCount () const noexcept;
 
-		template<typename...Ignore>
-		static std::string GenerateUID(const std::string& tag, Ignore&&...ignore)
-		{
-			using namespace std::string_literals;
-			return typeid(IndexBuffer).name() + "#"s + tag;
-		}
+    static std::shared_ptr<IndexBuffer> Resolve ( Graphics& gfx, const std::string& tag,
+                                                  const std::vector<unsigned int>& indices )
+    {
+        return Codex::Get ().Resolve<IndexBuffer> ( gfx, tag, indices );
+    }
 
-		std::string GetUID() const noexcept override 
-		{
-			using namespace std::string_literals;
-			return typeid(IndexBuffer).name() + "#"s + _tag;
-		}
-	};
-}
+    static std::shared_ptr<IndexBuffer> Resolve ( Graphics& gfx, const std::string& tag,
+                                                  const std::vector<unsigned short>& indices )
+    {
+        return Codex::Get ().Resolve<IndexBuffer> ( gfx, tag, indices );
+    }
+
+    template <typename... Ignore> static std::string GenerateUID ( const std::string& tag, Ignore&&... ignore )
+    {
+        using namespace std::string_literals;
+        return typeid ( IndexBuffer ).name () + "#"s + tag;
+    }
+
+    std::string GetUID () const noexcept override
+    {
+        using namespace std::string_literals;
+        return typeid ( IndexBuffer ).name () + "#"s + _tag;
+    }
+};
+} // namespace Bind

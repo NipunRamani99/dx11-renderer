@@ -9,121 +9,114 @@
 class FirstPersonCamera
 {
 
-private:
-	DirectX::XMFLOAT3 _front;
-	DirectX::XMFLOAT3 _up;
-	DirectX::XMFLOAT3 _cameraPos;
-	float _cameraSpeed = 0.10f;
-	DirectX::XMFLOAT2 _cursorPos;
-	DirectX::XMFLOAT2 _prevCursorPos;
-	float _pitch = 0.0f;
-	float _yaw = 0.0f;
+  private:
+    DirectX::XMFLOAT3 _front;
+    DirectX::XMFLOAT3 _up;
+    DirectX::XMFLOAT3 _cameraPos;
+    float _cameraSpeed = 0.10f;
+    DirectX::XMFLOAT2 _cursorPos;
+    DirectX::XMFLOAT2 _prevCursorPos;
+    float _pitch = 0.0f;
+    float _yaw   = 0.0f;
 
-public:
+  public:
+    FirstPersonCamera ()
+        : _cursorPos ( float ( SCREEN_WIDTH >> 1 ), float ( SCREEN_HEIGHT >> 1 ) ), _prevCursorPos ( _cursorPos ),
+          _cameraPos ( -20.0f, 10.0f, 0.0f ), _up ( 0.0f, 1.0f, 0.0f ), _front ( 0.0f, 0.0f, 0.0f )
+    {
+        // Convert pitch and yaw to radians for trigonometric functions
+        float pitchRad = DirectX::XMConvertToRadians ( _pitch );
+        float yawRad   = DirectX::XMConvertToRadians ( _yaw );
 
-	FirstPersonCamera()
-		:
-		_cursorPos(float(SCREEN_WIDTH >> 1), float(SCREEN_HEIGHT >> 1)),
-		_prevCursorPos(_cursorPos),
-		_cameraPos(-20.0f, 10.0f, 0.0f),
-		_up(0.0f, 1.0f, 0.0f),
-		_front(0.0f, 0.0f, 0.0f)  
-	{
-		// Convert pitch and yaw to radians for trigonometric functions
-		float pitchRad = DirectX::XMConvertToRadians(_pitch);
-		float yawRad = DirectX::XMConvertToRadians(_yaw);
+        // Update the front vector based on the yaw and pitch
+        _front.x = cosf ( pitchRad ) * cosf ( yawRad );
+        _front.y = sinf ( pitchRad );
+        _front.z = cosf ( pitchRad ) * sinf ( yawRad );
 
-		// Update the front vector based on the yaw and pitch
-		_front.x = cosf(pitchRad) * cosf(yawRad);
-		_front.y = sinf(pitchRad);  
-		_front.z = cosf(pitchRad) * sinf(yawRad);
+        // Normalize the front vector
+        auto vec = DirectX::XMLoadFloat3 ( &_front );
+        vec      = DirectX::XMVector3Normalize ( vec );
+        DirectX::XMStoreFloat3 ( &_front, vec );
+    }
 
-		// Normalize the front vector
-		auto vec = DirectX::XMLoadFloat3(&_front);
-		vec = DirectX::XMVector3Normalize(vec);
-		DirectX::XMStoreFloat3(&_front, vec);
-	}
+    DirectX::XMFLOAT3 GetPos ()
+    {
+        return _cameraPos;
+    }
 
-	DirectX::XMFLOAT3 GetPos()
-	{
-		return _cameraPos;
-	}
+    DirectX::XMFLOAT3 GetDir ()
+    {
+        return _front;
+    }
 
-	DirectX::XMFLOAT3 GetDir()
-	{
-		return _front;
-	}
+    DirectX::XMMATRIX GetMatrix () const noexcept
+    {
+        using namespace DirectX;
 
-	DirectX::XMMATRIX GetMatrix() const noexcept
-	{
-		using namespace DirectX;
+        XMVECTOR front = DirectX::XMLoadFloat3 ( &_front );
+        XMVECTOR up    = DirectX::XMLoadFloat3 ( &_up );
+        XMVECTOR pos   = DirectX::XMLoadFloat3 ( &_cameraPos );
 
-		XMVECTOR front = DirectX::XMLoadFloat3(&_front);
-		XMVECTOR up = DirectX::XMLoadFloat3(&_up);
-		XMVECTOR pos = DirectX::XMLoadFloat3(&_cameraPos);
+        return XMMatrixLookAtLH ( pos, XMVectorAdd ( pos, front ), up );
+    }
 
-		return XMMatrixLookAtLH(pos, XMVectorAdd(pos, front), up);
-	}
+    DirectX::XMFLOAT3 GetPos () const noexcept
+    {
+        return _cameraPos;
+    }
 
-	DirectX::XMFLOAT3 GetPos() const noexcept
-	{
-		return _cameraPos;
-	}
+    inline float GetPitch () const noexcept
+    {
+        return _pitch;
+    }
 
-	inline float GetPitch() const noexcept
-	{
-		return _pitch;
-	}
+    inline float GetYaw () const noexcept
+    {
+        return _yaw;
+    }
 
-	inline float GetYaw() const noexcept
-	{
-		return _yaw;
-	}
+    void Translate ( DirectX::XMFLOAT3 translation ) noexcept
+    {
+        namespace dx       = DirectX;
+        dx::XMVECTOR front = DirectX::XMLoadFloat3 ( &_front );
+        dx::XMVECTOR up    = DirectX::XMLoadFloat3 ( &_up );
+        dx::XMVECTOR pos   = DirectX::XMLoadFloat3 ( &_cameraPos );
+        dx::XMVectorMultiply ( dx::XMLoadFloat3 ( &translation ), dx::XMLoadFloat3 ( &_front ) );
+        dx::XMVECTOR sideVec = DirectX::XMVector3Normalize ( DirectX::XMVector3Cross ( front, up ) );
+        pos = dx::XMVectorAdd ( pos, dx::XMVectorAdd ( dx::XMVectorScale ( sideVec, translation.x * _cameraSpeed ),
+                                                       dx::XMVectorScale ( front, translation.z * _cameraSpeed ) ) );
 
-	void Translate(DirectX::XMFLOAT3 translation) noexcept
-	{
-		namespace dx = DirectX;
-		dx::XMVECTOR front = DirectX::XMLoadFloat3(&_front);
-		dx::XMVECTOR up = DirectX::XMLoadFloat3(&_up);
-		dx::XMVECTOR pos = DirectX::XMLoadFloat3(&_cameraPos);
-		dx::XMVectorMultiply(dx::XMLoadFloat3(&translation), dx::XMLoadFloat3(&_front));
-		dx::XMVECTOR sideVec = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(front, up));
-		pos = dx::XMVectorAdd(pos, dx::XMVectorAdd( 
-			dx::XMVectorScale(sideVec, translation.x * _cameraSpeed),
-			dx::XMVectorScale(front, translation.z * _cameraSpeed)
-			));
+        DirectX::XMStoreFloat3 ( &_cameraPos, pos );
+    }
 
-		DirectX::XMStoreFloat3(&_cameraPos, pos);
-	}
+    void Update ( float xoffset, float yoffset )
+    {
+        using namespace DirectX;
 
-	void Update(float xoffset, float yoffset)
-	{
-		using namespace DirectX;
+        // Apply mouse sensitivity (uncomment or modify sensitivity factor as needed)
+        float sensitivity = 0.05f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
 
-		// Apply mouse sensitivity (uncomment or modify sensitivity factor as needed)
-		float sensitivity = 0.05f;
-		xoffset *= sensitivity;
-		yoffset *= sensitivity;
+        // Update yaw and pitch based on the mouse movement
+        _yaw += xoffset;
+        _pitch += yoffset;
 
-		// Update yaw and pitch based on the mouse movement
-   		_yaw += xoffset;
-		_pitch += yoffset;
+        // Clamp the pitch value to prevent flipping
+        _pitch = std::clamp ( _pitch, -89.0f, 89.0f );
 
-		// Clamp the pitch value to prevent flipping
-		_pitch = std::clamp(_pitch, -89.0f, 89.0f);
+        // Convert pitch and yaw to radians for trigonometric functions
+        float pitchRad = DirectX::XMConvertToRadians ( _pitch );
+        float yawRad   = DirectX::XMConvertToRadians ( _yaw );
 
-		// Convert pitch and yaw to radians for trigonometric functions
-		float pitchRad = DirectX::XMConvertToRadians(_pitch);
-		float yawRad = DirectX::XMConvertToRadians(_yaw);
+        // Update the front vector based on the yaw and pitch
+        _front.x = cosf ( pitchRad ) * cosf ( yawRad );
+        _front.y = sinf ( pitchRad );
+        _front.z = cosf ( pitchRad ) * sinf ( yawRad );
 
-		// Update the front vector based on the yaw and pitch
-		_front.x = cosf(pitchRad) * cosf(yawRad);
-		_front.y = sinf(pitchRad);  
-		_front.z = cosf(pitchRad) * sinf(yawRad);
-
-		// Normalize the front vector
-		auto vec = DirectX::XMLoadFloat3(&_front);
-		vec = DirectX::XMVector3Normalize(vec);
-		DirectX::XMStoreFloat3(&_front, vec);
-	}
+        // Normalize the front vector
+        auto vec = DirectX::XMLoadFloat3 ( &_front );
+        vec      = DirectX::XMVector3Normalize ( vec );
+        DirectX::XMStoreFloat3 ( &_front, vec );
+    }
 };

@@ -3,6 +3,6 @@
 
 struct AABB
 {
-	DirectX::XMFLOAT3 min;
-	DirectX::XMFLOAT3 max;
+    DirectX::XMFLOAT3 min;
+    DirectX::XMFLOAT3 max;
 };
