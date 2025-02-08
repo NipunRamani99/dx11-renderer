@@ -5,13 +5,14 @@
 
 namespace Bind
 {
-	class TransformCbufDoubleBoi : public TransformCbuf
-	{
-	private:
-		static std::unique_ptr<PixelConstantBuffer<TransformCbuf::Transforms>> pPcBuf;
-		void UpdateAndBindImpl(Graphics& gfx);
-	public:
-		TransformCbufDoubleBoi(Graphics& gfx, const Drawable& parent);
-		void Bind(Graphics& gfx) noexcept override;
-	};
-}
+class TransformCbufDoubleBoi : public TransformCbuf
+{
+  private:
+    static std::unique_ptr<PixelConstantBuffer<TransformCbuf::Transforms>> pPcBuf;
+    void UpdateAndBindImpl ( Graphics& gfx );
+
+  public:
+    TransformCbufDoubleBoi ( Graphics& gfx, const Drawable& parent );
+    void Bind ( Graphics& gfx ) noexcept override;
+};
+} // namespace Bind

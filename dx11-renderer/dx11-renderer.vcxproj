@@ -262,6 +262,8 @@
     <Image Include="chili.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.clang-format" />
+    <None Include="..\.clang-format-ignore" />
     <None Include="DXGetErrorDescription.inl" />
     <None Include="DXGetErrorString.inl" />
     <None Include="DXTrace.inl" />

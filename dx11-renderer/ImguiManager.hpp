@@ -1,7 +1,8 @@
 #pragma once
 
-class ImguiManager {
-public:
-	ImguiManager();
-	~ImguiManager();
+class ImguiManager
+{
+  public:
+    ImguiManager ();
+    ~ImguiManager ();
 };

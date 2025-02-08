@@ -1,7 +1,7 @@
 #pragma once
-#include<vector>
-#include<functional>
-#include<map>
+#include <vector>
+#include <functional>
+#include <map>
 #include <chrono>
 #include <thread>
 #include <deque>
@@ -10,129 +10,118 @@
 
 class TaskManager
 {
-public:
-	struct TimedTask
-	{
-		std::time_t _startTime;
-		std::function<void(void)> _task;
-		bool done = false;
-		TimedTask(std::function<void(void)>&& task, std::time_t startTime)
-			:
-			_startTime(startTime),
-			_task(std::move(task))
-		{
+  public:
+    struct TimedTask
+    {
+        std::time_t _startTime;
+        std::function<void ( void )> _task;
+        bool done = false;
+        TimedTask ( std::function<void ( void )>&& task, std::time_t startTime )
+            : _startTime ( startTime ), _task ( std::move ( task ) )
+        {
+        }
 
-		}
+        void Run ()
+        {
+            if ( std::time ( nullptr ) > _startTime && !done )
+            {
+                if ( _task )
+                    _task ();
+                done = true;
+            }
+        }
 
-		void Run()
-		{
-			if (std::time(nullptr) > _startTime && !done)
-			{
-				if (_task)
-				_task();
-				done = true;
-			}
-		}
+        TimedTask ()
+        {
+            _startTime = -1;
+            _task      = [] () {};
+        }
+    };
 
-		TimedTask()
-		{
-			_startTime = -1;
-			_task = []() {};
-		}
-	};
+    struct Task
+    {
+        std::function<void ( void )> _task;
+        bool done = false;
+        Task ( std::function<void ( void )>&& task ) : _task ( std::move ( task ) ) {}
 
-	struct Task
-	{
-		std::function<void(void)> _task;
-		bool done = false;
-		Task(std::function<void(void)>&& task)
-			:
-			_task(std::move(task))
-		{
+        void Run ()
+        {
 
-		}
+            if ( !done )
+            {
+                _task ();
+                done = true;
+            }
+        }
 
-		void Run()
-		{
+        Task ()
+        {
+            done  = true;
+            _task = [] () {};
+        }
+    };
 
-			if (!done)
-			{
-				_task();
-				done = true;
-			}
-		}
+  private:
+    std::vector<TimedTask> _timedTasks;
+    std::deque<Task> _tasks;
+    bool keepRunning = true;
+    std::thread _th;
+    std::mutex _mtx;
+    TaskManager () : _th ( &TaskManager::Run, this ) {}
 
-		Task()
-		{
-			done = true;
-			_task = []() {};
-		}
-	};
+    void Run ()
+    {
+        while ( keepRunning )
+        {
+            std::lock_guard<std::mutex> guard ( _mtx );
+            for ( auto& task : _timedTasks )
+            {
+                task.Run ();
+            }
+            while ( !_tasks.empty () )
+            {
+                auto& task = _tasks.front ();
+                task.Run ();
+                _tasks.pop_front ();
+            }
+            _timedTasks.erase ( std::remove_if ( _timedTasks.begin (), _timedTasks.end (),
+                                                 [] ( TimedTask& task ) { return task.done; } ) );
+            _timedTasks.shrink_to_fit ();
+        }
+    }
 
-private:
-	std::vector<TimedTask> _timedTasks;
-	std::deque<Task> _tasks;
-	bool keepRunning = true;
-	std::thread _th;
-	std::mutex _mtx;
-	TaskManager()
-		:
-		_th(&TaskManager::Run, this)
-	{
-	}
+    ~TaskManager ()
+    {
+        std::cout << "Destructor for task manager called.\n";
+    }
 
-	void Run()
-	{
-		while (keepRunning)
-		{
-			std::lock_guard<std::mutex> guard(_mtx);
-			for (auto& task : _timedTasks)
-			{
-				task.Run();
-			}
-			while (!_tasks.empty())
-			{
-				auto & task = _tasks.front();
-				task.Run();
-				_tasks.pop_front();
-			}
-			_timedTasks.erase(std::remove_if(_timedTasks.begin(), _timedTasks.end(), [](TimedTask& task) { return task.done; }));
-			_timedTasks.shrink_to_fit();
-		}
-	}
+  public:
+    static TaskManager& Get ()
+    {
+        static TaskManager manager;
+        return manager;
+    }
 
-	~TaskManager()
-	{
-		std::cout << "Destructor for task manager called.\n";
-	}
+    void AddTask ( std::function<void ( void )>&& task )
+    {
+        std::lock_guard<std::mutex> guard ( _mtx );
+        _tasks.push_back ( { std::move ( task ) } );
+    }
 
-public:
-	static TaskManager& Get()
-	{
-		static TaskManager manager;
-		return manager;
-	}
+    void AddTimedTask ( std::function<void ( void )>&& timedTask, std::chrono::milliseconds executeAfter )
+    {
+        std::lock_guard<std::mutex> guard ( _mtx );
+        std::time_t time_t_value = std::chrono::duration_cast<std::chrono::seconds> ( executeAfter ).count ();
+        _timedTasks.push_back ( { std::move ( timedTask ), std::time ( nullptr ) + time_t_value } );
+    }
 
-	void AddTask(std::function<void(void)>&& task)
-	{
-		std::lock_guard<std::mutex> guard(_mtx);
-		_tasks.push_back({ std::move(task) });
-	}
+    void Stop ()
+    {
+        keepRunning = false;
+    }
 
-	void AddTimedTask(std::function<void(void)>&& timedTask, std::chrono::milliseconds executeAfter)
-	{
-		std::lock_guard<std::mutex> guard(_mtx);
-		std::time_t time_t_value = std::chrono::duration_cast<std::chrono::seconds>(executeAfter).count();
-		_timedTasks.push_back({ std::move(timedTask), std::time(nullptr) + time_t_value });
-	}
-
-	void Stop()
-	{
-		keepRunning = false;
-	}
-
-	void Wait()
-	{
-		_th.join();
-	}
+    void Wait ()
+    {
+        _th.join ();
+    }
 };

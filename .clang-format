@@ -1,0 +1,38 @@
+BasedOnStyle:  Microsoft
+ColumnLimit: 120
+
+
+# Control how braces are wrapped.
+BraceWrapping:
+  AfterClass:          true       # class X { 
+  AfterControlStatement: true
+  AfterEnum:           true
+  AfterFunction:       true        # void foo()
+                                   # {
+                                   # }
+  AfterNamespace:      true        # namespace X
+                                   # {
+                                   # }
+  AfterStruct:         true
+  BeforeElse:          true
+  BeforeCatch:         true
+
+# Insert a space before parentheses of function calls and declarations.
+SpaceBeforeParens: Always
+
+# Insert spaces inside parentheses, e.g. ( foo, bar ).
+SpacesInParentheses: true
+
+# Place the asterisk next to the variable rather than the type, e.g. ID3DBlob* ptr.
+PointerAlignment: Left
+
+# Prevent short functions from being put on a single line.
+AllowShortFunctionsOnASingleLine: Empty
+
+# Disable include sorting.
+SortIncludes: Never
+
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: false
