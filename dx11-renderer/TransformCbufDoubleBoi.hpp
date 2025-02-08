@@ -9,10 +9,10 @@ class TransformCbufDoubleBoi : public TransformCbuf
 {
   private:
     static std::unique_ptr<PixelConstantBuffer<TransformCbuf::Transforms>> pPcBuf;
-    void UpdateAndBindImpl ( Graphics& gfx );
+    void UpdateAndBindImpl( Graphics& gfx );
 
   public:
-    TransformCbufDoubleBoi ( Graphics& gfx, const Drawable& parent );
-    void Bind ( Graphics& gfx ) noexcept override;
+    TransformCbufDoubleBoi( Graphics& gfx, const Drawable& parent );
+    void Bind( Graphics& gfx ) noexcept override;
 };
 } // namespace Bind

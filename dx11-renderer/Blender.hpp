@@ -15,12 +15,12 @@ class Blender : public Bindable
     std::optional<std::array<float, 4>> _factors;
 
   public:
-    Blender ( Graphics& gfx, bool isBlending, std::optional<float> factors_in ) : _isBlending ( isBlending )
+    Blender( Graphics& gfx, bool isBlending, std::optional<float> factors_in ) : _isBlending( isBlending )
     {
         if ( factors_in )
         {
-            _factors.emplace ();
-            _factors->fill ( factors_in.value () );
+            _factors.emplace();
+            _factors->fill( factors_in.value() );
         }
 
         D3D11_BLEND_DESC blendDesc = CD3D11_BLEND_DESC{ CD3D11_DEFAULT{} };
@@ -47,40 +47,40 @@ class Blender : public Bindable
         }
         else
             rtBlendDesc.BlendEnable = FALSE;
-        GetDevice ( gfx )->CreateBlendState ( &blendDesc, &_pBlendState );
+        GetDevice( gfx )->CreateBlendState( &blendDesc, &_pBlendState );
     }
 
-    void Bind ( Graphics& gfx ) noexcept
+    void Bind( Graphics& gfx ) noexcept
     {
-        const float* data = _factors ? _factors->data () : nullptr;
-        GetContext ( gfx )->OMSetBlendState ( _pBlendState.Get (), data, 0xFFFFFFFFu );
+        const float* data = _factors ? _factors->data() : nullptr;
+        GetContext( gfx )->OMSetBlendState( _pBlendState.Get(), data, 0xFFFFFFFFu );
     }
 
-    static std::shared_ptr<Blender> Resolve ( Graphics& gfx, bool isBlending, std::optional<float> factors_in = {} )
+    static std::shared_ptr<Blender> Resolve( Graphics& gfx, bool isBlending, std::optional<float> factors_in = {} )
     {
-        return Codex::Resolve<Blender> ( gfx, isBlending, factors_in );
+        return Codex::Resolve<Blender>( gfx, isBlending, factors_in );
     }
 
-    static std::string GenerateUID ( bool isBlending, std::optional<float> factors_in )
+    static std::string GenerateUID( bool isBlending, std::optional<float> factors_in )
     {
         using namespace std::string_literals;
-        return typeid ( Blender ).name () + ( isBlending ? "ON"s : "OFF"s ) +
-               ( factors_in ? "#f"s + std::to_string ( *factors_in ) : "" );
+        return typeid( Blender ).name() + ( isBlending ? "ON"s : "OFF"s ) +
+               ( factors_in ? "#f"s + std::to_string( *factors_in ) : "" );
     }
 
-    void SetFactors ( float factor )
+    void SetFactors( float factor )
     {
         if ( _factors )
         {
-            _factors->fill ( factor );
+            _factors->fill( factor );
         }
     }
 
-    float GetFactor ()
+    float GetFactor()
     {
         if ( _factors )
         {
-            return _factors->front ();
+            return _factors->front();
         }
         else
         {
@@ -88,9 +88,9 @@ class Blender : public Bindable
         }
     }
 
-    std::string GetUID () const noexcept override
+    std::string GetUID() const noexcept override
     {
-        return GenerateUID ( _isBlending, _factors ? _factors->front () : std::optional<float>{} );
+        return GenerateUID( _isBlending, _factors ? _factors->front() : std::optional<float>{} );
     }
 };
 } // namespace Bind

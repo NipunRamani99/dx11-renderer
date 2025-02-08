@@ -32,44 +32,42 @@ class Mouse
         int y;
 
       public:
-        Event () noexcept : type ( Type::Invalid ), leftIsPressed ( false ), rightIsPressed ( false ), x ( 0 ), y ( 0 )
+        Event() noexcept : type( Type::Invalid ), leftIsPressed( false ), rightIsPressed( false ), x( 0 ), y( 0 ) {}
+        Event( Type type, const Mouse& parent ) noexcept
+            : type( type ), leftIsPressed( parent.leftIsPressed ), rightIsPressed( parent.rightIsPressed ),
+              x( parent.x ), y( parent.y )
         {
         }
-        Event ( Type type, const Mouse& parent ) noexcept
-            : type ( type ), leftIsPressed ( parent.leftIsPressed ), rightIsPressed ( parent.rightIsPressed ),
-              x ( parent.x ), y ( parent.y )
-        {
-        }
-        bool IsValid () const noexcept
+        bool IsValid() const noexcept
         {
             return type != Type::Invalid;
         }
-        Type GetType () const noexcept
+        Type GetType() const noexcept
         {
             return type;
         }
-        std::pair<int, int> GetPos () const noexcept
+        std::pair<int, int> GetPos() const noexcept
         {
             return { x, y };
         }
-        int GetPosX () const noexcept
+        int GetPosX() const noexcept
         {
             return x;
         }
-        int GetPosY () const noexcept
+        int GetPosY() const noexcept
         {
             return y;
         }
-        bool LeftIsPressed () const noexcept
+        bool LeftIsPressed() const noexcept
         {
             return leftIsPressed;
         }
-        bool RightIsPressed () const noexcept
+        bool RightIsPressed() const noexcept
         {
             return rightIsPressed;
         }
 
-        const std::string ToString () const
+        const std::string ToString() const
         {
             std::string eventStr = "";
             switch ( type )
@@ -109,7 +107,7 @@ class Mouse
                 break;
             }
 
-            eventStr += " X: " + std::to_string ( x ) + " Y: " + std::to_string ( y );
+            eventStr += " X: " + std::to_string( x ) + " Y: " + std::to_string( y );
             return eventStr;
         }
     };
@@ -121,21 +119,21 @@ class Mouse
         int y = 0;
 
       public:
-        RawInputEvent ( int x, int y ) : x ( x ), y ( y ) {}
+        RawInputEvent( int x, int y ) : x( x ), y( y ) {}
 
-        long GetDeltaX () noexcept
+        long GetDeltaX() noexcept
         {
             return x;
         }
 
-        long GetDeltaY () noexcept
+        long GetDeltaY() noexcept
         {
             return y;
         }
 
-        const std::string ToString ()
+        const std::string ToString()
         {
-            return "Mouse Delta X: " + std::to_string ( x ) + " Y:" + std::to_string ( y );
+            return "Mouse Delta X: " + std::to_string( x ) + " Y:" + std::to_string( y );
         }
     };
 
@@ -151,40 +149,40 @@ class Mouse
     std::queue<RawInputEvent> rawBuffer;
 
   public:
-    Mouse ()                          = default;
-    Mouse ( const Mouse& )            = delete;
-    Mouse& operator= ( const Mouse& ) = delete;
-    std::pair<int, int> GetPos () const noexcept;
-    int GetPosX () const noexcept;
-    int GetPosY () const noexcept;
-    bool IsInWindow () const noexcept;
-    bool LeftIsPressed () const noexcept;
-    bool RightIsPressed () const noexcept;
-    Mouse::Event Read () noexcept;
-    std::optional<RawInputEvent> ReadRaw () noexcept;
-    bool IsEmpty () const noexcept
+    Mouse()                          = default;
+    Mouse( const Mouse& )            = delete;
+    Mouse& operator=( const Mouse& ) = delete;
+    std::pair<int, int> GetPos() const noexcept;
+    int GetPosX() const noexcept;
+    int GetPosY() const noexcept;
+    bool IsInWindow() const noexcept;
+    bool LeftIsPressed() const noexcept;
+    bool RightIsPressed() const noexcept;
+    Mouse::Event Read() noexcept;
+    std::optional<RawInputEvent> ReadRaw() noexcept;
+    bool IsEmpty() const noexcept
     {
-        return buffer.empty ();
+        return buffer.empty();
     }
-    void Flush () noexcept;
+    void Flush() noexcept;
 
-    const std::queue<Event>& GetEventBuffer ()
+    const std::queue<Event>& GetEventBuffer()
     {
         return buffer;
     }
 
   private:
-    void OnMouseMove ( int x, int y ) noexcept;
-    void OnMouseLeave () noexcept;
-    void OnMouseEnter () noexcept;
-    void OnLeftPressed ( int, int ) noexcept;
-    void OnLeftReleased ( int, int ) noexcept;
-    void OnRightPressed ( int, int ) noexcept;
-    void OnRightReleased ( int, int ) noexcept;
-    void OnWheelUp ( int, int ) noexcept;
-    void OnWheelDown ( int, int ) noexcept;
-    void OnMouseRawInput ( int dx, int dy ) noexcept;
-    void TrimBuffer () noexcept;
-    void TrimRawBuffer () noexcept;
-    void OnWheelDelta ( int x, int y, int delta ) noexcept;
+    void OnMouseMove( int x, int y ) noexcept;
+    void OnMouseLeave() noexcept;
+    void OnMouseEnter() noexcept;
+    void OnLeftPressed( int, int ) noexcept;
+    void OnLeftReleased( int, int ) noexcept;
+    void OnRightPressed( int, int ) noexcept;
+    void OnRightReleased( int, int ) noexcept;
+    void OnWheelUp( int, int ) noexcept;
+    void OnWheelDown( int, int ) noexcept;
+    void OnMouseRawInput( int dx, int dy ) noexcept;
+    void TrimBuffer() noexcept;
+    void TrimRawBuffer() noexcept;
+    void OnWheelDelta( int x, int y, int delta ) noexcept;
 };

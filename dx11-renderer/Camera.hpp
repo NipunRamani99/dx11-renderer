@@ -13,8 +13,8 @@ class Camera
     float roll  = 0.0f;
 
   public:
-    DirectX::XMMATRIX GetMatrix () const noexcept;
-    DirectX::XMFLOAT3 GetPos () const noexcept;
-    void SpawnControl () noexcept;
-    void Reset () noexcept;
+    DirectX::XMMATRIX GetMatrix() const noexcept;
+    DirectX::XMFLOAT3 GetPos() const noexcept;
+    void SpawnControl() noexcept;
+    void Reset() noexcept;
 };

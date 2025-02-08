@@ -39,20 +39,20 @@ class Graphics
       public:
         using Exception::Exception;
 
-        HrException ( int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs = {} ) noexcept;
-        const char* what () const noexcept override;
-        const char* GetType () const noexcept override;
-        HRESULT GetErrorCode () const noexcept;
-        std::string GetErrorString () const noexcept;
-        std::string GetErrorDescription () const noexcept;
+        HrException( int line, const char* file, HRESULT hr, std::vector<std::string> infoMsgs = {} ) noexcept;
+        const char* what() const noexcept override;
+        const char* GetType() const noexcept override;
+        HRESULT GetErrorCode() const noexcept;
+        std::string GetErrorString() const noexcept;
+        std::string GetErrorDescription() const noexcept;
     };
     class InfoException : public Exception
     {
       public:
-        InfoException ( int line, const char* file, std::vector<std::string> infoMsgs ) noexcept;
-        const char* what () const noexcept override;
-        const char* GetType () const noexcept override;
-        std::string GetErrorInfo () const noexcept;
+        InfoException( int line, const char* file, std::vector<std::string> infoMsgs ) noexcept;
+        const char* what() const noexcept override;
+        const char* GetType() const noexcept override;
+        std::string GetErrorInfo() const noexcept;
 
       private:
         std::string info;
@@ -65,23 +65,23 @@ class Graphics
         std::string reason;
 
       public:
-        const char* GetType () const noexcept override;
+        const char* GetType() const noexcept override;
     };
 
   public:
-    Graphics ( HWND hwnd );
-    Graphics ( const Graphics& )            = delete;
-    Graphics& operator= ( const Graphics& ) = delete;
-    ~Graphics ();
-    void EndFrame ();
-    void BeginFrame ( float red, float green, float blue ) noexcept;
-    void DrawIndexed ( UINT count ) noexcept ( !IS_DEBUG );
-    void SetProjection ( DirectX::FXMMATRIX proj ) noexcept;
-    DirectX::XMMATRIX GetProjection () const noexcept;
+    Graphics( HWND hwnd );
+    Graphics( const Graphics& )            = delete;
+    Graphics& operator=( const Graphics& ) = delete;
+    ~Graphics();
+    void EndFrame();
+    void BeginFrame( float red, float green, float blue ) noexcept;
+    void DrawIndexed( UINT count ) noexcept( !IS_DEBUG );
+    void SetProjection( DirectX::FXMMATRIX proj ) noexcept;
+    DirectX::XMMATRIX GetProjection() const noexcept;
 
-    void EnableImgui () noexcept;
-    void DisableImgui () noexcept;
-    bool IsImguiEnabled () const noexcept;
-    void SetCamera ( DirectX::XMMATRIX camera ) noexcept;
-    DirectX::XMMATRIX GetCamera () const noexcept;
+    void EnableImgui() noexcept;
+    void DisableImgui() noexcept;
+    bool IsImguiEnabled() const noexcept;
+    void SetCamera( DirectX::XMMATRIX camera ) noexcept;
+    DirectX::XMMATRIX GetCamera() const noexcept;
 };

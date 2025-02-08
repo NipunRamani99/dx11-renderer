@@ -12,7 +12,7 @@ using std::min;
 ULONG_PTR GDIPlusManager::token = 0;
 int GDIPlusManager::refCount    = 0;
 
-GDIPlusManager::GDIPlusManager ()
+GDIPlusManager::GDIPlusManager()
 {
     if ( refCount++ == 0 )
     {
@@ -20,15 +20,15 @@ GDIPlusManager::GDIPlusManager ()
         input.GdiplusVersion           = 1;
         input.DebugEventCallback       = nullptr;
         input.SuppressBackgroundThread = false;
-        Gdiplus::GdiplusStartup ( &token, &input, nullptr );
+        Gdiplus::GdiplusStartup( &token, &input, nullptr );
     }
 }
 
-GDIPlusManager::~GDIPlusManager ()
+GDIPlusManager::~GDIPlusManager()
 {
     --refCount;
     if ( refCount == 0 )
     {
-        Gdiplus::GdiplusShutdown ( token );
+        Gdiplus::GdiplusShutdown( token );
     }
 }

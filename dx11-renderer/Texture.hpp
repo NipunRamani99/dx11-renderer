@@ -13,28 +13,28 @@ class Texture : public Bindable
     bool hasAlpha            = false;
 
   public:
-    Texture ( Graphics& gfx, const std::string& path, const unsigned int slot );
+    Texture( Graphics& gfx, const std::string& path, const unsigned int slot );
 
-    void Bind ( Graphics& gfx ) noexcept override;
+    void Bind( Graphics& gfx ) noexcept override;
 
-    static std::shared_ptr<Texture> Resolve ( Graphics& gfx, const std::string& path, const unsigned int slot )
+    static std::shared_ptr<Texture> Resolve( Graphics& gfx, const std::string& path, const unsigned int slot )
     {
-        return Codex::Get ().Resolve<Texture> ( gfx, path, slot );
+        return Codex::Get().Resolve<Texture>( gfx, path, slot );
     }
 
-    static const std::string GenerateUID ( const std::string& path, const unsigned int slot )
-    {
-        using namespace std::string_literals;
-        return path + "#"s + std::to_string ( slot );
-    }
-
-    std::string GetUID () const noexcept override
+    static const std::string GenerateUID( const std::string& path, const unsigned int slot )
     {
         using namespace std::string_literals;
-        return _path + "#"s + std::to_string ( _slot );
+        return path + "#"s + std::to_string( slot );
     }
 
-    const bool HasAlpha () const noexcept
+    std::string GetUID() const noexcept override
+    {
+        using namespace std::string_literals;
+        return _path + "#"s + std::to_string( _slot );
+    }
+
+    const bool HasAlpha() const noexcept
     {
         return hasAlpha;
     }

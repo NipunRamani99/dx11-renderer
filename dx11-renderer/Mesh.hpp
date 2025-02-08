@@ -24,20 +24,20 @@ class Mesh : public Drawable
     std::string _shaderName = "";
 
   public:
-    Mesh ( Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh,
-           std::vector<tinybvh::bvhvec4>& vertices, const AABB& aabb = AABB (), std::string name = "",
-           std::string shaderName = "" );
-    Mesh ( Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB& aabb = AABB (),
-           std::string name = "", std::string shaderName = "" );
-    void Update ( float ) noexcept;
-    void Draw ( Graphics& gfx, DirectX::XMMATRIX accumulatedTransform ) noexcept;
-    void DrawAABB ( Graphics& gfx, DirectX::XMMATRIX accumulatedTransform ) noexcept;
-    DirectX::XMMATRIX GetTransformXM () const noexcept override;
-    void SetAABB ( AABB aabb );
-    const AABB& getAABB () const;
-    void SetBVH ( std::unique_ptr<tinybvh::BVH> bvh );
-    const tinybvh::BVH& GetBVH ();
-    const std::string GetShaderName () const noexcept
+    Mesh( Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh,
+          std::vector<tinybvh::bvhvec4>& vertices, const AABB& aabb = AABB(), std::string name = "",
+          std::string shaderName = "" );
+    Mesh( Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, const AABB& aabb = AABB(),
+          std::string name = "", std::string shaderName = "" );
+    void Update( float ) noexcept;
+    void Draw( Graphics& gfx, DirectX::XMMATRIX accumulatedTransform ) noexcept;
+    void DrawAABB( Graphics& gfx, DirectX::XMMATRIX accumulatedTransform ) noexcept;
+    DirectX::XMMATRIX GetTransformXM() const noexcept override;
+    void SetAABB( AABB aabb );
+    const AABB& getAABB() const;
+    void SetBVH( std::unique_ptr<tinybvh::BVH> bvh );
+    const tinybvh::BVH& GetBVH();
+    const std::string GetShaderName() const noexcept
     {
         return _shaderName;
     }
@@ -71,73 +71,73 @@ class Node
   public:
     struct ObjectData
     {
-        alignas ( 16 ) DirectX::XMFLOAT3 material = { 0.447970f, 0.327254f, 0.176283f };
-        float specularIntensity                   = 0.60f;
-        float specularPower                       = 120.0f;
+        alignas( 16 ) DirectX::XMFLOAT3 material = { 0.447970f, 0.327254f, 0.176283f };
+        float specularIntensity                  = 0.60f;
+        float specularPower                      = 120.0f;
     };
 
     struct NormalData
     {
-        alignas ( 16 ) BOOL hasNormalMap = TRUE;
-        BOOL hasSpecularMap              = TRUE;
-        BOOL negateXAndY                 = FALSE;
-        BOOL hasGloss                    = FALSE;
-        DirectX::XMFLOAT3 specularColor  = { 0.75f, 0.75f, 0.75f };
-        float specularMapWeight          = 1.0f;
+        alignas( 16 ) BOOL hasNormalMap = TRUE;
+        BOOL hasSpecularMap             = TRUE;
+        BOOL negateXAndY                = FALSE;
+        BOOL hasGloss                   = FALSE;
+        DirectX::XMFLOAT3 specularColor = { 0.75f, 0.75f, 0.75f };
+        float specularMapWeight         = 1.0f;
     };
 
   public:
-    Node ( int id, std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX& transform );
-    void AddNode ( std::unique_ptr<Node> node );
-    void Draw ( Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform );
-    void DrawAABB ( Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform );
-    void ShowWindow ( Graphics& gfx, Node*& selectedNode, std::string windowName = "model" ) const;
-    void SetAppliedTransform ( DirectX::FXMMATRIX appliedTransform );
-    void IntersectNode ( const DirectX::XMMATRIX& accumulatedTransform, const tinybvh::Ray& rayWorld,
-                         IntersectionResult& closestHit );
-    std::string GetName () const;
-    int GetId () const;
-    const std::vector<Mesh*> GetMeshes () const noexcept
+    Node( int id, std::string name, std::vector<Mesh*> mesh, DirectX::FXMMATRIX& transform );
+    void AddNode( std::unique_ptr<Node> node );
+    void Draw( Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform );
+    void DrawAABB( Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform );
+    void ShowWindow( Graphics& gfx, Node*& selectedNode, std::string windowName = "model" ) const;
+    void SetAppliedTransform( DirectX::FXMMATRIX appliedTransform );
+    void IntersectNode( const DirectX::XMMATRIX& accumulatedTransform, const tinybvh::Ray& rayWorld,
+                        IntersectionResult& closestHit );
+    std::string GetName() const;
+    int GetId() const;
+    const std::vector<Mesh*> GetMeshes() const noexcept
     {
         return _mesh;
     }
-    DirectX::XMFLOAT4X4 GetAppliedTransform () const noexcept
+    DirectX::XMFLOAT4X4 GetAppliedTransform() const noexcept
     {
         return _appliedtransform;
     }
 
-    template <typename T> bool Control ( Graphics& gfx, T& c )
+    template <typename T> bool Control( Graphics& gfx, T& c )
     {
         bool retn = false;
-        if ( _mesh.empty () )
+        if ( _mesh.empty() )
         {
             return false;
         }
         if constexpr ( std::is_same<T, NormalData>::value )
         {
-            if ( Bind::PixelConstantBuffer<T>* pcb = _mesh.front ()->QueryBindable<Bind::PixelConstantBuffer<T>> () )
+            if ( Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>() )
             {
-                ImGui::Text ( "Material" );
+                ImGui::Text( "Material" );
                 bool hasNormalMap = (bool)c.hasNormalMap;
-                ImGui::Checkbox ( "Norm Map", &hasNormalMap );
+                ImGui::Checkbox( "Norm Map", &hasNormalMap );
                 c.hasNormalMap   = hasNormalMap ? TRUE : FALSE;
 
                 bool negateXAndY = (bool)c.negateXAndY;
-                ImGui::Checkbox ( "Negate Normal Map X and Y: ", &negateXAndY );
+                ImGui::Checkbox( "Negate Normal Map X and Y: ", &negateXAndY );
                 c.negateXAndY = negateXAndY ? TRUE : FALSE;
-                pcb->Update ( gfx, c );
+                pcb->Update( gfx, c );
                 retn = true;
             }
         }
         if constexpr ( std::is_same<T, ObjectData>::value )
         {
-            if ( Bind::PixelConstantBuffer<T>* pcb = _mesh.front ()->QueryBindable<Bind::PixelConstantBuffer<T>> () )
+            if ( Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>() )
             {
-                ImGui::Text ( "Material" );
+                ImGui::Text( "Material" );
 
-                ImGui::ColorPicker3 ( "Material: ", reinterpret_cast<float*> ( &c.material ) );
+                ImGui::ColorPicker3( "Material: ", reinterpret_cast<float*>( &c.material ) );
 
-                pcb->Update ( gfx, c );
+                pcb->Update( gfx, c );
                 retn = true;
             }
         }
@@ -153,24 +153,24 @@ class Model
     std::unique_ptr<Node> _root;
     std::string _name = "Sample Text";
     std::unique_ptr<ModelWindow> _pwindow;
-    std::unique_ptr<Mesh> ParseMesh ( Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials, float scale );
-    DirectX::XMMATRIX ConvertToMatrix ( const aiMatrix4x4& mat );
-    std::unique_ptr<Node> ParseNode ( int& nextId, const aiNode& node );
+    std::unique_ptr<Mesh> ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMaterial* const* materials, float scale );
+    DirectX::XMMATRIX ConvertToMatrix( const aiMatrix4x4& mat );
+    std::unique_ptr<Node> ParseNode( int& nextId, const aiNode& node );
     std::string _assetLocation = "";
     std::string _assetDir      = "";
 
   public:
-    Model ( Graphics& gfx, const std::string modelPath, float scale = 1.0f );
-    void Draw ( Graphics& gfx );
-    void DrawAABB ( Graphics& gfx );
-    void ShowWindow ( Graphics& gfx, std::string windowName = "model" );
-    void Transform ( DirectX::FXMMATRIX& transform )
+    Model( Graphics& gfx, const std::string modelPath, float scale = 1.0f );
+    void Draw( Graphics& gfx );
+    void DrawAABB( Graphics& gfx );
+    void ShowWindow( Graphics& gfx, std::string windowName = "model" );
+    void Transform( DirectX::FXMMATRIX& transform )
     {
-        auto nodeTransform = DirectX::XMLoadFloat4x4 ( &_root->_appliedtransform );
-        nodeTransform      = DirectX::XMMatrixMultiply ( transform, nodeTransform );
-        DirectX::XMStoreFloat4x4 ( &_root->_appliedtransform, nodeTransform );
+        auto nodeTransform = DirectX::XMLoadFloat4x4( &_root->_appliedtransform );
+        nodeTransform      = DirectX::XMMatrixMultiply( transform, nodeTransform );
+        DirectX::XMStoreFloat4x4( &_root->_appliedtransform, nodeTransform );
     }
-    IntersectionResult IntersectMesh ( const DirectX::XMFLOAT3 rayOriginWorld,
-                                       const DirectX::XMFLOAT3 rayDirectionWorld );
-    ~Model ();
+    IntersectionResult IntersectMesh( const DirectX::XMFLOAT3 rayOriginWorld,
+                                      const DirectX::XMFLOAT3 rayDirectionWorld );
+    ~Model();
 };

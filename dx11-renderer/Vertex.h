@@ -106,51 +106,51 @@ class VertexLayout
         ElementType _elementType;
 
       public:
-        Element ( ElementType elementType, size_type offset );
+        Element( ElementType elementType, size_type offset );
 
-        size_type GetOffsetAfter () const;
+        size_type GetOffsetAfter() const;
 
-        size_type GetOffset () const;
+        size_type GetOffset() const;
 
-        size_type Size () const;
+        size_type Size() const;
 
-        const size_type sizeOf ( ElementType type ) const;
+        const size_type sizeOf( ElementType type ) const;
 
-        const ElementType GetType () const;
+        const ElementType GetType() const;
 
-        template <ElementType type> const D3D11_INPUT_ELEMENT_DESC GenerateDesc ( size_t offset ) const
+        template <ElementType type> const D3D11_INPUT_ELEMENT_DESC GenerateDesc( size_t offset ) const
         {
             return { Map<type>::semantic, 0, Map<type>::dxgiFormat, 0, (UINT)offset, D3D11_INPUT_PER_VERTEX_DATA, 0 };
         }
 
-        const D3D11_INPUT_ELEMENT_DESC GetDesc () const
+        const D3D11_INPUT_ELEMENT_DESC GetDesc() const
         {
             switch ( _elementType )
             {
             case Position2D:
-                return GenerateDesc<Position2D> ( _offset );
+                return GenerateDesc<Position2D>( _offset );
             case Position3D:
-                return GenerateDesc<Position3D> ( _offset );
+                return GenerateDesc<Position3D>( _offset );
             case Texture2D:
-                return GenerateDesc<Texture2D> ( _offset );
+                return GenerateDesc<Texture2D>( _offset );
             case Normal:
-                return GenerateDesc<Normal> ( _offset );
+                return GenerateDesc<Normal>( _offset );
             case Tangent:
-                return GenerateDesc<Tangent> ( _offset );
+                return GenerateDesc<Tangent>( _offset );
             case BiTangent:
-                return GenerateDesc<BiTangent> ( _offset );
+                return GenerateDesc<BiTangent>( _offset );
             case Float3Color:
-                return GenerateDesc<Float3Color> ( _offset );
+                return GenerateDesc<Float3Color>( _offset );
             case Float4Color:
-                return GenerateDesc<Float4Color> ( _offset );
+                return GenerateDesc<Float4Color>( _offset );
             case BGRAColor:
-                return GenerateDesc<BGRAColor> ( _offset );
+                return GenerateDesc<BGRAColor>( _offset );
             }
-            assert ( "Invalid Element Type" );
+            assert( "Invalid Element Type" );
             return { "INVALID", 0, DXGI_FORMAT_UNKNOWN, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
         }
 
-        const char* GetCode () const noexcept
+        const char* GetCode() const noexcept
         {
             switch ( _elementType )
             {
@@ -173,7 +173,7 @@ class VertexLayout
             case BGRAColor:
                 return Map<BGRAColor>::code;
             }
-            assert ( "Invalid element type" && false );
+            assert( "Invalid element type" && false );
             return "Invalid";
         }
     };
@@ -182,60 +182,60 @@ class VertexLayout
     std::vector<Element> _elements;
 
   public:
-    template <ElementType elementType> VertexLayout& Append ()
+    template <ElementType elementType> VertexLayout& Append()
     {
-        Element::size_type nextOffset = _elements.size () == 0 ? 0 : _elements.back ().GetOffsetAfter ();
-        _elements.emplace_back ( elementType, nextOffset );
+        Element::size_type nextOffset = _elements.size() == 0 ? 0 : _elements.back().GetOffsetAfter();
+        _elements.emplace_back( elementType, nextOffset );
         return *this;
     }
-    VertexLayout& Append ( ElementType elementType )
+    VertexLayout& Append( ElementType elementType )
     {
-        Element::size_type nextOffset = _elements.size () == 0 ? 0 : _elements.back ().GetOffsetAfter ();
-        _elements.emplace_back ( elementType, nextOffset );
+        Element::size_type nextOffset = _elements.size() == 0 ? 0 : _elements.back().GetOffsetAfter();
+        _elements.emplace_back( elementType, nextOffset );
         return *this;
     }
 
-    template <ElementType elementType> Element& Resolve ()
+    template <ElementType elementType> Element& Resolve()
     {
         for ( auto& e : _elements )
         {
-            if ( elementType == e.GetType () )
+            if ( elementType == e.GetType() )
             {
                 return e;
             }
         }
-        assert ( "Could not resolve element type" && false );
-        return _elements.front ();
+        assert( "Could not resolve element type" && false );
+        return _elements.front();
     }
 
-    Element& ResolveByIndex ( size_t i );
+    Element& ResolveByIndex( size_t i );
 
-    Element::size_type Size () const;
+    Element::size_type Size() const;
 
-    const std::vector<Element>& getElements () const;
+    const std::vector<Element>& getElements() const;
 
-    const size_t GetElementsCount () const
+    const size_t GetElementsCount() const
     {
-        return _elements.size ();
+        return _elements.size();
     }
 
-    const std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout () const
+    const std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() const
     {
         std::vector<D3D11_INPUT_ELEMENT_DESC> layout;
-        layout.reserve ( _elements.size () );
+        layout.reserve( _elements.size() );
         for ( auto e : _elements )
         {
-            layout.push_back ( e.GetDesc () );
+            layout.push_back( e.GetDesc() );
         }
         return layout;
     }
 
-    const std::string GetCode () const
+    const std::string GetCode() const
     {
         std::string code = "";
         for ( auto e : _elements )
         {
-            code += e.GetCode ();
+            code += e.GetCode();
         }
         return code;
     }
@@ -249,25 +249,25 @@ class Vertex
     friend class VertexBuffer;
 
   public:
-    Vertex ( VertexLayout& layout, std::uint8_t* data ) : _pdata ( data ), _layout ( layout )
+    Vertex( VertexLayout& layout, std::uint8_t* data ) : _pdata( data ), _layout( layout )
     {
-        assert ( data != nullptr );
+        assert( data != nullptr );
     }
 
-    template <VertexLayout::ElementType elementType> auto& Attr ()
+    template <VertexLayout::ElementType elementType> auto& Attr()
     {
         using namespace DirectX;
-        VertexLayout::Element& elem = _layout.Resolve<elementType> ();
-        std::uint8_t* pattr         = elem.GetOffset () + _pdata;
-        return *reinterpret_cast<VertexLayout::Map<elementType>::SysType*> ( pattr );
+        VertexLayout::Element& elem = _layout.Resolve<elementType>();
+        std::uint8_t* pattr         = elem.GetOffset() + _pdata;
+        return *reinterpret_cast<VertexLayout::Map<elementType>::SysType*>( pattr );
     }
 
-    template <typename T> void SetAttributeByIndex ( size_t i, T&& val )
+    template <typename T> void SetAttributeByIndex( size_t i, T&& val )
     {
         using namespace DirectX;
-        const auto& element = _layout.ResolveByIndex ( i );
-        auto pattr          = _pdata + element.GetOffset ();
-        auto type           = element.GetType ();
+        const auto& element = _layout.ResolveByIndex( i );
+        auto pattr          = _pdata + element.GetOffset();
+        auto type           = element.GetType();
         switch ( type )
         {
         case VertexLayout::ElementType::Position3D:
@@ -275,38 +275,38 @@ class Vertex
         case VertexLayout::ElementType::Normal:
         case VertexLayout::ElementType::Tangent:
         case VertexLayout::ElementType::BiTangent:
-            SetAttribute<XMFLOAT3> ( pattr, std::forward<T> ( val ) );
+            SetAttribute<XMFLOAT3>( pattr, std::forward<T>( val ) );
             break;
         case VertexLayout::ElementType::Position2D:
         case VertexLayout::ElementType::Texture2D:
-            SetAttribute<XMFLOAT2> ( pattr, std::forward<T> ( val ) );
+            SetAttribute<XMFLOAT2>( pattr, std::forward<T>( val ) );
             break;
         case VertexLayout::ElementType::Float4Color:
-            SetAttribute<XMFLOAT4> ( pattr, std::forward<T> ( val ) );
+            SetAttribute<XMFLOAT4>( pattr, std::forward<T>( val ) );
             break;
         case VertexLayout::ElementType::BGRAColor:
-            SetAttribute<unsigned int*> ( pattr, std::forward<T> ( val ) );
+            SetAttribute<unsigned int*>( pattr, std::forward<T>( val ) );
             break;
         default:
-            assert ( "SetAttributeByIndex failed with incorrect element type" && false );
+            assert( "SetAttributeByIndex failed with incorrect element type" && false );
         }
     }
 
-    template <typename First, typename... Rest> void SetAttributeByIndex ( size_t i, First&& first, Rest&&... rest )
+    template <typename First, typename... Rest> void SetAttributeByIndex( size_t i, First&& first, Rest&&... rest )
     {
-        SetAttributeByIndex ( i, std::forward<First> ( first ) );
-        SetAttributeByIndex ( i + 1, std::forward<Rest> ( rest )... );
+        SetAttributeByIndex( i, std::forward<First>( first ) );
+        SetAttributeByIndex( i + 1, std::forward<Rest>( rest )... );
     }
 
-    template <typename Dest, typename Source> void SetAttribute ( std::uint8_t* pDest, Source&& val )
+    template <typename Dest, typename Source> void SetAttribute( std::uint8_t* pDest, Source&& val )
     {
         if constexpr ( std::is_assignable<Source, Dest>::value )
         {
-            *reinterpret_cast<Dest*> ( pDest ) = val;
+            *reinterpret_cast<Dest*>( pDest ) = val;
         }
         else
         {
-            assert ( "The parameter type Source is not assignable to type Dest." && false );
+            assert( "The parameter type Source is not assignable to type Dest." && false );
         }
     }
 };
@@ -317,11 +317,11 @@ class ConstVertex
     Vertex _vertex;
 
   public:
-    ConstVertex ( const Vertex& vertex ) : _vertex ( vertex ) {}
+    ConstVertex( const Vertex& vertex ) : _vertex( vertex ) {}
 
-    template <VertexLayout::ElementType elementType> const auto& Attr () const
+    template <VertexLayout::ElementType elementType> const auto& Attr() const
     {
-        return const_cast<Vertex&> ( _vertex ).Attr<elementType> ();
+        return const_cast<Vertex&>( _vertex ).Attr<elementType>();
     }
 };
 
@@ -332,32 +332,32 @@ class VertexBuffer
     VertexLayout _layout;
 
   public:
-    VertexBuffer ( VertexLayout vertexLayout );
+    VertexBuffer( VertexLayout vertexLayout );
 
-    const VertexLayout& GetVertexLayout () const;
+    const VertexLayout& GetVertexLayout() const;
 
-    size_t Size () const;
+    size_t Size() const;
 
-    const std::uint8_t* GetData () const;
+    const std::uint8_t* GetData() const;
 
-    template <typename... Params> void EmplaceBack ( Params&&... params )
+    template <typename... Params> void EmplaceBack( Params&&... params )
     {
-        assert ( sizeof...( params ) == _layout.GetElementsCount () &&
-                 "Param count doesn't match number of vertex elements" );
-        _data.resize ( _data.size () + _layout.Size () );
-        Back ().SetAttributeByIndex ( 0u, std::forward<Params> ( params )... );
+        assert( sizeof...( params ) == _layout.GetElementsCount() &&
+                "Param count doesn't match number of vertex elements" );
+        _data.resize( _data.size() + _layout.Size() );
+        Back().SetAttributeByIndex( 0u, std::forward<Params>( params )... );
     }
 
-    Vertex Back ();
+    Vertex Back();
 
-    Vertex Front ();
+    Vertex Front();
 
-    Vertex operator[] ( size_t i );
+    Vertex operator[]( size_t i );
 
-    ConstVertex Back () const;
+    ConstVertex Back() const;
 
-    ConstVertex Front () const;
+    ConstVertex Front() const;
 
-    ConstVertex operator[] ( size_t i ) const;
+    ConstVertex operator[]( size_t i ) const;
 };
 } // namespace Dvtx

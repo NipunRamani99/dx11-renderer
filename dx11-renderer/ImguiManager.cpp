@@ -1,16 +1,16 @@
 #include "ImguiManager.hpp"
 #include "imgui/imgui.h"
 
-ImguiManager::ImguiManager ()
+ImguiManager::ImguiManager()
 {
-    IMGUI_CHECKVERSION ();
-    ImGui::CreateContext ();
-    ImGui::StyleColorsDark ();
-    ImGuiIO& io = ImGui::GetIO ();
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
-ImguiManager::~ImguiManager ()
+ImguiManager::~ImguiManager()
 {
-    ImGui::DestroyContext ();
+    ImGui::DestroyContext();
 }
