@@ -33,7 +33,7 @@ bool Mouse::RightIsPressed() const noexcept
 
 Mouse::Event Mouse::Read() noexcept
 {
-    if ( buffer.size() > 0u )
+    if( buffer.size() > 0u )
     {
         Mouse::Event e = buffer.front();
         buffer.pop();
@@ -47,7 +47,7 @@ Mouse::Event Mouse::Read() noexcept
 
 std::optional<Mouse::RawInputEvent> Mouse::ReadRaw() noexcept
 {
-    if ( rawBuffer.size() > 0u )
+    if( rawBuffer.size() > 0u )
     {
         RawInputEvent rawevent = rawBuffer.front();
         rawBuffer.pop();
@@ -140,7 +140,7 @@ void Mouse::OnMouseRawInput( int dx, int dy ) noexcept
 
 void Mouse::TrimBuffer() noexcept
 {
-    while ( buffer.size() > bufferSize )
+    while( buffer.size() > bufferSize )
     {
         buffer.pop();
     }
@@ -148,7 +148,7 @@ void Mouse::TrimBuffer() noexcept
 
 void Mouse::TrimRawBuffer() noexcept
 {
-    while ( rawBuffer.size() > bufferSize )
+    while( rawBuffer.size() > bufferSize )
     {
         rawBuffer.pop();
     }
@@ -158,12 +158,12 @@ void Mouse::OnWheelDelta( int px, int py, int delta ) noexcept
 {
     wheelDeltaCarry += delta;
     // generate events for every 120
-    while ( wheelDeltaCarry >= WHEEL_DELTA )
+    while( wheelDeltaCarry >= WHEEL_DELTA )
     {
         wheelDeltaCarry -= WHEEL_DELTA;
         OnWheelUp( px, py );
     }
-    while ( wheelDeltaCarry <= -WHEEL_DELTA )
+    while( wheelDeltaCarry <= -WHEEL_DELTA )
     {
         wheelDeltaCarry += WHEEL_DELTA;
         OnWheelDown( px, py );

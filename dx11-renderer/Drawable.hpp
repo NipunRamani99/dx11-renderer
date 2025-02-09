@@ -15,9 +15,9 @@ class Drawable
   public:
     template <class T> T* QueryBindable() noexcept
     {
-        for ( auto& pb : binds )
+        for( auto& pb : binds )
         {
-            if ( auto pt = dynamic_cast<T*>( pb.get() ) )
+            if( auto pt = dynamic_cast<T*>( pb.get() ) )
             {
                 return pt;
             }

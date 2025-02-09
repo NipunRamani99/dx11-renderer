@@ -15,7 +15,7 @@ void TransformCbufDoubleBoi::UpdateAndBindImpl( Graphics& gfx )
 
 TransformCbufDoubleBoi::TransformCbufDoubleBoi( Graphics& gfx, const Drawable& parent ) : TransformCbuf( gfx, parent )
 {
-    if ( !pPcBuf )
+    if( !pPcBuf )
     {
         pPcBuf = std::make_unique<PixelConstantBuffer<TransformCbuf::Transforms>>( gfx, 3 );
     }

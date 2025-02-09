@@ -17,13 +17,13 @@ Graphics::HrException::HrException( int line, const char* file, HRESULT hr, std:
     : Exception( line, file ), hr( hr )
 {
     // join all info messages with newlines into single string
-    for ( const auto& m : infoMsgs )
+    for( const auto& m : infoMsgs )
     {
         info += m;
         info.push_back( '\n' );
     }
     // remove final newline if exists
-    if ( !info.empty() )
+    if( !info.empty() )
     {
         info.pop_back();
     }
@@ -155,7 +155,7 @@ Graphics::Graphics( HWND hwnd )
 void Graphics::EndFrame()
 {
 
-    if ( imguiEnabled )
+    if( imguiEnabled )
     {
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
@@ -165,9 +165,9 @@ void Graphics::EndFrame()
 #ifndef NDEBUG
     infoManager.Set();
 #endif // !NDEBUG
-    if ( FAILED( hr = pSwap->Present( 1u, 0u ) ) )
+    if( FAILED( hr = pSwap->Present( 1u, 0u ) ) )
     {
-        if ( hr == DXGI_ERROR_DEVICE_REMOVED )
+        if( hr == DXGI_ERROR_DEVICE_REMOVED )
         {
             throw GFX_DEVICE_REMOVED_EXCEPT( pDevice->GetDeviceRemovedReason() );
         }
@@ -184,7 +184,7 @@ void Graphics::BeginFrame( float red, float green, float blue ) noexcept
     pContext->ClearRenderTargetView( pTarget.Get(), color );
     pContext->ClearDepthStencilView( pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u );
 
-    if ( imguiEnabled )
+    if( imguiEnabled )
     {
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
@@ -236,13 +236,13 @@ Graphics::InfoException::InfoException( int line, const char* file, std::vector<
     : Exception( line, file )
 {
     // join all info messages with newlines into single string
-    for ( const auto& m : infoMsgs )
+    for( const auto& m : infoMsgs )
     {
         info += m;
         info.push_back( '\n' );
     }
     // remove final newline if exists
-    if ( !info.empty() )
+    if( !info.empty() )
     {
         info.pop_back();
     }

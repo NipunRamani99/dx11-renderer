@@ -19,7 +19,7 @@ class IndexedTriangleList
     void Transform( DirectX::FXMMATRIX matrix )
     {
         using Elements = Dvtx::VertexLayout::ElementType;
-        for ( size_t i = 0; i < vertices.Size(); i++ )
+        for( size_t i = 0; i < vertices.Size(); i++ )
         {
             auto v                      = vertices[i];
             const DirectX::XMVECTOR pos = DirectX::XMLoadFloat3( &v.Attr<Dvtx::VertexLayout::Position3D>() );

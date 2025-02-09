@@ -23,9 +23,9 @@ class TaskManager
 
         void Run()
         {
-            if ( std::time( nullptr ) > _startTime && !done )
+            if( std::time( nullptr ) > _startTime && !done )
             {
-                if ( _task )
+                if( _task )
                     _task();
                 done = true;
             }
@@ -47,7 +47,7 @@ class TaskManager
         void Run()
         {
 
-            if ( !done )
+            if( !done )
             {
                 _task();
                 done = true;
@@ -71,14 +71,14 @@ class TaskManager
 
     void Run()
     {
-        while ( keepRunning )
+        while( keepRunning )
         {
             std::lock_guard<std::mutex> guard( _mtx );
-            for ( auto& task : _timedTasks )
+            for( auto& task : _timedTasks )
             {
                 task.Run();
             }
-            while ( !_tasks.empty() )
+            while( !_tasks.empty() )
             {
                 auto& task = _tasks.front();
                 task.Run();

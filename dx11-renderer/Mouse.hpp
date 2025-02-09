@@ -70,7 +70,7 @@ class Mouse
         const std::string ToString() const
         {
             std::string eventStr = "";
-            switch ( type )
+            switch( type )
             {
             case Move:
                 eventStr = "MOUSE_MOVE";

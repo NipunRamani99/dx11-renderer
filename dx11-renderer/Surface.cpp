@@ -93,7 +93,7 @@ Surface Surface::FromFile( const std::string& name )
         mbstowcs_s( nullptr, wideName, name.c_str(), _TRUNCATE );
 
         Gdiplus::Bitmap bitmap( wideName );
-        if ( bitmap.GetLastStatus() != Gdiplus::Status::Ok )
+        if( bitmap.GetLastStatus() != Gdiplus::Status::Ok )
         {
             std::stringstream ss;
             ss << "Loading image [" << name << "]: failed to load.";
@@ -103,14 +103,14 @@ Surface Surface::FromFile( const std::string& name )
         height  = bitmap.GetHeight();
         pBuffer = std::make_unique<Color[]>( width * height );
 
-        for ( unsigned int y = 0; y < height; y++ )
+        for( unsigned int y = 0; y < height; y++ )
         {
-            for ( unsigned int x = 0; x < width; x++ )
+            for( unsigned int x = 0; x < width; x++ )
             {
                 Gdiplus::Color c;
                 bitmap.GetPixel( x, y, &c );
                 pBuffer[y * width + x] = c.GetValue();
-                if ( c.GetAlpha() != 255 )
+                if( c.GetAlpha() != 255 )
                 {
                     alphaLoaded = true;
                 }
@@ -130,7 +130,7 @@ void Surface::Save( const std::string& filename ) const
         Gdiplus::ImageCodecInfo* pImageCodecInfo = nullptr;
 
         Gdiplus::GetImageEncodersSize( &num, &size );
-        if ( size == 0 )
+        if( size == 0 )
         {
             std::stringstream ss;
             ss << "Saving surface to [" << filename << "]: failed to get encoder; size == 0.";
@@ -138,7 +138,7 @@ void Surface::Save( const std::string& filename ) const
         }
 
         pImageCodecInfo = (Gdiplus::ImageCodecInfo*)( malloc( size ) );
-        if ( pImageCodecInfo == nullptr )
+        if( pImageCodecInfo == nullptr )
         {
             std::stringstream ss;
             ss << "Saving surface to [" << filename << "]: failed to get encoder; failed to allocate memory.";
@@ -147,9 +147,9 @@ void Surface::Save( const std::string& filename ) const
 
         GetImageEncoders( num, size, pImageCodecInfo );
 
-        for ( UINT j = 0; j < num; ++j )
+        for( UINT j = 0; j < num; ++j )
         {
-            if ( wcscmp( pImageCodecInfo[j].MimeType, format ) == 0 )
+            if( wcscmp( pImageCodecInfo[j].MimeType, format ) == 0 )
             {
                 *pClsid = pImageCodecInfo[j].Clsid;
                 free( pImageCodecInfo );
@@ -171,7 +171,7 @@ void Surface::Save( const std::string& filename ) const
     mbstowcs_s( nullptr, wideName, filename.c_str(), _TRUNCATE );
 
     Gdiplus::Bitmap bitmap( width, height, width * sizeof( Color ), PixelFormat32bppARGB, (BYTE*)pBuffer.get() );
-    if ( bitmap.Save( wideName, &bmpID, nullptr ) != Gdiplus::Status::Ok )
+    if( bitmap.Save( wideName, &bmpID, nullptr ) != Gdiplus::Status::Ok )
     {
         std::stringstream ss;
         ss << "Saving surface to [" << filename << "]: failed to save.";

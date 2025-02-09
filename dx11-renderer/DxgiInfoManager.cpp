@@ -15,7 +15,7 @@ DxgiInfoManager::DxgiInfoManager()
 
     // load the dll that contains the function DXGIGetDebugInterface
     const auto hModDxgiDebug = LoadLibraryEx( "dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32 );
-    if ( hModDxgiDebug == nullptr )
+    if( hModDxgiDebug == nullptr )
     {
         throw HWND_LAST_EXCEPT();
     }
@@ -23,7 +23,7 @@ DxgiInfoManager::DxgiInfoManager()
     // get address of DXGIGetDebugInterface in dll
     const auto DxgiGetDebugInterface = reinterpret_cast<DXGIGetDebugInterface>(
         reinterpret_cast<void*>( GetProcAddress( hModDxgiDebug, "DXGIGetDebugInterface" ) ) );
-    if ( DxgiGetDebugInterface == nullptr )
+    if( DxgiGetDebugInterface == nullptr )
     {
         throw HWND_LAST_EXCEPT();
     }
@@ -43,7 +43,7 @@ std::vector<std::string> DxgiInfoManager::GetMessages() const
 {
     std::vector<std::string> messages;
     const auto end = pDxgiInfoQueue->GetNumStoredMessages( DXGI_DEBUG_ALL );
-    for ( auto i = next; i < end; i++ )
+    for( auto i = next; i < end; i++ )
     {
         HRESULT hr;
         SIZE_T messageLength;

@@ -87,7 +87,7 @@ VertexLayout::Element::size_type VertexLayout::Element::Size() const
 const VertexLayout::Element::size_type VertexLayout::Element::sizeOf( ElementType type ) const
 {
     using namespace DirectX;
-    switch ( type )
+    switch( type )
     {
     case Position3D:
     case Float3Color:

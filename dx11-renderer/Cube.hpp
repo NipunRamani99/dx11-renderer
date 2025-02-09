@@ -76,7 +76,7 @@ class Cube
         vbuf.EmplaceBack( dx::XMFLOAT3{ aabb.max.x, aabb.max.y, aabb.min.z } );
         std::vector<dx::XMFLOAT3> vertices;
         vertices.resize( 8 );
-        for ( size_t i = 0; i < vbuf.Size(); i++ )
+        for( size_t i = 0; i < vbuf.Size(); i++ )
         {
             vertices[i] = vbuf[i].Attr<Dvtx::VertexLayout::Position3D>();
         }

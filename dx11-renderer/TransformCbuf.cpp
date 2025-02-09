@@ -3,7 +3,7 @@
 using namespace Bind;
 TransformCbuf::TransformCbuf( Graphics& gfx, const Drawable& parent ) : parent( parent )
 {
-    if ( !pVcbuf )
+    if( !pVcbuf )
     {
         pVcbuf = std::make_unique<VertexConstantBuffer<Transforms>>( gfx, 0u );
     }

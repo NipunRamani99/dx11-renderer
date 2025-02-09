@@ -19,6 +19,7 @@ BraceWrapping:
 
 # Insert spaces inside parentheses, e.g. ( foo, bar ).
 SpacesInParentheses: true
+SpaceBeforeParens: false
 
 # Place the asterisk next to the variable rather than the type, e.g. ID3DBlob* ptr.
 PointerAlignment: Left

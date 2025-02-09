@@ -14,7 +14,7 @@ int GDIPlusManager::refCount    = 0;
 
 GDIPlusManager::GDIPlusManager()
 {
-    if ( refCount++ == 0 )
+    if( refCount++ == 0 )
     {
         Gdiplus::GdiplusStartupInput input;
         input.GdiplusVersion           = 1;
@@ -27,7 +27,7 @@ GDIPlusManager::GDIPlusManager()
 GDIPlusManager::~GDIPlusManager()
 {
     --refCount;
-    if ( refCount == 0 )
+    if( refCount == 0 )
     {
         Gdiplus::GdiplusShutdown( token );
     }

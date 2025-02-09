@@ -51,14 +51,14 @@ Window::Window( int width, int height, const char* name ) : width( width ), heig
     wr.right  = wr.left + width;
     wr.top    = 100;
     wr.bottom = wr.top + height;
-    if ( FAILED( AdjustWindowRect( &wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE ) ) )
+    if( FAILED( AdjustWindowRect( &wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE ) ) )
     {
         throw HWND_LAST_EXCEPT();
     };
     // create window & get hwnd
     _hwnd = CreateWindow( WindowClass::GetName(), name, style, CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left,
                           wr.bottom - wr.top, nullptr, nullptr, WindowClass::GetInstance(), this );
-    if ( _hwnd == nullptr )
+    if( _hwnd == nullptr )
     {
         throw HWND_LAST_EXCEPT();
     }
@@ -73,7 +73,7 @@ Window::Window( int width, int height, const char* name ) : width( width ), heig
     Rid.dwFlags     = 0;
     Rid.hwndTarget  = 0;
 
-    if ( RegisterRawInputDevices( &Rid, 1, sizeof( Rid ) ) == FALSE )
+    if( RegisterRawInputDevices( &Rid, 1, sizeof( Rid ) ) == FALSE )
     {
         throw HWND_LAST_EXCEPT();
     }
@@ -89,10 +89,10 @@ std::optional<int> Window::ProcessMessage() noexcept
 {
     MSG msg;
     // while queue has messages, remove and dispatch them (but do not block on empty queue)
-    while ( PeekMessage( &msg, nullptr, 0, 0, PM_REMOVE ) )
+    while( PeekMessage( &msg, nullptr, 0, 0, PM_REMOVE ) )
     {
         // check for quit because peekmessage does not signal this via return val
-        if ( msg.message == WM_QUIT )
+        if( msg.message == WM_QUIT )
         {
             // return optional wrapping int (arg to PostQuitMessage is in wparam) signals quit
             return (int)msg.wParam;
@@ -108,7 +108,7 @@ std::optional<int> Window::ProcessMessage() noexcept
 
 void Window::SetTitle( const std::string& title )
 {
-    if ( SetWindowText( _hwnd, title.c_str() ) == 0 )
+    if( SetWindowText( _hwnd, title.c_str() ) == 0 )
     {
         throw HWND_LAST_EXCEPT();
     }
@@ -116,7 +116,7 @@ void Window::SetTitle( const std::string& title )
 
 Graphics& Window::Gfx()
 {
-    if ( !pGfx )
+    if( !pGfx )
     {
         throw HWND_NO_GFX_EXCEPT();
     }
@@ -145,7 +145,7 @@ void Window::CenterCursorPosition()
 
 LRESULT __stdcall Window::HandleMsgSetup( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) noexcept
 {
-    if ( msg == WM_NCCREATE )
+    if( msg == WM_NCCREATE )
     {
         const CREATESTRUCT* const pCreate = reinterpret_cast<CREATESTRUCT*>( lparam );
         Window* const pwnd                = static_cast<Window*>( pCreate->lpCreateParams );
@@ -171,13 +171,13 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT ms
 LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) noexcept
 {
 
-    if ( ImGui_ImplWin32_WndProcHandler( hwnd, msg, wparam, lparam ) )
+    if( ImGui_ImplWin32_WndProcHandler( hwnd, msg, wparam, lparam ) )
     {
         return true;
     }
     const auto& imio = ImGui::GetIO();
 
-    switch ( msg )
+    switch( msg )
     {
     case WM_CLOSE:
         PostQuitMessage( 0 );
@@ -189,25 +189,25 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
     case WM_KEYDOWN:
     // syskey commands need to be handled to track ALT key (VK_MENU) and F10
     case WM_SYSKEYDOWN:
-        if ( imio.WantCaptureKeyboard )
+        if( imio.WantCaptureKeyboard )
         {
             break;
         }
-        if ( !( lparam & 0x40000000 ) || kbd.AutorepeatIsEnabled() )
+        if( !( lparam & 0x40000000 ) || kbd.AutorepeatIsEnabled() )
         {
             kbd.OnKeyPressed( static_cast<unsigned char>( wparam ) );
         }
         break;
     case WM_KEYUP:
     case WM_SYSKEYUP:
-        if ( imio.WantCaptureKeyboard )
+        if( imio.WantCaptureKeyboard )
         {
             break;
         }
         kbd.OnKeyReleased( static_cast<unsigned char>( wparam ) );
         break;
     case WM_CHAR:
-        if ( imio.WantCaptureKeyboard )
+        if( imio.WantCaptureKeyboard )
         {
             break;
         }
@@ -217,15 +217,15 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
 
         /*************** MOUSE INPUT MESSAGES ***************/
     case WM_MOUSEMOVE: {
-        if ( imio.WantCaptureMouse )
+        if( imio.WantCaptureMouse )
         {
             break;
         }
         const POINTS pt = MAKEPOINTS( lparam );
-        if ( pt.x >= 0 && pt.y >= 0 && pt.x < width && pt.y < height )
+        if( pt.x >= 0 && pt.y >= 0 && pt.x < width && pt.y < height )
         {
             mouse.OnMouseMove( pt.x, pt.y );
-            if ( !mouse.IsInWindow() )
+            if( !mouse.IsInWindow() )
             {
                 SetCapture( hwnd );
                 mouse.OnMouseEnter();
@@ -233,7 +233,7 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
         }
         else
         {
-            if ( wparam & ( MK_LBUTTON | MK_RBUTTON ) )
+            if( wparam & ( MK_LBUTTON | MK_RBUTTON ) )
             {
                 mouse.OnMouseMove( pt.x, pt.y );
             }
@@ -246,7 +246,7 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
         break;
     }
     case WM_LBUTTONDOWN: {
-        if ( imio.WantCaptureMouse )
+        if( imio.WantCaptureMouse )
         {
             break;
         }
@@ -255,14 +255,14 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
         break;
     }
     case WM_LBUTTONUP: {
-        if ( imio.WantCaptureMouse )
+        if( imio.WantCaptureMouse )
         {
             break;
         }
         const POINTS pt = MAKEPOINTS( lparam );
         mouse.OnLeftReleased( pt.x, pt.y );
         // release mouse if outside of window
-        if ( pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height )
+        if( pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height )
         {
             ReleaseCapture();
             mouse.OnMouseLeave();
@@ -270,7 +270,7 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
         break;
     }
     case WM_RBUTTONDOWN: {
-        if ( imio.WantCaptureMouse )
+        if( imio.WantCaptureMouse )
         {
             break;
         }
@@ -279,14 +279,14 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
         break;
     }
     case WM_RBUTTONUP: {
-        if ( imio.WantCaptureMouse )
+        if( imio.WantCaptureMouse )
         {
             break;
         }
         const POINTS pt = MAKEPOINTS( lparam );
         mouse.OnRightReleased( pt.x, pt.y );
         // release mouse if outside of window
-        if ( pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height )
+        if( pt.x < 0 || pt.x >= width || pt.y < 0 || pt.y >= height )
         {
             ReleaseCapture();
             mouse.OnMouseLeave();
@@ -294,7 +294,7 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
         break;
     }
     case WM_MOUSEWHEEL: {
-        if ( imio.WantCaptureMouse )
+        if( imio.WantCaptureMouse )
         {
             break;
         }
@@ -305,7 +305,7 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
     }
     case WM_INPUT: {
         unsigned int size = 0;
-        if ( GetRawInputData( (HRAWINPUT)lparam, RID_INPUT, nullptr, &size, sizeof( RAWINPUTHEADER ) ) == -1 )
+        if( GetRawInputData( (HRAWINPUT)lparam, RID_INPUT, nullptr, &size, sizeof( RAWINPUTHEADER ) ) == -1 )
         {
             // bail if read failed
             OutputDebugString( TEXT( "GetRawInputData failed for some reason !\n" ) );
@@ -313,13 +313,13 @@ LRESULT Window::HandleMsg( HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam ) n
         }
         rawInputBuffer.resize( size );
         char* data = rawInputBuffer.data();
-        if ( GetRawInputData( (HRAWINPUT)lparam, RID_INPUT, data, &size, sizeof( RAWINPUTHEADER ) ) != size )
+        if( GetRawInputData( (HRAWINPUT)lparam, RID_INPUT, data, &size, sizeof( RAWINPUTHEADER ) ) != size )
         {
             OutputDebugString( TEXT( "GetRawInputData does not return correct size !\n" ) );
             break;
         }
         RAWINPUT* raw = (RAWINPUT*)data;
-        if ( raw->header.dwType == RIM_TYPEMOUSE )
+        if( raw->header.dwType == RIM_TYPEMOUSE )
         {
             int x = raw->data.mouse.lLastX;
             int y = raw->data.mouse.lLastY;
@@ -358,7 +358,7 @@ std::string Window::HrException::TranslateErrorCode( HRESULT hr )
     DWORD msgLen   = FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, hr,
         MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), reinterpret_cast<LPSTR>( &errorMsg ), 0, nullptr );
-    if ( msgLen == 0 )
+    if( msgLen == 0 )
     {
         return "Unidentified error code";
     }

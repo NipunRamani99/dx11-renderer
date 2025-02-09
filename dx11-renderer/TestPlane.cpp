@@ -66,7 +66,7 @@ void TestPlane::SpawnControl( Graphics& gfx ) noexcept
     //
     ImGui::Text( "Color" );
     ImGui::SameLine();
-    if ( ImGui::InputFloat4( "##Color Input", (float*)&objectData.color ) )
+    if( ImGui::InputFloat4( "##Color Input", (float*)&objectData.color ) )
     {
         _pPcb->Update( gfx, objectData );
     }
