@@ -125,7 +125,7 @@ class VertexLayout
 
         const D3D11_INPUT_ELEMENT_DESC GetDesc() const
         {
-            switch ( _elementType )
+            switch( _elementType )
             {
             case Position2D:
                 return GenerateDesc<Position2D>( _offset );
@@ -152,7 +152,7 @@ class VertexLayout
 
         const char* GetCode() const noexcept
         {
-            switch ( _elementType )
+            switch( _elementType )
             {
             case Position2D:
                 return Map<Position2D>::code;
@@ -197,9 +197,9 @@ class VertexLayout
 
     template <ElementType elementType> Element& Resolve()
     {
-        for ( auto& e : _elements )
+        for( auto& e : _elements )
         {
-            if ( elementType == e.GetType() )
+            if( elementType == e.GetType() )
             {
                 return e;
             }
@@ -223,7 +223,7 @@ class VertexLayout
     {
         std::vector<D3D11_INPUT_ELEMENT_DESC> layout;
         layout.reserve( _elements.size() );
-        for ( auto e : _elements )
+        for( auto e : _elements )
         {
             layout.push_back( e.GetDesc() );
         }
@@ -233,7 +233,7 @@ class VertexLayout
     const std::string GetCode() const
     {
         std::string code = "";
-        for ( auto e : _elements )
+        for( auto e : _elements )
         {
             code += e.GetCode();
         }
@@ -268,7 +268,7 @@ class Vertex
         const auto& element = _layout.ResolveByIndex( i );
         auto pattr          = _pdata + element.GetOffset();
         auto type           = element.GetType();
-        switch ( type )
+        switch( type )
         {
         case VertexLayout::ElementType::Position3D:
         case VertexLayout::ElementType::Float3Color:
@@ -300,7 +300,7 @@ class Vertex
 
     template <typename Dest, typename Source> void SetAttribute( std::uint8_t* pDest, Source&& val )
     {
-        if constexpr ( std::is_assignable<Source, Dest>::value )
+        if constexpr( std::is_assignable<Source, Dest>::value )
         {
             *reinterpret_cast<Dest*>( pDest ) = val;
         }

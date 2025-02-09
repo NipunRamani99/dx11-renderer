@@ -28,7 +28,7 @@ class Codex
     {
 
         std::string key = T::GenerateUID( std::forward<Args>( args )... );
-        if ( _binds.find( key ) == _binds.end() )
+        if( _binds.find( key ) == _binds.end() )
         {
             std::shared_ptr<T> bindable = std::make_shared<T>( gfx, std::forward<Args>( args )... );
             _binds[key]                 = std::dynamic_pointer_cast<Bindable>( bindable );

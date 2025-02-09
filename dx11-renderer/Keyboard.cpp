@@ -7,7 +7,7 @@ bool Keyboard::KeyIsPressed( unsigned char keycode ) const noexcept
 
 Keyboard::Event Keyboard::ReadKey() noexcept
 {
-    if ( keybuffer.size() > 0u )
+    if( keybuffer.size() > 0u )
     {
         Keyboard::Event e = keybuffer.front();
         keybuffer.pop();
@@ -26,7 +26,7 @@ bool Keyboard::KeyIsEmpty() const noexcept
 
 char Keyboard::ReadChar() noexcept
 {
-    if ( charbuffer.size() > 0u )
+    if( charbuffer.size() > 0u )
     {
         unsigned char charcode = charbuffer.front();
         charbuffer.pop();
@@ -101,7 +101,7 @@ void Keyboard::ClearState() noexcept
 
 template <typename T> void Keyboard::TrimBuffer( std::queue<T>& buffer ) noexcept
 {
-    while ( buffer.size() > bufferSize )
+    while( buffer.size() > bufferSize )
     {
         buffer.pop();
     }

@@ -8,7 +8,7 @@ using namespace Bind;
 void Drawable::Draw( Graphics& gfx ) const noexcept( !IS_DEBUG )
 {
 
-    for ( auto& b : binds )
+    for( auto& b : binds )
     {
         b->Bind( gfx );
     }
@@ -18,7 +18,7 @@ void Drawable::Draw( Graphics& gfx ) const noexcept( !IS_DEBUG )
 
 void Drawable::AddBind( std::shared_ptr<Bindable> bind ) noexcept( !IS_DEBUG )
 {
-    if ( typeid( *bind ) == typeid( IndexBuffer ) )
+    if( typeid( *bind ) == typeid( IndexBuffer ) )
     {
         assert( "Cannot bind IndexBuffer more than one time" && pIndexBuffer == nullptr );
         pIndexBuffer = (IndexBuffer*)bind.get();

@@ -17,7 +17,7 @@ class Blender : public Bindable
   public:
     Blender( Graphics& gfx, bool isBlending, std::optional<float> factors_in ) : _isBlending( isBlending )
     {
-        if ( factors_in )
+        if( factors_in )
         {
             _factors.emplace();
             _factors->fill( factors_in.value() );
@@ -25,7 +25,7 @@ class Blender : public Bindable
 
         D3D11_BLEND_DESC blendDesc = CD3D11_BLEND_DESC{ CD3D11_DEFAULT{} };
         auto& rtBlendDesc          = blendDesc.RenderTarget[0];
-        if ( isBlending )
+        if( isBlending )
         {
             rtBlendDesc.BlendEnable           = TRUE;
             rtBlendDesc.BlendOp               = D3D11_BLEND_OP_ADD;
@@ -34,7 +34,7 @@ class Blender : public Bindable
             rtBlendDesc.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
             rtBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-            if ( _factors )
+            if( _factors )
             {
                 rtBlendDesc.SrcBlend  = D3D11_BLEND_BLEND_FACTOR;
                 rtBlendDesc.DestBlend = D3D11_BLEND_INV_BLEND_FACTOR;
@@ -70,7 +70,7 @@ class Blender : public Bindable
 
     void SetFactors( float factor )
     {
-        if ( _factors )
+        if( _factors )
         {
             _factors->fill( factor );
         }
@@ -78,7 +78,7 @@ class Blender : public Bindable
 
     float GetFactor()
     {
-        if ( _factors )
+        if( _factors )
         {
             return _factors->front();
         }

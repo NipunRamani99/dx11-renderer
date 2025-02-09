@@ -28,7 +28,7 @@ class AABBVisualisation : public Drawable
         auto buf                 = std::move( cube.vertices );
         std::vector<DirectX::XMFLOAT3> vertices;
         vertices.resize( 8 );
-        for ( size_t i = 0; i < buf.Size(); i++ )
+        for( size_t i = 0; i < buf.Size(); i++ )
         {
             vertices[i] = buf[i].Attr<Dvtx::VertexLayout::Position3D>();
         }

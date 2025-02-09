@@ -26,7 +26,7 @@ Mesh::Mesh( Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindabl
 
     AddBind( std::make_shared<Bind::Topology>( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
 
-    for ( auto& pbind : bindables )
+    for( auto& pbind : bindables )
     {
         AddBind( pbind );
     }
@@ -92,11 +92,11 @@ void Node::Draw( Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = Direct
 {
     const auto nodeTransform = DirectX::XMLoadFloat4x4( &_appliedtransform ) *
                                DirectX::XMLoadFloat4x4( &_basetransform ) * accumulatedTransform;
-    for ( auto& pnode : _nodes )
+    for( auto& pnode : _nodes )
     {
         pnode->Draw( gfx, nodeTransform );
     }
-    for ( auto pmesh : _mesh )
+    for( auto pmesh : _mesh )
     {
         pmesh->Draw( gfx, nodeTransform );
     }
@@ -106,11 +106,11 @@ void Node::DrawAABB( Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = Di
 {
     const auto nodeTransform = DirectX::XMLoadFloat4x4( &_appliedtransform ) *
                                DirectX::XMLoadFloat4x4( &_basetransform ) * accumulatedTransform;
-    for ( auto pmesh : _mesh )
+    for( auto pmesh : _mesh )
     {
         pmesh->DrawAABB( gfx, nodeTransform );
     }
-    for ( auto& pnode : _nodes )
+    for( auto& pnode : _nodes )
     {
         pnode->DrawAABB( gfx, nodeTransform );
     }
@@ -119,18 +119,18 @@ void Node::DrawAABB( Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform = Di
 void Node::ShowWindow( Graphics& gfx, Node*& selectedNode, std::string windowName ) const
 {
     int selectedIndex = -1;
-    if ( selectedNode != nullptr )
+    if( selectedNode != nullptr )
     {
         selectedIndex = selectedNode->GetId();
     }
     ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow |
                               ( selectedIndex == GetId() ? ImGuiTreeNodeFlags_Selected : 0 ) |
                               ( _nodes.empty() ? ImGuiTreeNodeFlags_Leaf : 0 );
-    if ( ImGui::TreeNodeEx( (void*)(intptr_t)GetId(), flag, _name.c_str() ) )
+    if( ImGui::TreeNodeEx( (void*)(intptr_t)GetId(), flag, _name.c_str() ) )
     {
         selectedIndex = ImGui::IsItemClicked() ? GetId() : selectedIndex;
         selectedNode  = ImGui::IsItemClicked() ? const_cast<Node*>( this ) : selectedNode;
-        for ( auto& pnode : _nodes )
+        for( auto& pnode : _nodes )
         {
             pnode->ShowWindow( gfx, selectedNode, windowName );
         }
@@ -151,7 +151,7 @@ void Node::IntersectNode( const DirectX::XMMATRIX& accumulatedTransform, const t
                                       DirectX::XMLoadFloat4x4( &_basetransform ) * accumulatedTransform;
 
     // For each Mesh in the Node
-    for ( const auto& pmesh : _mesh )
+    for( const auto& pmesh : _mesh )
     {
         // Get the inverse of the Mesh's world transform
         DirectX::XMMATRIX invTransform = DirectX::XMMatrixInverse( nullptr, nodeTransform );
@@ -176,7 +176,7 @@ void Node::IntersectNode( const DirectX::XMMATRIX& accumulatedTransform, const t
         const tinybvh::BVH& bvh = pmesh->GetBVH();
         bvh.Intersect( rayLocal );
 
-        if ( rayLocal.hit.t < closestHit.t && rayLocal.hit.t > 0 )
+        if( rayLocal.hit.t < closestHit.t && rayLocal.hit.t > 0 )
         {
             // Update closest hit
             closestHit.hit = true;
@@ -201,7 +201,7 @@ void Node::IntersectNode( const DirectX::XMMATRIX& accumulatedTransform, const t
     }
 
     // Recurse into child Nodes
-    for ( const auto& childNode : _nodes )
+    for( const auto& childNode : _nodes )
     {
         childNode->IntersectNode( nodeTransform, rayWorld, closestHit );
     }
@@ -223,10 +223,10 @@ class ModelWindow
     void ShowWindow( Graphics& gfx, std::string windowName, const Node& rootNode )
     {
 
-        if ( ImGui::Begin( windowName.c_str() ) )
+        if( ImGui::Begin( windowName.c_str() ) )
         {
             ImGui::Columns( 2, nullptr, true );
-            if ( ImGui::TreeNodeEx( windowName.c_str() ) )
+            if( ImGui::TreeNodeEx( windowName.c_str() ) )
             {
 
                 rootNode.ShowWindow( gfx, _pselectednode, windowName );
@@ -234,10 +234,10 @@ class ModelWindow
             }
             ImGui::NextColumn();
             selectedIndex = _pselectednode != nullptr ? _pselectednode->GetId() : -1;
-            if ( selectedIndex != -1 )
+            if( selectedIndex != -1 )
             {
                 auto i = transforms.find( selectedIndex );
-                if ( i == transforms.end() )
+                if( i == transforms.end() )
                 {
                     auto transform                = _pselectednode->GetAppliedTransform();
                     DirectX::XMFLOAT3 translation = ChiliDX::ExtractTranslation( transform );
@@ -268,7 +268,7 @@ class ModelWindow
                     : "";
             ImGui::Text( "Shader Used: %s", shaderName.c_str() );
 
-            if ( _pselectednode )
+            if( _pselectednode )
             {
                 _pselectednode->Control( gfx, normalData );
                 _pselectednode->Control( gfx, objectData );
@@ -279,7 +279,7 @@ class ModelWindow
     DirectX::XMMATRIX GetTransformation()
     {
         DirectX::XMMATRIX appliedTransfrom = DirectX::XMMatrixIdentity();
-        if ( selectedIndex > -1 )
+        if( selectedIndex > -1 )
         {
             auto transform   = transforms[selectedIndex];
             appliedTransfrom = DirectX::XMMatrixRotationRollPitchYaw( transform.pitch, transform.yaw, transform.roll ) *
@@ -321,7 +321,7 @@ Model::Model( Graphics& gfx, const std::string modelPath, float scale ) : _asset
                                                                   aiProcess_CalcTangentSpace );
     const size_t last_slash_idx =
         _assetLocation.rfind( '\\' ) != std::string::npos ? _assetLocation.rfind( '\\' ) : _assetLocation.rfind( '/' );
-    if ( std::string::npos != last_slash_idx )
+    if( std::string::npos != last_slash_idx )
     {
         _assetDir = _assetLocation.substr( 0, last_slash_idx );
         _assetDir += "/";
@@ -329,7 +329,7 @@ Model::Model( Graphics& gfx, const std::string modelPath, float scale ) : _asset
 
     _name = "Test";
     _name = _name.empty() ? "Sample Scene" : _name;
-    for ( size_t i = 0; i < pScene->mNumMeshes; i++ )
+    for( size_t i = 0; i < pScene->mNumMeshes; i++ )
     {
         _meshes.push_back( ParseMesh( gfx, *pScene->mMeshes[i], pScene->mMaterials, scale ) );
     }
@@ -340,7 +340,7 @@ Model::Model( Graphics& gfx, const std::string modelPath, float scale ) : _asset
 
 void Model::Draw( Graphics& gfx )
 {
-    if ( auto node = _pwindow->GetSelectedNode() )
+    if( auto node = _pwindow->GetSelectedNode() )
     {
         DirectX::XMMATRIX transform = _pwindow->GetTransformation();
         node->SetAppliedTransform( transform );
@@ -367,11 +367,11 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
     dx::XMFLOAT4 specularColor = { 0.18f, 0.18f, 0.18f, 1.0f };
     dx::XMFLOAT3 materialColor = { 1.0f, 0.0f, 1.0f };
 
-    if ( mesh.mMaterialIndex >= 0 )
+    if( mesh.mMaterialIndex >= 0 )
     {
         aiMaterial* material = materials[mesh.mMaterialIndex];
         aiString texFileName;
-        if ( material->GetTexture( aiTextureType_DIFFUSE, 0, &texFileName ) == aiReturn_SUCCESS )
+        if( material->GetTexture( aiTextureType_DIFFUSE, 0, &texFileName ) == aiReturn_SUCCESS )
         {
             auto tex = Texture::Resolve( gfx, _assetDir + "/" + texFileName.C_Str(), 0u );
             bindables.push_back( tex );
@@ -382,7 +382,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         {
             material->Get( AI_MATKEY_COLOR_DIFFUSE, reinterpret_cast<aiColor3D&>( materialColor ) );
         }
-        if ( material->GetTexture( aiTextureType_SPECULAR, 0, &texFileName ) == aiReturn_SUCCESS )
+        if( material->GetTexture( aiTextureType_SPECULAR, 0, &texFileName ) == aiReturn_SUCCESS )
         {
             auto tex    = Texture::Resolve( gfx, _assetDir + "/" + texFileName.C_Str(), 1u );
             hasGlossMap = tex->HasAlpha();
@@ -393,16 +393,16 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         {
             material->Get( AI_MATKEY_COLOR_SPECULAR, reinterpret_cast<aiColor3D&>( specularColor ) );
         }
-        if ( !hasGlossMap )
+        if( !hasGlossMap )
         {
             material->Get( AI_MATKEY_SHININESS, shininess );
         }
-        if ( material->GetTexture( aiTextureType_NORMALS, 0, &texFileName ) == aiReturn_SUCCESS )
+        if( material->GetTexture( aiTextureType_NORMALS, 0, &texFileName ) == aiReturn_SUCCESS )
         {
             bindables.push_back( Texture::Resolve( gfx, _assetDir + "/" + texFileName.C_Str(), 2u ) );
             hasNormalMap = true;
         }
-        if ( hasDiffuseMap || hasSpecularMap || hasNormalMap )
+        if( hasDiffuseMap || hasSpecularMap || hasNormalMap )
         {
             bindables.push_back( Bind::Sampler::Resolve( gfx, 0u ) );
         }
@@ -412,7 +412,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
     std::vector<tinybvh::bvhvec4> vertices;
     indices.reserve( mesh.mNumFaces * 3 );
     vertices.reserve( mesh.mNumFaces * 3 );
-    for ( unsigned int i = 0; i < mesh.mNumFaces; i++ )
+    for( unsigned int i = 0; i < mesh.mNumFaces; i++ )
     {
         const auto& face = mesh.mFaces[i];
         indices.push_back( face.mIndices[0] );
@@ -430,13 +430,13 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
     std::unique_ptr<tinybvh::BVH> bvh = std::make_unique<tinybvh::BVH>();
     bvh->Build( vertices.data(), mesh.mNumFaces );
     bindables.push_back( IndexBuffer::Resolve( gfx, mesh.mName.C_Str(), indices ) );
-    if ( hasAlpha )
+    if( hasAlpha )
         bindables.push_back( RasterizerState::Resolve( gfx, hasAlpha ) );
 
     Dvtx::VertexLayout layout;
     std::string shaderName = "";
     bindables.push_back( Bind::Blender::Resolve( gfx, false ) );
-    if ( hasDiffuseMap && hasNormalMap && hasSpecularMap )
+    if( hasDiffuseMap && hasNormalMap && hasSpecularMap )
     {
         layout.Append<Dvtx::VertexLayout::Position3D>()
             .Append<Dvtx::VertexLayout::Normal>()
@@ -444,7 +444,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
             .Append<Dvtx::VertexLayout::BiTangent>()
             .Append<Dvtx::VertexLayout::Texture2D>();
         Dvtx::VertexBuffer vbuf( std::move( layout ) );
-        if ( hasAlpha )
+        if( hasAlpha )
         {
             int x = 0;
         }
@@ -460,7 +460,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         aabb.max.y = scale * mesh.mVertices[0].y;
         aabb.max.z = scale * mesh.mVertices[0].z;
 
-        for ( unsigned int i = 0; i < mesh.mNumVertices; i++ )
+        for( unsigned int i = 0; i < mesh.mNumVertices; i++ )
         {
             aabb.min.x = std::min( scale * mesh.mVertices[i].x, scale * aabb.min.x );
             aabb.min.y = std::min( scale * mesh.mVertices[i].y, scale * aabb.min.y );
@@ -493,7 +493,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( PixelConstantBuffer<Node::NormalData>::Resolve( gfx, normalData, 4u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
-    else if ( hasDiffuseMap && hasNormalMap )
+    else if( hasDiffuseMap && hasNormalMap )
     {
         layout.Append<Dvtx::VertexLayout::Position3D>()
             .Append<Dvtx::VertexLayout::Normal>()
@@ -512,7 +512,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         aabb.max.y = scale * mesh.mVertices[0].y;
         aabb.max.z = scale * mesh.mVertices[0].z;
 
-        for ( unsigned int i = 0; i < mesh.mNumVertices; i++ )
+        for( unsigned int i = 0; i < mesh.mNumVertices; i++ )
         {
             aabb.min.x = std::min( scale * mesh.mVertices[i].x, scale * aabb.min.x );
             aabb.min.y = std::min( scale * mesh.mVertices[i].y, scale * aabb.min.y );
@@ -546,7 +546,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
 
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
-    else if ( hasDiffuseMap && hasSpecularMap )
+    else if( hasDiffuseMap && hasSpecularMap )
     {
         layout.Append<Dvtx::VertexLayout::Position3D>()
             .Append<Dvtx::VertexLayout::Normal>()
@@ -563,7 +563,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         aabb.max.y = scale * mesh.mVertices[0].y;
         aabb.max.z = scale * mesh.mVertices[0].z;
 
-        for ( unsigned int i = 0; i < mesh.mNumVertices; i++ )
+        for( unsigned int i = 0; i < mesh.mNumVertices; i++ )
         {
             aabb.min.x = std::min( scale * mesh.mVertices[i].x, scale * aabb.min.x );
             aabb.min.y = std::min( scale * mesh.mVertices[i].y, scale * aabb.min.y );
@@ -589,7 +589,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
-    else if ( hasDiffuseMap )
+    else if( hasDiffuseMap )
     {
         layout.Append<Dvtx::VertexLayout::Position3D>()
             .Append<Dvtx::VertexLayout::Normal>()
@@ -606,7 +606,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         aabb.max.y = scale * mesh.mVertices[0].y;
         aabb.max.z = scale * mesh.mVertices[0].z;
 
-        for ( unsigned int i = 0; i < mesh.mNumVertices; i++ )
+        for( unsigned int i = 0; i < mesh.mNumVertices; i++ )
         {
             aabb.min.x = std::min( scale * mesh.mVertices[i].x, scale * aabb.min.x );
             aabb.min.y = std::min( scale * mesh.mVertices[i].y, scale * aabb.min.y );
@@ -631,7 +631,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
-    else if ( !hasDiffuseMap && !hasSpecularMap && !hasNormalMap )
+    else if( !hasDiffuseMap && !hasSpecularMap && !hasNormalMap )
     {
         layout.Append<Dvtx::VertexLayout::Position3D>().Append<Dvtx::VertexLayout::Normal>();
         Dvtx::VertexBuffer vbuf( std::move( layout ) );
@@ -646,7 +646,7 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         aabb.max.y = scale * mesh.mVertices[0].y;
         aabb.max.z = scale * mesh.mVertices[0].z;
 
-        for ( unsigned int i = 0; i < mesh.mNumVertices; i++ )
+        for( unsigned int i = 0; i < mesh.mNumVertices; i++ )
         {
             aabb.min.x = std::min( scale * mesh.mVertices[i].x, scale * aabb.min.x );
             aabb.min.y = std::min( scale * mesh.mVertices[i].y, scale * aabb.min.y );
@@ -686,7 +686,7 @@ std::unique_ptr<Node> Model::ParseNode( int& nextId, const aiNode& node )
 {
     std::vector<Mesh*> meshes;
 
-    for ( size_t i = 0; i < node.mNumMeshes; i++ )
+    for( size_t i = 0; i < node.mNumMeshes; i++ )
     {
         meshes.push_back( _meshes[node.mMeshes[i]].get() );
     }
@@ -697,7 +697,7 @@ std::unique_ptr<Node> Model::ParseNode( int& nextId, const aiNode& node )
 
     std::unique_ptr<Node> pNode = std::make_unique<Node>( nextId++, name, meshes, matrix );
 
-    for ( size_t i = 0; i < node.mNumChildren; i++ )
+    for( size_t i = 0; i < node.mNumChildren; i++ )
     {
         std::unique_ptr<Node> ch = ParseNode( nextId, *node.mChildren[i] );
         pNode->AddNode( std::move( ch ) );
@@ -719,7 +719,7 @@ IntersectionResult Model::IntersectMesh( const DirectX::XMFLOAT3 rayOriginWorld,
         *reinterpret_cast<tinybvh::bvhvec3*>( const_cast<DirectX::XMFLOAT3*>( &rayDirectionWorld ) );
     tinybvh::Ray ray{ rayOrigin, rayDirection };
     IntersectionResult result;
-    if ( _root )
+    if( _root )
     {
         _root->IntersectNode( DirectX::XMMatrixIdentity(), ray, result );
     }

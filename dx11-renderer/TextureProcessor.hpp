@@ -14,9 +14,9 @@ class TexturePreprocessor
   public:
     template <typename Func> static void TransformSurface( Surface& surf, Func transform )
     {
-        for ( std::size_t x = 0; x < surf.GetWidth(); x++ )
+        for( std::size_t x = 0; x < surf.GetWidth(); x++ )
         {
-            for ( std::size_t y = 0; y < surf.GetHeight(); y++ )
+            for( std::size_t y = 0; y < surf.GetHeight(); y++ )
             {
                 const auto n = ColorToVector( surf.GetPixel( (unsigned int)x, (unsigned int)y ) );
                 surf.PutPixel( (unsigned int)x, (unsigned int)y, VectorToColor( transform( n, x, y ) ) );
@@ -53,11 +53,11 @@ class TexturePreprocessor
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile( pathModel, 0 );
         std::string assetDir = std::filesystem::path{ pathModel }.parent_path().string();
-        for ( size_t i = 0; i < scene->mNumMaterials; i++ )
+        for( size_t i = 0; i < scene->mNumMaterials; i++ )
         {
             const aiMaterial* mat = scene->mMaterials[i];
             aiString fileName;
-            if ( mat->GetTexture( aiTextureType::aiTextureType_NORMALS, 0, &fileName ) == aiReturn_SUCCESS )
+            if( mat->GetTexture( aiTextureType::aiTextureType_NORMALS, 0, &fileName ) == aiReturn_SUCCESS )
             {
                 RotateXAxis180( assetDir + "/" + fileName.C_Str() );
             }
@@ -74,7 +74,7 @@ class TexturePreprocessor
                                                                        std::size_t y ) -> XMVECTOR {
             const float len = XMVectorGetX( XMVector3Length( n ) );
             const float z   = XMVectorGetZ( n );
-            if ( len < thresholdMin || len > thresholdMax )
+            if( len < thresholdMin || len > thresholdMax )
             {
                 XMFLOAT3 vec;
                 XMStoreFloat3( &vec, n );
@@ -83,7 +83,7 @@ class TexturePreprocessor
                     << vec.y << "," << vec.z << ")\n";
                 OutputDebugStringA( oss.str().c_str() );
             }
-            if ( z < 0.0f )
+            if( z < 0.0f )
             {
                 XMFLOAT3 vec;
                 XMStoreFloat3( &vec, n );

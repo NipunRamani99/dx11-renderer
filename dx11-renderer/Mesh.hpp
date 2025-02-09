@@ -109,13 +109,13 @@ class Node
     template <typename T> bool Control( Graphics& gfx, T& c )
     {
         bool retn = false;
-        if ( _mesh.empty() )
+        if( _mesh.empty() )
         {
             return false;
         }
-        if constexpr ( std::is_same<T, NormalData>::value )
+        if constexpr( std::is_same<T, NormalData>::value )
         {
-            if ( Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>() )
+            if( Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>() )
             {
                 ImGui::Text( "Material" );
                 bool hasNormalMap = (bool)c.hasNormalMap;
@@ -129,9 +129,9 @@ class Node
                 retn = true;
             }
         }
-        if constexpr ( std::is_same<T, ObjectData>::value )
+        if constexpr( std::is_same<T, ObjectData>::value )
         {
-            if ( Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>() )
+            if( Bind::PixelConstantBuffer<T>* pcb = _mesh.front()->QueryBindable<Bind::PixelConstantBuffer<T>>() )
             {
                 ImGui::Text( "Material" );
 

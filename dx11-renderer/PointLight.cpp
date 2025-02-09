@@ -8,7 +8,7 @@ PointLight::PointLight( Graphics& gfx, float radius ) : mesh( gfx, radius ), cbu
 
 void PointLight::SpawnControlWindow() noexcept
 {
-    if ( ImGui::Begin( "Light" ) )
+    if( ImGui::Begin( "Light" ) )
     {
         ImGui::Text( "Position" );
         ImGui::SliderFloat( "X", &_pos.x, -60.0f, 60.0f, "%.1f" );
@@ -37,7 +37,7 @@ void PointLight::SpawnControlWindow() noexcept
         ImGui::Checkbox( "Render Normals", &renderNormal );
         cbdata.renderNormals = renderNormal ? TRUE : FALSE;
 
-        if ( ImGui::Button( "Reset" ) )
+        if( ImGui::Button( "Reset" ) )
         {
             Reset();
         }

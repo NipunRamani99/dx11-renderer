@@ -206,7 +206,7 @@ std::string WindowsMessageMap::operator()( DWORD msg, LPARAM lp, WPARAM wp ) con
     const auto i                = msg_map.find( msg );
 
     std::ostringstream oss;
-    if ( i != msg_map.end() )
+    if( i != msg_map.end() )
     {
         oss << std::left << std::setw( firstColWidth ) << i->second << std::right;
     }

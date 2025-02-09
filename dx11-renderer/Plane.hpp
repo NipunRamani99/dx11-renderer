@@ -29,11 +29,11 @@ class Plane
             const float divisionSize_x_tc = 1.0f / float( divisions_x );
             const float divisionSize_y_tc = 1.0f / float( divisions_y );
 
-            for ( int y = 0, i = 0; y < nVertices_y; y++ )
+            for( int y = 0, i = 0; y < nVertices_y; y++ )
             {
                 const float y_pos    = float( y ) * divisionSize_y - side_y;
                 const float y_pos_tc = 1.0f - float( y ) * divisionSize_y_tc;
-                for ( int x = 0; x < nVertices_x; x++, i++ )
+                for( int x = 0; x < nVertices_x; x++, i++ )
                 {
                     const float x_pos    = float( x ) * divisionSize_x - side_x;
                     const float x_pos_tc = float( x ) * divisionSize_x_tc;
@@ -48,9 +48,9 @@ class Plane
         indices.reserve( sq( divisions_x * divisions_y ) * 6 );
         {
             const auto vxy2i = [nVertices_x]( size_t x, size_t y ) { return (unsigned short)( y * nVertices_x + x ); };
-            for ( size_t y = 0; y < divisions_y; y++ )
+            for( size_t y = 0; y < divisions_y; y++ )
             {
-                for ( size_t x = 0; x < divisions_x; x++ )
+                for( size_t x = 0; x < divisions_x; x++ )
                 {
                     const std::array<unsigned short, 4> indexArray = { vxy2i( x, y ), vxy2i( x + 1, y ),
                                                                        vxy2i( x, y + 1 ), vxy2i( x + 1, y + 1 ) };

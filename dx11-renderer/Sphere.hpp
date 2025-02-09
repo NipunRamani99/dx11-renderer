@@ -19,10 +19,10 @@ class Sphere
         const float longitudeAngle = 2.0f * PI / longDiv;
         Dvtx::VertexBuffer vbuf( layout );
 
-        for ( int iLat = 1; iLat < latDiv; iLat++ )
+        for( int iLat = 1; iLat < latDiv; iLat++ )
         {
             const auto latBase = dx::XMVector3Transform( base, dx::XMMatrixRotationX( lattitudeAngle * iLat ) );
-            for ( int iLong = 0; iLong < longDiv; iLong++ )
+            for( int iLong = 0; iLong < longDiv; iLong++ )
             {
                 dx::XMFLOAT3 pos;
                 auto v = dx::XMVector3Transform( latBase, dx::XMMatrixRotationZ( longitudeAngle * iLong ) );
@@ -44,9 +44,9 @@ class Sphere
             return iLat * longDiv + iLong;
         };
         std::vector<unsigned short> indices;
-        for ( unsigned short iLat = 0; iLat < latDiv - 2; iLat++ )
+        for( unsigned short iLat = 0; iLat < latDiv - 2; iLat++ )
         {
-            for ( unsigned short iLong = 0; iLong < longDiv - 1; iLong++ )
+            for( unsigned short iLong = 0; iLong < longDiv - 1; iLong++ )
             {
                 indices.push_back( calcIdx( iLat, iLong ) );
                 indices.push_back( calcIdx( iLat + 1, iLong ) );
@@ -65,7 +65,7 @@ class Sphere
         }
 
         // cap fans
-        for ( unsigned short iLong = 0; iLong < longDiv - 1; iLong++ )
+        for( unsigned short iLong = 0; iLong < longDiv - 1; iLong++ )
         {
             // north
             indices.push_back( iNorthPole );

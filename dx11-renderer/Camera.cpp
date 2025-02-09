@@ -22,7 +22,7 @@ DirectX::XMFLOAT3 Camera::GetPos() const noexcept
 
 void Camera::SpawnControl() noexcept
 {
-    if ( ImGui::Begin( "Camera" ) )
+    if( ImGui::Begin( "Camera" ) )
     {
         ImGui::Text( "Position" );
         ImGui::SliderFloat( "R", &r, 0.0f, 80.0f, "%.1f" );
@@ -32,7 +32,7 @@ void Camera::SpawnControl() noexcept
         ImGui::SliderAngle( "Roll", &roll, -180.0f, 180.0f );
         ImGui::SliderAngle( "Pitch", &pitch, -180.0f, 180.0f );
         ImGui::SliderAngle( "Yaw", &yaw, -180.0f, 180.0f );
-        if ( ImGui::Button( "Reset" ) )
+        if( ImGui::Button( "Reset" ) )
         {
             Reset();
         }

@@ -18,7 +18,7 @@ App::App( std::string commandLine )
     : roFloat{ 0.0f, 0.0f, 0.0f }, rdFloat{ 0.0f, 0.0f, 0.0f }, imgui(),
       wnd( SCREEN_WIDTH, SCREEN_HEIGHT, "DX11 Renderer" ), light( wnd.Gfx() ), _commandLine( commandLine )
 {
-    if ( this->_commandLine != "" )
+    if( this->_commandLine != "" )
     {
         int nArgs;
         const auto pLineW = GetCommandLineW();
@@ -27,14 +27,14 @@ App::App( std::string commandLine )
 // MSVC please
 #pragma warning( push )
 #pragma warning( disable : 4244 )
-        if ( nArgs >= 3 && std::wstring( pArgs[1] ) == L"--twerk-objnorm" )
+        if( nArgs >= 3 && std::wstring( pArgs[1] ) == L"--twerk-objnorm" )
         {
             const std::wstring pathInWide = pArgs[2];
             TexturePreprocessor::FlipYAllNormalMapsInObj( std::string( pathInWide.begin(), pathInWide.end() ) );
             throw std::runtime_error(
                 "Normal maps all processed successfully. Just kidding about that whole runtime error thing." );
         }
-        else if ( nArgs >= 3 && std::wstring( pArgs[1] ) == L"--twerk-flipy" )
+        else if( nArgs >= 3 && std::wstring( pArgs[1] ) == L"--twerk-flipy" )
         {
             const std::wstring pathInWide  = pArgs[2];
             const std::wstring pathOutWide = pArgs[3];
@@ -74,46 +74,46 @@ int App::Go()
     prevMouseX   = (float)center.x;
     prevMouseY   = (float)center.y;
 
-    while ( keepRunning )
+    while( keepRunning )
     {
-        if ( auto ecode = wnd.ProcessMessage() )
+        if( auto ecode = wnd.ProcessMessage() )
         {
             return *ecode;
         }
-        if ( !_showCursor )
+        if( !_showCursor )
         {
             wnd.CenterCursorPosition();
 
             // Handle input for strafing (left/right)
-            if ( wnd.kbd.KeyIsPressed( 'A' ) )
+            if( wnd.kbd.KeyIsPressed( 'A' ) )
             {
                 _fpsCam.Translate( { 1.0f, 0.0f, 0.0f } );
             }
-            if ( wnd.kbd.KeyIsPressed( 'D' ) )
+            if( wnd.kbd.KeyIsPressed( 'D' ) )
             {
                 _fpsCam.Translate( { -1.0f, 0.0f, 0.0f } );
             }
 
-            if ( wnd.kbd.KeyIsPressed( 'W' ) )
+            if( wnd.kbd.KeyIsPressed( 'W' ) )
             {
                 _fpsCam.Translate( { 0.0f, 0.0f, 1.0f } );
             }
-            if ( wnd.kbd.KeyIsPressed( 'S' ) )
+            if( wnd.kbd.KeyIsPressed( 'S' ) )
             {
                 _fpsCam.Translate( { 0.0f, 0.0f, -1.0f } );
             }
         }
         float currentMouseX = float( wnd.mouse.GetPosX() );
         float currentMouseY = float( wnd.mouse.GetPosY() );
-        while ( auto event = wnd.mouse.ReadRaw() )
+        while( auto event = wnd.mouse.ReadRaw() )
         {
             float deltaX = (float)event->GetDeltaX();
             float deltaY = (float)event->GetDeltaY();
 
-            if ( !_showCursor )
+            if( !_showCursor )
                 _fpsCam.Update( -deltaX, -deltaY );
         }
-        if ( _showCursor && wnd.mouse.LeftIsPressed() )
+        if( _showCursor && wnd.mouse.LeftIsPressed() )
         {
             roFloat                   = { currentMouseX, currentMouseY, 0.0f };
             rdFloat                   = { currentMouseX, currentMouseY, 1.0f };
@@ -133,17 +133,17 @@ int App::Go()
 
         DoFrame();
 
-        if ( wnd.kbd.KeyIsPressed( VK_ESCAPE ) )
+        if( wnd.kbd.KeyIsPressed( VK_ESCAPE ) )
         {
             keepRunning = false;
         }
-        if ( wnd.kbd.KeyIsPressed( 'K' ) )
+        if( wnd.kbd.KeyIsPressed( 'K' ) )
         {
-            if ( canToggle )
+            if( canToggle )
             {
                 _showCursor = !_showCursor;
                 ShowCursor( _showCursor ? TRUE : FALSE );
-                if ( _showCursor )
+                if( _showCursor )
                     ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
                 else
                     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
@@ -163,7 +163,7 @@ void App::DoFrame()
     static float angle = 0.0f;
     const float c      = 0.0f;
     wnd.Gfx().SetCamera( _fpsCam.GetMatrix() );
-    if ( wnd.kbd.KeyIsPressed( VK_SPACE ) )
+    if( wnd.kbd.KeyIsPressed( VK_SPACE ) )
     {
         wnd.Gfx().DisableImgui();
     }
@@ -194,11 +194,11 @@ void App::DoFrame()
     plane2->Draw( wnd.Gfx() );
     plane2->SpawnControl( wnd.Gfx() );
 
-    if ( wnd.Gfx().IsImguiEnabled() )
+    if( wnd.Gfx().IsImguiEnabled() )
     {
 
         // imgui window to control simulation speed
-        if ( ImGui::Begin( "Simulation Speed" ) )
+        if( ImGui::Begin( "Simulation Speed" ) )
         {
             ImGui::SliderFloat( "Speed Factor", &speed_factor, 0.0f, 4.0f );
             ImGui::Text( "%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate );
