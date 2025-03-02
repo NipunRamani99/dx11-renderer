@@ -12,8 +12,18 @@
 #include <shellapi.h>
 #include "TextureProcessor.hpp"
 #include <iostream>
+#include "DynamicConstantBuffer.hpp"
 GDIPlusManager gdipm;
 
+bool operator==( DirectX::XMFLOAT3& lhs, DirectX::XMFLOAT3& rhs )
+{
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+}
+std::ostream& operator<<( std::ostream& ostream, DirectX::XMFLOAT3& rhs )
+{
+    ostream << "x: " << rhs.x << " y: " << rhs.y << " z: " << rhs.z;
+    return ostream;
+}
 App::App( std::string commandLine )
     : roFloat{ 0.0f, 0.0f, 0.0f }, rdFloat{ 0.0f, 0.0f, 0.0f }, imgui(),
       wnd( SCREEN_WIDTH, SCREEN_HEIGHT, "DX11 Renderer" ), light( wnd.Gfx() ), _commandLine( commandLine )
@@ -66,6 +76,43 @@ App::App( std::string commandLine )
     wnd.Gfx().SetProjection( projection );
 
     sponza = std::make_unique<Model>( wnd.Gfx(), "./models/Sponza/Sponza.obj", 1.0f / 20.0f );
+
+    DirectX::XMFLOAT3 rhs  = { 69.0f, 42.0f, 1337.0f };
+    DirectX::XMFLOAT3 rhs2 = { 69.0f, 42.0f, 1337.0f };
+
+    Dcb::RawLayout s;
+    s.Add<Dcb::Float3>( "f1" );
+    s.Add<Dcb::Float3>( "f2" );
+    s.Add<Dcb::Struct>( "s2" );
+    s["s2"].Add<Dcb::Float3>( "f3" );
+    s.Add<Dcb::Array>( "a1" );
+    s["a1"].Set<Dcb::Float3>( 100 );
+    std::string signature = s.GetSignature();
+    Dcb::Buffer buff( std::move(s) );
+    buff["f1"]               = rhs;
+    buff["f2"]               = rhs2;
+    buff["s2"]["f3"]         = rhs2;
+    buff["a1"][size_t( 0 )]  = rhs;
+    buff["a1"][size_t( 2 )]  = rhs;
+    buff["a1"][size_t( 99 )] = rhs;
+
+    DirectX::XMFLOAT3 lhs    = buff["f1"];
+    DirectX::XMFLOAT3 lhs2   = buff["f2"];
+    DirectX::XMFLOAT3 lhs3   = buff["s2"]["f3"];
+    DirectX::XMFLOAT3 lhs4   = buff["a1"][size_t( 0 )];
+    DirectX::XMFLOAT3 lhs5   = buff["a1"][size_t( 99 )];
+
+    assert( lhs == rhs && "Round Trip failed" );
+    assert( lhs2 == rhs2 && "Round Trip failed" );
+    assert( lhs3 == rhs && "Round Trip failed" );
+    assert( lhs4 == rhs && "Round Trip failed" );
+    assert( lhs5 == rhs && "Round Trip failed" );
+
+    std::cout << lhs << "\n";
+    std::cout << lhs2 << "\n";
+    std::cout << lhs3 << "\n";
+    std::cout << lhs4 << "\n";
+    std::cout << lhs5 << "\n";
 }
 
 int App::Go()

@@ -1,5 +1,8 @@
 #include "TestPlane.hpp"
 #include "imgui\imgui.h"
+#include "ConstantBufferEx.hpp"
+#include "DynamicConstantBuffer.hpp"
+
 TestPlane::TestPlane( Graphics& gfx, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT4 color, std::string name, float scale )
     : _name( name )
 {
@@ -19,8 +22,12 @@ TestPlane::TestPlane( Graphics& gfx, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT4 co
     AddBind( Bind::RasterizerState::Resolve( gfx, true ) );
     _pos             = pos;
     objectData.color = color;
-    _pPcb            = std::make_shared<Bind::PixelConstantBuffer<ObjectData>>( gfx, objectData, 0u );
-    AddBind( _pPcb );
+    Dcb::RawLayout rawLayout;
+    rawLayout.Add<Dcb::Float4>( "color" );
+    buffer               = std::make_shared<Dcb::Buffer>( std::move( rawLayout ) );
+    ( *buffer )["color"] = DirectX::XMFLOAT4( 1.0f, 0.0f, 0.0f, 1.0f );
+    _pDcb                = std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, *buffer, 0u );
+    AddBind( _pDcb );
     // AddBind(Bind::PixelConstantBuffer<NormalData>::Resolve(gfx, normalData, 4u));
     AddBind( std::make_shared<Bind::TransformCbufDoubleBoi>( gfx, *this ) );
 }
@@ -66,9 +73,10 @@ void TestPlane::SpawnControl( Graphics& gfx ) noexcept
     //
     ImGui::Text( "Color" );
     ImGui::SameLine();
-    if( ImGui::InputFloat4( "##Color Input", (float*)&objectData.color ) )
+    DirectX::XMFLOAT4* color = &( *buffer )["color"];
+    if( ImGui::InputFloat4( "##Color Input", (float*)color ) )
     {
-        _pPcb->Update( gfx, objectData );
+        _pDcb->Update( gfx, *buffer );
     }
 
     ImGui::End();

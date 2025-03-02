@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -157,6 +157,7 @@
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="DxgiInfoManager.cpp" />
+    <ClCompile Include="DynamicConstantBuffer.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="GDIPlusManager.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -203,13 +204,17 @@
     <ClInclude Include="BindableCodex.hpp" />
     <ClInclude Include="Color.hpp" />
     <ClInclude Include="ConditionalNoexcept.h" />
+    <ClInclude Include="ConstantBufferEx.hpp" />
     <ClInclude Include="ConstantBuffers.hpp" />
     <ClInclude Include="Cube.hpp" />
     <ClInclude Include="Drawable.hpp" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DxgiInfoManager.h" />
+    <ClInclude Include="DynamicConstantBuffer.hpp" />
     <ClInclude Include="FirstPersonCamera.hpp" />
+    <ClInclude Include="LayoutCodex.hpp" />
     <ClInclude Include="RasterizerState.hpp" />
+    <ClInclude Include="Testing.hpp" />
     <ClInclude Include="TextureProcessor.hpp" />
     <ClInclude Include="TaskManager.hpp" />
     <ClInclude Include="Exception.hpp" />

@@ -3,6 +3,7 @@
 #include "BindableCodex.hpp"
 #include "BindableBase.hpp"
 #include "Drawable.hpp"
+#include "ConstantBufferEx.hpp"
 
 class TestPlane : public Drawable
 {
@@ -41,9 +42,9 @@ class TestPlane : public Drawable
         }
     } objectData;
 
-    std::shared_ptr<Bind::PixelConstantBuffer<ObjectData>> _pPcb;
+    std::shared_ptr < Bind::CachingPixelConstantBufferEX > _pDcb;
     std::string _name = "Test Plane";
-
+    std::shared_ptr<Dcb::Buffer> buffer; 
   public:
     TestPlane( Graphics& gfx, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT4 color, std::string name, float scale = 1.0f );
     DirectX::XMMATRIX GetTransformXM() const noexcept override;

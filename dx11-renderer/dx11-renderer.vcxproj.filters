@@ -168,6 +168,9 @@
     <ClCompile Include="TestPlane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DynamicConstantBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowMessageMap.hpp">
@@ -356,6 +359,18 @@
     <ClInclude Include="Blender.hpp">
       <Filter>Header Files\Graphics\Bindable</Filter>
     </ClInclude>
+    <ClInclude Include="DynamicConstantBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutCodex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Testing.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferEx.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">
@@ -377,6 +392,8 @@
     <None Include="DXTrace.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="..\.clang-format" />
+    <None Include="..\.clang-format-ignore" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PhongVS.hlsl">

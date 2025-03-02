@@ -150,7 +150,7 @@ class VertexLayout
             return { "INVALID", 0, DXGI_FORMAT_UNKNOWN, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
         }
 
-        const char* GetCode() const noexcept
+        const char* GetCode() const noexcept(!_DEBUG)
         {
             switch( _elementType )
             {

@@ -8,7 +8,9 @@
 #include "ChiliDX.hpp"
 #include "Blender.hpp"
 #include "RasterizerState.hpp"
+#include "ConstantBufferEx.hpp"
 #include <vector>
+#include <stdexcept>
 
 Mesh::Mesh( Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh,
             std::vector<tinybvh::bvhvec4>& vertices, const AABB& aabb, std::string name, std::string shaderName )
@@ -216,6 +218,24 @@ int Node::GetId() const
 {
     return id;
 }
+
+const Dcb::Buffer* Node::GetMaterialConstants() const noxnd
+{
+    if( _mesh.size() == 0 )
+    {
+        return nullptr;
+    }
+    auto pBindable = _mesh.front()->QueryBindable<Bind::CachingPixelConstantBufferEX>();
+    return &pBindable->GetBuffer();
+}
+
+void Node::SetMaterialConstants( const Dcb::Buffer& buf_in ) noxnd
+{
+    auto pcb = _mesh.front()->QueryBindable<Bind::CachingPixelConstantBufferEX>();
+    assert( pcb != nullptr );
+    pcb->SetBuffer( buf_in );
+}
+
 class ModelWindow
 {
   public:
@@ -268,11 +288,11 @@ class ModelWindow
                     : "";
             ImGui::Text( "Shader Used: %s", shaderName.c_str() );
 
-            if( _pselectednode )
-            {
-                _pselectednode->Control( gfx, normalData );
-                _pselectednode->Control( gfx, objectData );
-            }
+            // if( _pselectednode )
+            //{
+            //     _pselectednode->Control( gfx, normalData );
+            //     _pselectednode->Control( gfx, objectData );
+            // }
         }
         ImGui::End();
     }
@@ -482,15 +502,34 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         auto vsbc = vs->GetBytecode();
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
+    	
+        Dcb::RawLayout objectDataLayout;
+        objectDataLayout.Add<Dcb::Float3>( "material" );
+        objectDataLayout.Add<Dcb::Float>( "specularIntensity" );
+        objectDataLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf             = Dcb::Buffer( std::move( objectDataLayout ) );
+        buf["material"]      = DirectX::XMFLOAT3{ 1.0f, 0.2f, 0.1f };
+        buf["specularPower"] = shininess;
+        buf["specularIntensity"] = 0.60f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
 
-        Node::ObjectData objectData;
-        objectData.material      = { 1.0f, 0.2f, 0.1f };
-        objectData.specularPower = shininess;
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
-        Node::NormalData normalData;
-        normalData.hasGloss      = hasGlossMap ? TRUE : FALSE;
-        normalData.specularColor = DirectX::XMFLOAT3( specularColor.x, specularColor.y, specularColor.z );
-        bindables.push_back( PixelConstantBuffer<Node::NormalData>::Resolve( gfx, normalData, 4u ) );
+		Dcb::RawLayout normalDataLayout;
+        normalDataLayout.Add<Dcb::Bool>( "hasNormalMap" );
+        normalDataLayout.Add<Dcb::Bool>( "hasSpecularMap" );
+        normalDataLayout.Add<Dcb::Bool>( "negateXandY" );
+        normalDataLayout.Add<Dcb::Bool>( "hasGloss" );
+        normalDataLayout.Add<Dcb::Float3>( "specularColor" );
+        normalDataLayout.Add<Dcb::Float>( "specularMapWeight" );
+
+        auto buf2 = Dcb::Buffer( std::move( normalDataLayout ) );
+        buf2["hasNormalMap"] = hasNormalMap;
+        buf2["hasSpecularMap"] = hasSpecularMap;
+        buf2["negateXandY"]    = false;
+        buf2["hasGloss"]     = hasGlossMap;
+        buf2["specularColor"] = DirectX::XMFLOAT3( specularColor.x, specularColor.y, specularColor.z );
+        buf2["specularMapWeight"] = 1.0f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf2, 4u ) );
+
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
     else if( hasDiffuseMap && hasNormalMap )
@@ -535,15 +574,32 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
 
-        Node::ObjectData objectData;
-        objectData.material = { 1.0f, 0.2f, 0.1f };
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+        Dcb::RawLayout objectDataLayout;
+        objectDataLayout.Add<Dcb::Float3>( "material" );
+        objectDataLayout.Add<Dcb::Float>( "specularIntensity" );
+        objectDataLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf             = Dcb::Buffer( std::move( objectDataLayout ) );
+        buf["material"]      = DirectX::XMFLOAT3{ 1.0f, 0.2f, 0.1f };
+        buf["specularPower"] = 120.0f;
+        buf["specularIntensity"] = 0.60f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
 
-        Node::NormalData normalData;
-        normalData.hasNormalMap = hasNormalMap;
-
-        bindables.push_back( PixelConstantBuffer<Node::NormalData>::Resolve( gfx, normalData, 4u ) );
-
+        
+        Dcb::RawLayout normalDataLayout;
+        normalDataLayout.Add<Dcb::Bool>( "hasNormalMap" );
+        normalDataLayout.Add<Dcb::Bool>( "hasSpecularMap" );
+        normalDataLayout.Add<Dcb::Bool>( "negateXandY" );
+        normalDataLayout.Add<Dcb::Bool>( "hasGloss" );
+        normalDataLayout.Add<Dcb::Float3>( "specularColor" );
+        normalDataLayout.Add<Dcb::Float>( "specularMapWeight" );
+        auto buf2 = Dcb::Buffer( std::move( normalDataLayout ) );
+        buf2["hasNormalMap"] = hasNormalMap;
+        buf2["hasSpecularMap"] = hasSpecularMap;
+        buf2["negateXandY"]    = false;
+        buf2["hasGloss"]     = hasGlossMap;
+        buf2["specularColor"] = DirectX::XMFLOAT3(  0.75f, 0.75f, 0.75f  );
+        buf2["specularMapWeight"] = 1.0f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf2, 4u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
     else if( hasDiffuseMap && hasSpecularMap )
@@ -584,9 +640,16 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
 
-        Node::ObjectData objectData;
-        objectData.material = { 1.0f, 0.2f, 0.1f };
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+        
+        Dcb::RawLayout objectDataLayout;
+        objectDataLayout.Add<Dcb::Float3>( "material" );
+        objectDataLayout.Add<Dcb::Float>( "specularIntensity" );
+        objectDataLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf             = Dcb::Buffer( std::move( objectDataLayout ) );
+        buf["material"]      = DirectX::XMFLOAT3{ 1.0f, 0.2f, 0.1f };
+        buf["specularPower"] = 120.0f;
+        buf["specularIntensity"] = 0.60f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
     else if( hasDiffuseMap )
@@ -626,9 +689,15 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         auto vsbc = vs->GetBytecode();
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
-        Node::ObjectData objectData;
-        objectData.material = { 1.0f, 0.2f, 0.1f };
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+        Dcb::RawLayout objectDataLayout;
+        objectDataLayout.Add<Dcb::Float3>( "material" );
+        objectDataLayout.Add<Dcb::Float>( "specularIntensity" );
+        objectDataLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf             = Dcb::Buffer( std::move( objectDataLayout ) );
+        buf["material"]      = DirectX::XMFLOAT3{ 1.0f, 0.2f, 0.1f };
+        buf["specularPower"] = 120.0f;
+        buf["specularIntensity"] = 0.60f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
     else if( !hasDiffuseMap && !hasSpecularMap && !hasNormalMap )
@@ -659,10 +728,16 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
                 *reinterpret_cast<dx::XMFLOAT3*>( &mesh.mNormals[i] ) );
         }
         bindables.push_back( VertexBuffer::Resolve( gfx, mesh.mName.C_Str(), vbuf ) );
-        Node::ObjectData objectData;
-        objectData.material      = materialColor;
-        objectData.specularPower = shininess;
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+
+        Dcb::RawLayout objectDataLayout;
+        objectDataLayout.Add<Dcb::Float3>( "material" );
+        objectDataLayout.Add<Dcb::Float>( "specularIntensity" );
+        objectDataLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf             = Dcb::Buffer( std::move( objectDataLayout ) );
+        buf["material"]      = DirectX::XMFLOAT3{ 1.0f, 0.2f, 0.1f };
+        buf["specularPower"]     = shininess;
+        buf["specularIntensity"] = 0.60f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
 
         auto vs   = VertexShader::Resolve( gfx, "PhongVS.cso" );
         auto vsbc = vs->GetBytecode();
