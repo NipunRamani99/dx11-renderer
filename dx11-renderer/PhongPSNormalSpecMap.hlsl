@@ -62,19 +62,6 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
     {
     
         float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
-    
-        if (negateYAndZ)
-        {
-            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-            sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
-            sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
-        }
-        else
-        {
-            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-            sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
-            sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
-        }
         texNorm = MapNormal(sampleNorm, normalView, tangentView, bitangentView, view);
     }
     float3 specularReflectionColor;

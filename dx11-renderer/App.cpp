@@ -266,7 +266,7 @@ void App::DoFrame()
         ImGui::End();
     }
     cam.SpawnControl();
-    light.SpawnControlWindow();
+    light.SpawnControlWindow();  
     wnd.Gfx().EndFrame();
     // angle += 0.001f;
 }

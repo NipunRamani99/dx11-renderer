@@ -394,12 +394,18 @@
     </None>
     <None Include="..\.clang-format" />
     <None Include="..\.clang-format-ignore" />
+    <None Include="LightVectorData.hlsl">
+      <Filter>Shaders\Common</Filter>
+    </None>
+    <None Include="Transform.hlsl">
+      <Filter>Shaders\Common</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PhongVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPS.hlsl">
+    <FxCompile Include="PhongPSNoTex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="SolidPS.hlsl">
@@ -437,6 +443,9 @@
     </FxCompile>
     <FxCompile Include="PhongPSSpecNormMask.hlsl">
       <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PointLight.hlsl">
+      <Filter>Shaders\Common</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

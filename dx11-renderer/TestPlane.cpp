@@ -19,9 +19,8 @@ TestPlane::TestPlane( Graphics& gfx, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT4 co
     AddBind( Bind::Texture::Resolve( gfx, "./models/brick_wall/brick_wall_normal.jpg", 2u ) );
     AddBind( Bind::Sampler::Resolve( gfx, 1u ) );
     AddBind( Bind::Blender::Resolve( gfx, true, 0.5f ) );
-    AddBind( Bind::RasterizerState::Resolve( gfx, true ) );
+    AddBind( Bind::RasterizerState::Resolve( gfx, true ) );  
     _pos             = pos;
-    objectData.color = color;
     Dcb::RawLayout rawLayout;
     rawLayout.Add<Dcb::Float4>( "color" );
     buffer               = std::make_shared<Dcb::Buffer>( std::move( rawLayout ) );

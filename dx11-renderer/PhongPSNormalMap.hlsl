@@ -35,12 +35,7 @@ cbuffer CamData : register(b2)
     float3 camPos = { 0.0, 0.0, 0.0 };
 }
 
-cbuffer CBuf : register(b3)
-{
-    matrix model : packoffset(c0);
-    matrix view : packoffset(c4);
-    matrix projection : packoffset(c8);
-};
+#include "Transform.hlsl"
 
 Texture2D diffuseTex : register(t0);
 Texture2D specTex : register(t1);
@@ -62,19 +57,6 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
     {
     
         float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
-    
-        if (negateYAndZ)
-        {
-            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-            sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
-            sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
-        }
-        else
-        {
-            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-            sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
-            sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
-        }
         texNorm = MapNormal(sampleNorm, normalView, tangentView, bitangentView, view);
     }
     float3 specularReflectionColor;

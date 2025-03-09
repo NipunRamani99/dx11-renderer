@@ -4,11 +4,12 @@ float3 MapNormal(float3 normalSample,
                  float3 bitangentWorld, 
                  matrix viewMatrix)
 {
+    float3 tanNormal = normalSample * 2.0f - 1.0f;
     float3x3 TBN = float3x3(normalize(tangentWorld), normalize(bitangentWorld), normalize(normalWorld));
-    float3 normal = normalize(mul(normalSample, TBN));
+    float3 normal = normalize(mul(tanNormal, TBN));
     return normalize(normal);
 }
-
+ 
 float CalcAttenuate(float distToL,
                     float attLin,
                     float attQuad)
