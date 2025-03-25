@@ -1,33 +1,14 @@
 #include "MatrixOps.hlsl"
 #include "ShaderOps.hlsl"
+#include "LightVectorData.hlsl"
+#include "PointLight.hlsl"
 
-cbuffer LightCBuf : register(b0)
+cbuffer ObjectCBuf : register(b4)
 {
-    float3 viewLightPos;
-    float3 ambient = { 0.05f, 0.05f, 0.05f };
-    float3 diffuseColor = { 1.0f, 1.0f, 1.0f };
-    float diffuseIntensity = 1.0f;
-    float attConst = 1.0f;
-    float attLin = 0.045f;
-    float attQuad = 0.0075f;
-    bool renderNormals = false;
-};
-
-cbuffer ObjectData : register(b1)
-{
-    float3 materialColor = { 0.7, 0.7, 0.5 };
-    float specularIntensity = 0.1f;
-    float specularPower = 1.0f;
-};
-
-cbuffer NormalData : register(b4)
-{
+    float specularIntensity;
+    float specularPower;
     bool normalMapEnabled = true;
-    bool hasSpecularMap = true;
-    bool negateYAndZ = false;
-    bool hasGloss = false;
-    float3 specularColor = float3(1.0f, 0.0f, 1.0f);
-    float specularMapWeight = 0.671f;
+    float padding[1];
 };
 
 cbuffer CamData : register(b2)
@@ -38,44 +19,39 @@ cbuffer CamData : register(b2)
 #include "Transform.hlsl"
 
 Texture2D diffuseTex : register(t0);
-Texture2D specTex : register(t1);
 Texture2D normalTex : register(t2);
 SamplerState texSampler : register(s0);
 
-float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangentView : Tangent, float3 bitangentView : BiTangent, float2 texCoord : TexCoord) : SV_Target
+float4 main(float3 viewFragPos : Position, float3 normalView : Normal, float3 tangentView : Tangent, float3 bitangentView : BiTangent, float2 texCoord : TexCoord) : SV_Target
 {
     float3 texNorm = normalize(normalView);
-    float4 texC = diffuseTex.Sample(texSampler, texCoord);
-#ifdef MASK
-    clip(texC.a < 0.1f ? -1 : 1);
-    if(dot(normalView, viewPos) >= 0.0f)
-    {
-        normalView = -normalView;
-    }
-#endif
+    
+    
     if (normalMapEnabled)
     {
     
         float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
-        texNorm = MapNormal(sampleNorm, normalView, tangentView, bitangentView, view);
+        normalView = MapNormal(sampleNorm, normalView, tangentView, bitangentView, view);
     }
-    float3 specularReflectionColor;
+
+    float4 texC = diffuseTex.Sample(texSampler, texCoord);
     float3 specularPow = specularPower;
-    specularReflectionColor = specularColor;
-	// fragment to light vector data 
-    const float3 vToL = viewLightPos - viewPos;
-    const float distToL = length(vToL);
-    const float3 dirToL = vToL / distToL;
+
+	// fragment to light vector data
+    const LightVectorData lv = CalculateLightVectorData(viewLightPos, viewFragPos);
+
 	// diffuse attenuation
-    const float att = CalcAttenuate(distToL, attLin, attQuad);
+    const float att = CalcAttenuate(lv.distToL, attLin, attQuad);
 
 	// diffuse intensity
-    const float3 diffuse = CalcDiffuse(diffuseColor, dirToL, texNorm, att);
-	
+    const float3 diffuse = CalcDiffuse(diffuseColor, lv.dirToL, normalView, att);
+
     // calculate specular intensity based on angle between viewing vector and reflection vector, narrow with power function
-    const float3 specular = CalcSpecular(specularReflectionColor, specularIntensity, viewPos, viewLightPos, texNorm, specularPower, att);
-    
+    const float3 specular = CalcSpecular(
+        diffuseColor, diffuseIntensity, normalView,
+        lv.vToL, viewFragPos, att, specularPower
+    );
    
     // final color
-    return float4(saturate((diffuse + ambient) * texC.rgb + specular), texC.a);
+    return float4(saturate((diffuse + ambient) * texC.rgb ), texC.a);
 } 

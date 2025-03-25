@@ -432,10 +432,7 @@
     <FxCompile Include="PhongVSTexturedTBN.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTestPlane.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PhongPSNormalSpecMap.hlsl">
+    <FxCompile Include="PhongPSSpecNormMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ShaderOps.hlsl">
@@ -446,6 +443,9 @@
     </FxCompile>
     <FxCompile Include="PointLight.hlsl">
       <Filter>Shaders\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPSNormalMapObject.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

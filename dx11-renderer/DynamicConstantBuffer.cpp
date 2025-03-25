@@ -187,7 +187,7 @@ LayoutElement& LayoutElement::operator[]( const std::string& key ) noxnd
             return elem.second;
     }
     assert( "Could not find element for the given key" );
-    return *this;
+    return GetEmptyElement();
 }
 
 const LayoutElement& LayoutElement::operator[]( const std::string& key ) const noxnd
@@ -201,7 +201,7 @@ const LayoutElement& LayoutElement::operator[]( const std::string& key ) const n
             return elem.second;
     }
     assert( "Could not find element for the given key" );
-    return *this;
+    return GetEmptyElement();
 }
 
 std::pair<size_t, LayoutElement*> LayoutElement::operator[]( const size_t i ) noxnd

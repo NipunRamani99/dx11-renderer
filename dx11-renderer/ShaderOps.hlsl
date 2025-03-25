@@ -25,21 +25,21 @@ float3 CalcDiffuse(float3 diffuseColor,
     return diffuseColor * 1.0f * att * max(0.0f, dot(dirLight, normal));
 }
 
-float3 CalcSpecular(float3 specularColor,
-                    float3 specularIntensity,
-                    float3 viewFragPos,
-                    float3 viewLightPos,
-                    float3 fragNormal,
-                    float specularPower,
-                    float att)
+float3 CalcSpecular(
+    const in float3 specularColor,
+    uniform float specularIntensity,
+    const in float3 viewNormal,
+    const in float3 viewFragToL,
+    const in float3 viewPos,
+    const in float att,
+    const in float specularPower)
 {
-    // Vector to Light
-    const float3 vToL = viewLightPos - viewFragPos;
-    
-    // I forgot
-    const float3 w = fragNormal * dot(vToL, fragNormal);
-    const float3 r = normalize(w * 2.0f - vToL);
-    
-    const float3 specular = att * specularColor * specularIntensity * pow(max(0.0f, dot(-r, normalize(viewFragPos))), specularPower);
-    return specular;
+    // calculate reflected light vector
+    const float3 w = viewNormal * dot(viewFragToL, viewNormal);
+    const float3 r = normalize(w * 2.0f - viewFragToL);
+    // vector from camera to fragment (in view space)
+    const float3 viewCamToFrag = normalize(viewPos);
+    // calculate specular component color based on angle between
+    // viewing vector and reflection vector, narrow with power function
+    return att * specularColor * specularIntensity * pow(max(0.0f, dot(-r, viewCamToFrag)), specularPower);
 }
