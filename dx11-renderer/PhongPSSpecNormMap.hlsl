@@ -13,18 +13,12 @@ cbuffer LightCBuf : register(b0)
     bool renderNormals = false;
 };
 
-cbuffer ObjectData : register(b1)
+cbuffer ObjectCBuf : register(b4)
 {
-    float3 materialColor = { 0.7, 0.7, 0.5 };
     float specularIntensity = 0.1f;
     float specularPower = 1.0f;
-};
-
-cbuffer NormalData : register(b4)
-{
     bool normalMapEnabled = true;
     bool hasSpecularMap = true;
-    bool negateYAndZ = false;
     bool hasGloss = false;
     float3 specularColor = float3(1.0f, 0.0f, 1.0f);
     float specularMapWeight = 0.671f;
@@ -60,21 +54,7 @@ float4 main(float3 viewPos : Position, float3 normalView : Normal, float3 tangen
 #endif
     if (normalMapEnabled)
     {
-    
         float3 sampleNorm = normalTex.Sample(texSampler, texCoord).xyz;
-    
-        if (negateYAndZ)
-        {
-            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-            sampleNorm.y = -sampleNorm.y * 2.0f + 1.0f;
-            sampleNorm.z = -sampleNorm.z * 2.0f + 1.0f;
-        }
-        else
-        {
-            sampleNorm.x = sampleNorm.x * 2.0f - 1.0f;
-            sampleNorm.y = sampleNorm.y * 2.0f - 1.0f;
-            sampleNorm.z = sampleNorm.z * 2.0f - 1.0f;
-        }
         texNorm = MapNormal(sampleNorm, normalView, tangentView, bitangentView, view);
     }
     float3 specularReflectionColor;

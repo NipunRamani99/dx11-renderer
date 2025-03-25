@@ -16,6 +16,10 @@ class PointLight
         float attLin           = 0.045f;
         float attQuad          = 0.0075f;
         BOOL renderNormals     = FALSE;
+
+        static std::string GenerateUID() {
+            return typeid( PointLightCBuf ).name();
+        }
     };
 
     mutable Bind::PixelConstantBuffer<PointLightCBuf> cbuf;

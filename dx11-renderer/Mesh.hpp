@@ -12,7 +12,8 @@
 #include <memory>
 #include <optional>
 #include "imgui\imgui.h"
-
+#include "ConditionalNoexcept.h"
+#include "DynamicConstantBuffer.hpp"
 class Mesh : public Drawable
 {
   private:
@@ -95,6 +96,9 @@ class Node
     void SetAppliedTransform( DirectX::FXMMATRIX appliedTransform );
     void IntersectNode( const DirectX::XMMATRIX& accumulatedTransform, const tinybvh::Ray& rayWorld,
                         IntersectionResult& closestHit );
+
+    const Dcb::Buffer* GetMaterialConstants() const noxnd;
+    void SetMaterialConstants( const Dcb::Buffer& ) noxnd;
     std::string GetName() const;
     int GetId() const;
     const std::vector<Mesh*> GetMeshes() const noexcept

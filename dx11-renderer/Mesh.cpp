@@ -8,7 +8,9 @@
 #include "ChiliDX.hpp"
 #include "Blender.hpp"
 #include "RasterizerState.hpp"
+#include "ConstantBufferEx.hpp"
 #include <vector>
+#include <stdexcept>
 
 Mesh::Mesh( Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>>& bindables, std::unique_ptr<tinybvh::BVH> bvh,
             std::vector<tinybvh::bvhvec4>& vertices, const AABB& aabb, std::string name, std::string shaderName )
@@ -216,6 +218,24 @@ int Node::GetId() const
 {
     return id;
 }
+
+const Dcb::Buffer* Node::GetMaterialConstants() const noxnd
+{
+    if( _mesh.size() == 0 )
+    {
+        return nullptr;
+    }
+    auto pBindable = _mesh.front()->QueryBindable<Bind::CachingPixelConstantBufferEX>();
+    return &pBindable->GetBuffer();
+}
+
+void Node::SetMaterialConstants( const Dcb::Buffer& buf_in ) noxnd
+{
+    auto pcb = _mesh.front()->QueryBindable<Bind::CachingPixelConstantBufferEX>();
+    assert( pcb != nullptr );
+    pcb->SetBuffer( buf_in );
+}
+
 class ModelWindow
 {
   public:
@@ -244,23 +264,83 @@ class ModelWindow
                     DirectX::XMFLOAT3 rotation    = ChiliDX::ExtractPitchYawRoll( transform );
                     DirectX::XMFLOAT3 scale       = ChiliDX::ExtractScale( transform );
 
-                    Pos pos;
-                    pos.x     = translation.x;
-                    pos.y     = translation.y;
-                    pos.z     = translation.z;
-                    pos.pitch = rotation.x;
-                    pos.yaw   = rotation.y;
-                    pos.roll  = rotation.z;
-                    transforms.insert( { selectedIndex, pos } );
+                    TransformParams transformParams;
+                    transformParams.x     = translation.x;
+                    transformParams.y     = translation.y;
+                    transformParams.z     = translation.z;
+                    transformParams.pitch = rotation.x;
+                    transformParams.yaw   = rotation.y;
+                    transformParams.roll  = rotation.z;
+                    auto pMaterialCBuf    = _pselectednode->GetMaterialConstants();
+                    auto buf              = pMaterialCBuf != nullptr ? std::optional<Dcb::Buffer>( *pMaterialCBuf )
+                                                                     : std::optional<Dcb::Buffer>();
+                    std::tie( i, std::ignore ) =
+                        transforms.insert( { selectedIndex, { transformParams, false, std::move( buf ), false } } );
+                }
+                // link imgui control to cached transform params
+                {
+                    auto& transforms = i->second.transformParams;
+
+                    // dirty check
+                    auto& flag        = i->second.transformParamsDirty;
+                    const auto dcheck = [&flag]( bool changed ) { flag = flag || changed; };
+                    ImGui::Text( "Selected Index: %d", selectedIndex );
+                    ImGui::Text( "Position" );
+                    dcheck( ImGui::InputFloat( "Position X", (float*)&transforms.x, 0.1f, 1.0f, "%.3f" ) );
+                    dcheck( ImGui::InputFloat( "Position Y", (float*)&transforms.y, 0.1f, 1.0f, "%.3f" ) );
+                    dcheck( ImGui::InputFloat( "Position Z", (float*)&transforms.z, 0.1f, 1.0f, "%.3f" ) );
+                    ImGui::Text( "Orientation" );
+                    dcheck( ImGui::SliderAngle( "Yaw", (float*)&transforms.yaw, -180.0f, 180.0f ) );
+                    dcheck( ImGui::SliderAngle( "Pitch", (float*)&transforms.pitch, -180.0f, 180.0f ) );
+                    dcheck( ImGui::SliderAngle( "Roll", (float*)&transforms.roll, -180.0f, 180.0f ) );
+                }
+                // link imgui controls to cached material cbuf params
+
+                {
+                    if( i->second.materialCBuf )
+                    {
+                        auto& mat         = *i->second.materialCBuf;
+
+                        auto& dirty       = i->second.materialCbufDirty;
+                        const auto dcheck = [&dirty]( bool changed ) { dirty = dirty || changed; };
+                        ImGui::Text( "Material" );
+                        if( auto v = mat["normalMapEnabled"]; v.Exists() )
+                        {
+                            dcheck( ImGui::Checkbox( "Normal Map", &v ) );
+                        }
+                        if( auto v = mat["specularMapEnabled"]; v.Exists() )
+                        {
+                            dcheck( ImGui::Checkbox( "Spec Map", &v ) );
+                        }
+                        if( auto v = mat["hasGlossMap"]; v.Exists() )
+                        {
+                            dcheck( ImGui::Checkbox( "Gloss Map", &v ) );
+                        }
+                        if( auto v = mat["materialColor"]; v.Exists() )
+                        {
+                            dcheck( ImGui::ColorPicker3(
+                                "Diff Color", reinterpret_cast<float*>( &static_cast<DirectX::XMFLOAT3&>( v ) ) ) );
+                        }
+                        if( auto v = mat["specularPower"]; v.Exists() )
+                        {
+                            dcheck( ImGui::SliderFloat( "Spec Power", &v, 0.0f, 100.0f, "%.1f", 1.5f ) );
+                        }
+                        if( auto v = mat["specularColor"]; v.Exists() )
+                        {
+                            dcheck( ImGui::ColorPicker3(
+                                "Spec Color", reinterpret_cast<float*>( &static_cast<DirectX::XMFLOAT3&>( v ) ) ) );
+                        }
+                        if( auto v = mat["specularMapWeight"]; v.Exists() )
+                        {
+                            dcheck( ImGui::SliderFloat( "Spec Weight", &v, 0.0f, 4.0f ) );
+                        }
+                        if( auto v = mat["specularIntensity"]; v.Exists() )
+                        {
+                            dcheck( ImGui::SliderFloat( "Spec Intens", &v, 0.0f, 1.0f ) );
+                        }
+                    }
                 }
             }
-            ImGui::SliderAngle( "Yaw", (float*)&transforms[selectedIndex].yaw, -180.0f, 180.0f );
-            ImGui::SliderAngle( "Pitch", (float*)&transforms[selectedIndex].pitch, -180.0f, 180.0f );
-            ImGui::SliderAngle( "Roll", (float*)&transforms[selectedIndex].roll, -180.0f, 180.0f );
-            ImGui::InputFloat( "Position X", (float*)&transforms[selectedIndex].x, 0.1f, 1.0f, "%.3f" );
-            ImGui::InputFloat( "Position Y", (float*)&transforms[selectedIndex].y, 0.1f, 1.0f, "%.3f" );
-            ImGui::InputFloat( "Position Z", (float*)&transforms[selectedIndex].z, 0.1f, 1.0f, "%.3f" );
-            ImGui::Text( "Selected Index: %d", selectedIndex );
 
             std::string shaderName =
                 _pselectednode != nullptr
@@ -268,24 +348,13 @@ class ModelWindow
                     : "";
             ImGui::Text( "Shader Used: %s", shaderName.c_str() );
 
-            if( _pselectednode )
-            {
-                _pselectednode->Control( gfx, normalData );
-                _pselectednode->Control( gfx, objectData );
-            }
+            // if( _pselectednode )
+            //{
+            //     _pselectednode->Control( gfx, normalData );
+            //     _pselectednode->Control( gfx, objectData );
+            // }
         }
         ImGui::End();
-    }
-    DirectX::XMMATRIX GetTransformation()
-    {
-        DirectX::XMMATRIX appliedTransfrom = DirectX::XMMatrixIdentity();
-        if( selectedIndex > -1 )
-        {
-            auto transform   = transforms[selectedIndex];
-            appliedTransfrom = DirectX::XMMatrixRotationRollPitchYaw( transform.pitch, transform.yaw, transform.roll ) *
-                               DirectX::XMMatrixTranslation( transform.x, transform.y, transform.z );
-        }
-        return appliedTransfrom;
     }
 
     Node* GetSelectedNode()
@@ -295,9 +364,59 @@ class ModelWindow
 
     ~ModelWindow() = default;
 
+    void ApplyParameters() noxnd
+	{
+		if( TransformDirty() )
+		{
+			_pselectednode->SetAppliedTransform( GetTransform() );
+			ResetTransformDirty();
+		}
+		if( MaterialDirty() )
+		{
+			_pselectednode->SetMaterialConstants( GetMaterial() );
+			ResetMaterialDirty();
+		}
+	}
+
+    const Dcb::Buffer& GetMaterial() const noxnd
+	{
+		assert( _pselectednode != nullptr );
+		const auto& mat = transforms.at( _pselectednode->GetId() ).materialCBuf;
+		assert( mat );
+		return *mat;
+	}
+    DirectX::XMMATRIX GetTransform() const noxnd
+	{
+		assert( _pselectednode != nullptr );
+		const auto& transform = transforms.at( _pselectednode->GetId() ).transformParams;
+		return 
+			DirectX::XMMatrixRotationRollPitchYaw( transform.roll,transform.pitch,transform.yaw ) *
+			DirectX::XMMatrixTranslation( transform.x,transform.y,transform.z );
+	}
+    bool TransformDirty() const noxnd
+	{
+		return _pselectednode && transforms.at( _pselectednode->GetId() ).transformParamsDirty;
+	}
+	void ResetTransformDirty() noxnd
+	{
+		transforms.at( _pselectednode->GetId() ).transformParamsDirty = false;
+	}
+	bool MaterialDirty() const noxnd
+	{
+		return _pselectednode && transforms.at( _pselectednode->GetId() ).materialCbufDirty;
+	}
+	void ResetMaterialDirty() noxnd
+	{
+		transforms.at( _pselectednode->GetId() ).materialCbufDirty = false;
+	}
+	bool IsDirty() const noxnd
+	{
+		return TransformDirty() || MaterialDirty();
+	}
+
   private:
     int selectedIndex = -1;
-    struct Pos
+    struct TransformParams
     {
         float yaw   = 0.0f;
         float roll  = 0.0f;
@@ -306,9 +425,14 @@ class ModelWindow
         float y     = 0.0f;
         float z     = 0.0f;
     };
-    Node::NormalData normalData;
-    Node::ObjectData objectData;
-    std::unordered_map<int, Pos> transforms;
+    struct NodeData
+    {
+        TransformParams transformParams;
+        bool transformParamsDirty;
+        std::optional<Dcb::Buffer> materialCBuf;
+        bool materialCbufDirty;
+    };
+    std::unordered_map<int, NodeData> transforms;
     Node* _pselectednode = nullptr;
 };
 
@@ -340,12 +464,8 @@ Model::Model( Graphics& gfx, const std::string modelPath, float scale ) : _asset
 
 void Model::Draw( Graphics& gfx )
 {
-    if( auto node = _pwindow->GetSelectedNode() )
-    {
-        DirectX::XMMATRIX transform = _pwindow->GetTransformation();
-        node->SetAppliedTransform( transform );
-    }
-    _root->Draw( gfx );
+    _pwindow->ApplyParameters();
+    _root->Draw( gfx, DirectX::XMMatrixIdentity() );
 }
 
 void Model::DrawAABB( Graphics& gfx )
@@ -444,13 +564,10 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
             .Append<Dvtx::VertexLayout::BiTangent>()
             .Append<Dvtx::VertexLayout::Texture2D>();
         Dvtx::VertexBuffer vbuf( std::move( layout ) );
-        if( hasAlpha )
-        {
-            int x = 0;
-        }
         bindables.push_back(
-            PixelShader::Resolve( gfx, hasAlpha ? "PhongPSSpecNormMask.cso" : "PhongPSNormalSpecMap.cso" ) );
-        shaderName = hasAlpha ? "PhongPSSpecNormMask.cso" : "PhongPSNormalSpecMap.cso";
+            PixelShader::Resolve( gfx, hasAlpha ? "PhongPSSpecNormMask.cso" : "PhongPSSpecNormMap.cso" ) );
+
+        shaderName = hasAlpha ? "PhongPSSpecNormMask.cso" : "PhongPSSpecNormMap.cso";
 
         AABB aabb;
         aabb.min.x = scale * mesh.mVertices[0].x;
@@ -483,14 +600,25 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
 
-        Node::ObjectData objectData;
-        objectData.material      = { 1.0f, 0.2f, 0.1f };
-        objectData.specularPower = shininess;
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
-        Node::NormalData normalData;
-        normalData.hasGloss      = hasGlossMap ? TRUE : FALSE;
-        normalData.specularColor = DirectX::XMFLOAT3( specularColor.x, specularColor.y, specularColor.z );
-        bindables.push_back( PixelConstantBuffer<Node::NormalData>::Resolve( gfx, normalData, 4u ) );
+        Dcb::RawLayout constBufLayout;
+        constBufLayout.Add<Dcb::Float>( "specularIntensity" );
+        constBufLayout.Add<Dcb::Float>( "specularPower" );
+        constBufLayout.Add<Dcb::Bool>( "normalMapEnabled" );
+        constBufLayout.Add<Dcb::Bool>( "specularMapEnabled" );
+        constBufLayout.Add<Dcb::Bool>( "hasGloss" );
+        constBufLayout.Add<Dcb::Float3>( "specularColor" );
+        constBufLayout.Add<Dcb::Float>( "specularMapWeight" );
+
+        auto buf                 = Dcb::Buffer( std::move( constBufLayout ) );
+        buf["specularIntensity"] = 0.60f;
+        buf["specularPower"]     = 1.0f;
+        buf["normalMapEnabled"]      = hasNormalMap;
+        buf["specularMapEnabled"]    = hasSpecularMap;
+        buf["hasGloss"]          = hasGlossMap;
+        buf["specularColor"]     = DirectX::XMFLOAT3( specularColor.x, specularColor.y, specularColor.z );
+        buf["specularMapWeight"] = 0.671f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 4u ) );
+
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
     else if( hasDiffuseMap && hasNormalMap )
@@ -535,18 +663,19 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
 
-        Node::ObjectData objectData;
-        objectData.material = { 1.0f, 0.2f, 0.1f };
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+        Dcb::RawLayout constBufLayout;
+        constBufLayout.Add<Dcb::Float>( "specularIntensity" );
+        constBufLayout.Add<Dcb::Float>( "specularPower" );
+        constBufLayout.Add<Dcb::Bool>( "normalMapEnabled" );
+        auto buf                 = Dcb::Buffer( std::move( constBufLayout ) );
+        buf["specularIntensity"] = ( specularColor.x + specularColor.y + specularColor.z ) / 3.0f;
+        buf["specularPower"]     = 1.0f;
+        buf["normalMapEnabled"]  = hasNormalMap;
 
-        Node::NormalData normalData;
-        normalData.hasNormalMap = hasNormalMap;
-
-        bindables.push_back( PixelConstantBuffer<Node::NormalData>::Resolve( gfx, normalData, 4u ) );
-
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 4u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
-    else if( hasDiffuseMap && hasSpecularMap )
+    else if( hasDiffuseMap && !hasNormalMap && hasSpecularMap )
     {
         layout.Append<Dvtx::VertexLayout::Position3D>()
             .Append<Dvtx::VertexLayout::Normal>()
@@ -584,9 +713,16 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
 
-        Node::ObjectData objectData;
-        objectData.material = { 1.0f, 0.2f, 0.1f };
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+        Dcb::RawLayout constBufLayout;
+        constBufLayout.Add<Dcb::Float3>( "material" );
+        constBufLayout.Add<Dcb::Float>( "specularIntensity" );
+        constBufLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf                 = Dcb::Buffer( std::move( constBufLayout ) );
+        buf["material"]          = DirectX::XMFLOAT3{ 1.0f, 0.2f, 0.1f };
+        buf["specularIntensity"] = 0.60f;
+        buf["specularPower"]     = 120.0f;
+
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
     else if( hasDiffuseMap )
@@ -626,9 +762,14 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
         auto vsbc = vs->GetBytecode();
         bindables.push_back( vs );
         bindables.push_back( InputLayout::Resolve( gfx, vbuf.GetVertexLayout(), vsbc ) );
-        Node::ObjectData objectData;
-        objectData.material = { 1.0f, 0.2f, 0.1f };
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+        Dcb::RawLayout constBufLayout;
+        constBufLayout.Add<Dcb::Float>( "specularIntensity" );
+        constBufLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf                 = Dcb::Buffer( std::move( constBufLayout ) );
+        buf["specularPower"]     = 120.0f;
+        buf["specularIntensity"] = 0.60f;
+
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
         return make_unique<Mesh>( gfx, bindables, std::move( bvh ), vertices, aabb, mesh.mName.C_Str(), shaderName );
     }
     else if( !hasDiffuseMap && !hasSpecularMap && !hasNormalMap )
@@ -659,10 +800,16 @@ std::unique_ptr<Mesh> Model::ParseMesh( Graphics& gfx, const aiMesh& mesh, aiMat
                 *reinterpret_cast<dx::XMFLOAT3*>( &mesh.mNormals[i] ) );
         }
         bindables.push_back( VertexBuffer::Resolve( gfx, mesh.mName.C_Str(), vbuf ) );
-        Node::ObjectData objectData;
-        objectData.material      = materialColor;
-        objectData.specularPower = shininess;
-        bindables.push_back( PixelConstantBuffer<Node::ObjectData>::Resolve( gfx, objectData, 1u ) );
+
+        Dcb::RawLayout objectDataLayout;
+        objectDataLayout.Add<Dcb::Float3>( "material" );
+        objectDataLayout.Add<Dcb::Float>( "specularIntensity" );
+        objectDataLayout.Add<Dcb::Float>( "specularPower" );
+        auto buf                 = Dcb::Buffer( std::move( objectDataLayout ) );
+        buf["material"]          = DirectX::XMFLOAT3{ 1.0f, 0.2f, 0.1f };
+        buf["specularPower"]     = shininess;
+        buf["specularIntensity"] = 0.60f;
+        bindables.push_back( std::make_shared<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
 
         auto vs   = VertexShader::Resolve( gfx, "PhongVS.cso" );
         auto vsbc = vs->GetBytecode();

@@ -4,6 +4,7 @@
 #include <type_traits>
 #include "Graphics.hpp"
 #include "Color.hpp"
+#include "ConditionalNoexcept.h"
 namespace Dvtx
 {
 struct BGRAColor
@@ -150,7 +151,7 @@ class VertexLayout
             return { "INVALID", 0, DXGI_FORMAT_UNKNOWN, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
         }
 
-        const char* GetCode() const noexcept
+        const char* GetCode() const noxnd
         {
             switch( _elementType )
             {

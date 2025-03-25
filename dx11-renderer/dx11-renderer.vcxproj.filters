@@ -168,6 +168,9 @@
     <ClCompile Include="TestPlane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DynamicConstantBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowMessageMap.hpp">
@@ -356,6 +359,18 @@
     <ClInclude Include="Blender.hpp">
       <Filter>Header Files\Graphics\Bindable</Filter>
     </ClInclude>
+    <ClInclude Include="DynamicConstantBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutCodex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Testing.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferEx.hpp">
+      <Filter>Header Files\Graphics\Bindable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dx11-renderer.rc">
@@ -377,12 +392,20 @@
     <None Include="DXTrace.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="..\.clang-format" />
+    <None Include="..\.clang-format-ignore" />
+    <None Include="LightVectorData.hlsl">
+      <Filter>Shaders\Common</Filter>
+    </None>
+    <None Include="Transform.hlsl">
+      <Filter>Shaders\Common</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PhongVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPS.hlsl">
+    <FxCompile Include="PhongPSNoTex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="SolidPS.hlsl">
@@ -409,16 +432,19 @@
     <FxCompile Include="PhongVSTexturedTBN.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSTestPlane.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="PhongPSNormalSpecMap.hlsl">
+    <FxCompile Include="PhongPSSpecNormMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ShaderOps.hlsl">
       <Filter>Shaders\Common</Filter>
     </FxCompile>
     <FxCompile Include="PhongPSSpecNormMask.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PointLight.hlsl">
+      <Filter>Shaders\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPSNormalMapObject.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

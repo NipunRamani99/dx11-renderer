@@ -11,11 +11,11 @@ cbuffer LightCBuf : register(b0)
     float attQuad = 0.0075f;
 };
 
-cbuffer ObjectData : register(b1)
+cbuffer ObjectCBuf : register(b1)
 {
-	float3 materialColor = {0.7, 0.7, 0.5};
-	float specularIntensity = 0.1f;
 	float specularPower = 1.0f;
+    float hasGloss = false;
+    float specularMapWeight;
 };
 
 cbuffer CamData : register(b2) {
@@ -23,8 +23,9 @@ cbuffer CamData : register(b2) {
 }
 
 Texture2D diffuseTex : register(t0);
-SamplerState texSampler : register(s0);
 Texture2D specularTex : register(t1);
+SamplerState texSampler : register(s0);
+
 
 float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexCoord) : SV_Target
 {
@@ -39,12 +40,16 @@ float4 main(float3 viewPos : Position, float3 n : Normal, float2 texCoord : TexC
     const float att = CalcAttenuate(distToL, attLin, attQuad);
 	// diffuse intensity
     const float3 diffuse = CalcDiffuse(diffuseColor, dirToL, n, att);
-	
+	float specularPowerLoaded = specularPower;
     const float4 specularSample = specularTex.Sample(texSampler, texCoord);
-    const float3 specularReflectionColor = specularSample.rgb;
-    const float specularPower = pow(2.0f,specularSample.a * 13.0f);
+    if(hasGloss)
+    {
+        specularPowerLoaded = pow(2.0f,specularSample.a * 13.0f);
+    }
+    const float3 specularReflectionColor = specularSample.rgb * specularMapWeight;
     
-    const float3 specular = CalcSpecular(specularReflectionColor, specularIntensity, viewPos, lightPos, n, specularPower, att);
+    
+    const float3 specular = CalcSpecular(specularReflectionColor, 1.0f, viewPos, lightPos, n, specularPowerLoaded, att);
 
 	// final color
     return float4(saturate((diffuse + ambient) * diffuseTex.Sample(texSampler, texCoord).rgb + specular * specularReflectionColor), texC.a);

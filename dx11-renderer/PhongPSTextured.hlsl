@@ -1,18 +1,10 @@
 #include "ShaderOps.hlsl"
-cbuffer LightCBuf : register(b0)
-{
-	float3 viewLightPos;
-    float3 ambient = { 0.05f, 0.05f, 0.05f };
-    float3 diffuseColor = { 1.0f, 1.0f, 1.0f };
-    float diffuseIntensity = 1.0f;
-    float attConst = 1.0f;
-    float attLin = 0.045f;
-    float attQuad = 0.0075f;
-};
+#include "LightVectorData.hlsl"
 
-cbuffer ObjectData : register(b1)
+#include "PointLight.hlsl"
+
+cbuffer ObjectCBuf : register(b1)
 {
-	float3 materialColor = {0.7, 0.7, 0.5};
 	float specularIntensity = 0.1f;
 	float specularPower = 1.0f;
 };

@@ -1,2 +1,2 @@
 #define MASK
-#include "PhongPSNormalSpecMap.hlsl"
+#include "PhongPSSpecNormMap.hlsl"
